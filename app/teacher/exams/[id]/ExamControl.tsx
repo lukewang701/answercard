@@ -138,16 +138,16 @@ export function ExamControl({ exam, initialSubmissions, initialCheckins, classSt
             <TrendingUp size={22} />
             <span style={{ fontWeight: 600, fontSize: '1.1rem' }}>成績總覽</span>
           </div>
-          <div style={{ display: 'grid', gridTemplateRows: 'repeat(4, 1fr)', gap: '0.5rem', flex: 1 }}>
+          <div style={{ display: 'grid', gridTemplateRows: 'repeat(4, 1fr)', gap: '0.4rem', flex: 1, minHeight: 0 }}>
             {[
               { label: '已繳交', value: submissions.length, color: 'var(--primary)' },
               { label: '平均分數', value: average, color: 'var(--foreground)' },
               { label: '最高分', value: highest, color: 'var(--success)' },
               { label: '最低分', value: lowest, color: 'var(--danger)' },
             ].map(({ label, value, color }) => (
-              <div key={label} style={{ flex: 1, backgroundColor: 'var(--background)', borderRadius: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0.5rem' }}>
-                <div style={{ fontSize: '0.9rem', opacity: 0.8, marginBottom: '0.2rem' }}>{label}</div>
-                <div style={{ fontSize: 'clamp(1.5rem, 2.5vw, 2.5rem)', fontWeight: 700, color }}>{value}</div>
+              <div key={label} style={{ backgroundColor: 'var(--background)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.4rem 0.75rem', gap: '0.5rem', minHeight: 0 }}>
+                <div style={{ fontSize: '0.8rem', opacity: 0.75, whiteSpace: 'nowrap' }}>{label}</div>
+                <div style={{ fontSize: 'clamp(1.3rem, 2vw, 2rem)', fontWeight: 700, color, lineHeight: 1 }}>{value}</div>
               </div>
             ))}
           </div>

@@ -197,7 +197,7 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
         </div>
       ) : (
         <div className="custom-scrollbar" style={{ flex: 1, overflowY: 'auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem', alignContent: 'start' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.4rem', alignContent: 'start' }}>
 
             {allStudents.map(st => (
               <div
@@ -206,30 +206,33 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
                   if (st.status === 'submitted') setStudentDetailsTarget(st);
                   else if (st.status === 'checkedin') setRecallTarget(st.checkin);
                 }}
-                className={`card flex flex-col p-3 transition-all ${st.status === 'submitted' ? 'cursor-pointer hover:border-primary/50 hover:shadow-md' : st.status === 'checkedin' ? 'cursor-pointer' : ''}`}
+                className={`transition-all ${st.status === 'submitted' ? 'cursor-pointer' : st.status === 'checkedin' ? 'cursor-pointer' : ''}`}
                 style={{
-                  backgroundColor: st.status === 'submitted' ? 'rgba(34,197,94,0.05)' : 'var(--background)',
-                  borderColor: st.status === 'submitted' ? 'var(--success)' : st.status === 'checkedin' ? 'var(--warning)' : 'var(--border)',
-                  borderWidth: '2px',
-                  opacity: st.status === 'missing' ? 0.6 : 1,
-                  position: 'relative'
+                  backgroundColor: st.status === 'submitted' ? 'rgba(34,197,94,0.08)' : 'var(--background)',
+                  border: `1.5px solid ${st.status === 'submitted' ? 'var(--success)' : st.status === 'checkedin' ? 'var(--warning)' : 'var(--border)'}`,
+                  borderRadius: '6px',
+                  padding: '0.3rem 0.5rem',
+                  opacity: st.status === 'missing' ? 0.55 : 1,
+                  position: 'relative',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.1rem',
+                  minHeight: 0,
                 }}
               >
-                {st.status === 'submitted' && (
-                  <span style={{ position: 'absolute', top: '0.4rem', right: '0.4rem', fontSize: '0.62rem', fontWeight: 700, color: 'var(--success)', background: 'rgba(34,197,94,0.15)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>已繳交</span>
-                )}
-                {st.status === 'checkedin' && (
-                  <span style={{ position: 'absolute', top: '0.4rem', right: '0.4rem', fontSize: '0.62rem', fontWeight: 700, color: 'var(--warning)', background: 'rgba(234,179,8,0.15)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>已領取</span>
-                )}
-                {st.status === 'missing' && (
-                  <span style={{ position: 'absolute', top: '0.4rem', right: '0.4rem', fontSize: '0.62rem', fontWeight: 700, color: 'var(--danger)', background: 'rgba(239,68,68,0.1)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>缺交</span>
-                )}
-                <div style={{ fontSize: '0.7rem', opacity: 0.6, marginBottom: '0.15rem' }}>{st.seatNumber}號</div>
-                <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>{st.name}</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.25rem' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>
+                    <span style={{ opacity: 0.55, fontSize: '0.68rem', marginRight: '0.2rem' }}>{st.seatNumber}</span>
+                    {st.name}
+                  </span>
+                  {st.status === 'submitted' && <span style={{ fontSize: '0.58rem', fontWeight: 700, color: 'var(--success)', background: 'rgba(34,197,94,0.15)', padding: '0.05rem 0.25rem', borderRadius: '3px', flexShrink: 0 }}>繳✓</span>}
+                  {st.status === 'checkedin' && <span style={{ fontSize: '0.58rem', fontWeight: 700, color: 'var(--warning)', background: 'rgba(234,179,8,0.15)', padding: '0.05rem 0.25rem', borderRadius: '3px', flexShrink: 0 }}>領取</span>}
+                  {st.status === 'missing' && <span style={{ fontSize: '0.58rem', fontWeight: 700, color: 'var(--danger)', background: 'rgba(239,68,68,0.1)', padding: '0.05rem 0.25rem', borderRadius: '3px', flexShrink: 0 }}>缺</span>}
+                </div>
                 {showScores && st.submission && (
-                  <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--primary)', marginTop: '0.2rem' }}>
+                  <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--primary)' }}>
                     {st.submission.isLate && st.submission.rawScore != null ? (
-                      <span style={{ fontSize: '0.7rem' }}>
+                      <span style={{ fontSize: '0.68rem' }}>
                         <span style={{ textDecoration: 'line-through', opacity: 0.6 }}>{Math.round(st.submission.rawScore)}</span>
                         {' → '}{Math.round(st.submission.totalScore)}
                       </span>
