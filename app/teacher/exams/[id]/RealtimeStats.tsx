@@ -15,11 +15,6 @@ type RealtimeStatsProps = {
     lateDeadline: string | null;
     extraOpen: boolean;
     lateMarkEnabled: boolean;
-  examSettings: {
-    deadline: string | null;
-    lateDeadline: string | null;
-    extraOpen: boolean;
-    lateMarkEnabled: boolean;
   };
   questions: any[];
   onCheckinsChange: (checkins: any[]) => void;
