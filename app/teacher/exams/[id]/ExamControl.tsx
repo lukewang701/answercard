@@ -61,8 +61,8 @@ export function ExamControl({ exam, initialSubmissions, initialCheckins, classSt
 
   const scores = submissions.map((s: any) => s.totalScore);
   const average = scores.length ? Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length) : 0;
-  const highest = scores.length ? Math.max(...scores) : 0;
-  const lowest = scores.length ? Math.min(...scores) : 0;
+  const highest = scores.length ? Math.round(Math.max(...scores)) : 0;
+  const lowest = scores.length ? Math.round(Math.min(...scores)) : 0;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '0.75rem 1.25rem', gap: '0.75rem', boxSizing: 'border-box' }}>
