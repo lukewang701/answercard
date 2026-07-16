@@ -26,7 +26,7 @@ export async function PUT(
     }
 
     // 2. Perform transaction for safe updates
-    await prisma.$transaction(async (tx) => {
+    const createdQuestions = await prisma.$transaction(async (tx) => {
       // 2a. Update basic exam info
       await tx.exam.update({
         where: { id },
@@ -51,7 +51,7 @@ export async function PUT(
         ? Math.max(0, (totalScore - definedPoints) / questionsWithoutPoints)
         : 0;
 
-      const createdQuestions = await Promise.all(
+      const newQs = await Promise.all(
         questions.map((q: any) =>
           tx.question.create({
             data: {
@@ -64,50 +64,57 @@ export async function PUT(
           })
         )
       );
+      
+      return { newQs, defaultPointsPerQ };
+    });
 
-      // 2c. Recalculate scores for all submissions
-      if (existingExam.submissions.length > 0) {
-        for (const sub of existingExam.submissions) {
-          let rawScore = 0;
-          const updatedAnswersData = [];
+    const { newQs, defaultPointsPerQ } = createdQuestions;
 
-          for (const studentAns of sub.answers) {
-            const q = createdQuestions.find(cq => cq.number === studentAns.number);
-            let isCorrect = false;
-            let pointsEarned = 0;
+    // 3. Recalculate scores for all submissions outside the main transaction
+    if (existingExam.submissions.length > 0) {
+      for (const sub of existingExam.submissions) {
+        let rawScore = 0;
+        const updatedAnswersData = [];
 
-            if (q) {
-              const qPoints = q.points || defaultPointsPerQ;
-              const correctAnsArray = JSON.parse(q.correctAnswers);
-              const studentAnsArray = JSON.parse(studentAns.selectedAnswers).sort();
-              
-              let validCombos: string[] = [];
+        for (const studentAns of sub.answers) {
+          const q = newQs.find(cq => cq.number === studentAns.number);
+          let isCorrect = false;
+          let pointsEarned = 0;
 
-              if (correctAnsArray.length === 1 && correctAnsArray[0].includes('/')) {
-                validCombos = correctAnsArray[0].split('/').map((part: string) => part.split('').sort().join(''));
-              } else if (correctAnsArray.length === 1 && correctAnsArray[0].length >= 1) {
-                validCombos = [correctAnsArray[0].split('').sort().join('')];
-              } else {
-                validCombos = [correctAnsArray.sort().join('')];
-              }
+          if (q) {
+            const qPoints = q.points || defaultPointsPerQ;
+            const correctAnsArray = JSON.parse(q.correctAnswers);
+            const studentAnsArray = JSON.parse(studentAns.selectedAnswers).sort();
+            
+            let validCombos: string[] = [];
 
-              const studentJoined = studentAnsArray.join('');
-              if (validCombos.includes(studentJoined) && studentJoined.length > 0) {
-                isCorrect = true;
-                pointsEarned = qPoints;
-              }
-
-              rawScore += pointsEarned;
+            if (correctAnsArray.length === 1 && correctAnsArray[0].includes('/')) {
+              validCombos = correctAnsArray[0].split('/').map((part: string) => part.split('').sort().join(''));
+            } else if (correctAnsArray.length === 1 && correctAnsArray[0].length >= 1) {
+              validCombos = [correctAnsArray[0].split('').sort().join('')];
+            } else {
+              validCombos = [correctAnsArray.sort().join('')];
             }
 
-            updatedAnswersData.push({
-              id: studentAns.id,
-              isCorrect,
-              pointsEarned
-            });
+            const studentJoined = studentAnsArray.join('');
+            if (validCombos.includes(studentJoined) && studentJoined.length > 0) {
+              isCorrect = true;
+              pointsEarned = qPoints;
+            }
+
+            rawScore += pointsEarned;
           }
 
-          // Batch update answers for this submission
+          updatedAnswersData.push({
+            id: studentAns.id,
+            isCorrect,
+            pointsEarned
+          });
+        }
+
+        // Run updates for this submission in a mini-transaction to ensure consistency per student
+        // and avoid the 5-second timeout of the massive global transaction
+        await prisma.$transaction(async (tx) => {
           for (const uAns of updatedAnswersData) {
             await tx.answer.update({
               where: { id: uAns.id },
@@ -118,7 +125,6 @@ export async function PUT(
             });
           }
 
-          // Calculate final score
           const latePenalty = sub.latePenalty || 0;
           const finalTotalScore = Math.round(Math.max(0, rawScore - latePenalty));
           const roundedRawScore = Math.round(rawScore);
@@ -130,9 +136,9 @@ export async function PUT(
               totalScore: finalTotalScore
             }
           });
-        }
+        });
       }
-    });
+    }
 
     return NextResponse.json({ success: true });
 

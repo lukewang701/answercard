@@ -209,8 +209,8 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
               
               <div className="flex flex-col gap-2 pt-4 border-t border-border">
                 <Link href={`/teacher/exams/${exam.id}`} className="btn btn-primary w-full flex items-center justify-center gap-2">
-                  <PlayCircle size={18} />
-                  開始考試
+                  <Play size={18} />
+                  進入試卷
                 </Link>
                 <div className="grid grid-cols-2 gap-2">
                   <Link href={`/teacher/exams/${exam.id}/scan`} className="btn btn-primary flex items-center justify-center gap-2 text-sm">
