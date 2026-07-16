@@ -170,6 +170,7 @@ export function ExamControl({ exam, initialSubmissions, initialCheckins, classSt
             }}
             questions={exam.questions || []}
             onCheckinsChange={setCheckins}
+            onSubmissionsChange={setSubmissions}
           />
         </div>
       </div>

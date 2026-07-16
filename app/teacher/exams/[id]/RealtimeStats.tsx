@@ -18,6 +18,7 @@ type RealtimeStatsProps = {
   };
   questions: any[];
   onCheckinsChange: (checkins: any[]) => void;
+  onSubmissionsChange: (submissions: any[]) => void;
 };
 
 function toLocalDatetimeInput(iso: string | null): string {
@@ -27,7 +28,7 @@ function toLocalDatetimeInput(iso: string | null): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export function RealtimeStats({ examId, submissions, checkins, classStudents, examTotalScore, mode, examSettings, questions, onCheckinsChange }: RealtimeStatsProps) {
+export function RealtimeStats({ examId, submissions, checkins, classStudents, examTotalScore, mode, examSettings, questions, onCheckinsChange, onSubmissionsChange }: RealtimeStatsProps) {
   const [showScores, setShowScores] = useState(false);
   const [now, setNow] = useState(new Date());
 
@@ -44,6 +45,7 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
   // Recall modal
   const [recallTarget, setRecallTarget] = useState<any | null>(null);
   const [recalling, setRecalling] = useState(false);
+  const [deletingSub, setDeletingSub] = useState(false);
 
   // Live clock
   useEffect(() => {
@@ -116,6 +118,26 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
       setRecallTarget(null);
     } catch { /* silent */ } finally {
       setRecalling(false);
+    }
+  };
+
+  const handleDeleteSubmission = async () => {
+    if (!studentDetailsTarget?.submission) return;
+    if (!confirm(`確定要刪除 ${studentDetailsTarget.name} 的試卷並允許重考嗎？`)) return;
+    
+    setDeletingSub(true);
+    try {
+      const res = await fetch(`/api/exams/${examId}/submissions/${studentDetailsTarget.submission.id}`, { method: 'DELETE' });
+      if (res.ok) {
+        onSubmissionsChange(submissions.filter(s => s.id !== studentDetailsTarget.submission.id));
+        setStudentDetailsTarget(null);
+      } else {
+        alert('刪除失敗');
+      }
+    } catch { 
+      alert('刪除失敗');
+    } finally {
+      setDeletingSub(false);
     }
   };
 
@@ -302,7 +324,14 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
               </table>
             </div>
             
-            <div className="mt-4 pt-4 border-t border-border flex justify-end">
+            <div className="mt-4 pt-4 border-t border-border flex justify-between">
+              <button 
+                className="btn btn-secondary text-danger hover:bg-danger/10" 
+                onClick={handleDeleteSubmission}
+                disabled={deletingSub}
+              >
+                {deletingSub ? '刪除中...' : '刪除試卷並允許重考'}
+              </button>
               <button className="btn btn-secondary" onClick={() => setStudentDetailsTarget(null)}>關閉</button>
             </div>
           </div>

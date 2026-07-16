@@ -22,7 +22,7 @@ export async function GET(
       prisma.checkIn.findMany({ where: { examId: id }, orderBy: { checkedInAt: 'asc' } }),
       prisma.submission.findMany({
         where: { examId: id },
-        select: { id: true, studentName: true, seatNumber: true, class: true, totalScore: true, rawScore: true, isLate: true, latePenalty: true, submittedAt: true }
+        select: { id: true, studentName: true, seatNumber: true, class: true, totalScore: true, rawScore: true, isLate: true, latePenalty: true, submittedAt: true, answers: true }
       }),
     ]);
 
