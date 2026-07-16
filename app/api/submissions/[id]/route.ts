@@ -12,7 +12,15 @@ export async function GET(
       include: {
         answers: true,
         exam: {
-          select: { totalScore: true }
+          select: {
+            totalScore: true,
+            questions: {
+              select: {
+                number: true,
+                correctAnswers: true
+              }
+            }
+          }
         }
       }
     });

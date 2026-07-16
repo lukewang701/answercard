@@ -10,7 +10,11 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ id:
   const exam = await prisma.exam.findUnique({
     where: { id },
     include: {
-      submissions: { orderBy: { totalScore: 'desc' } },
+      questions: true,
+      submissions: { 
+        include: { answers: true },
+        orderBy: { totalScore: 'desc' } 
+      },
       checkins: { orderBy: { checkedInAt: 'asc' } },
     }
   });
@@ -43,6 +47,7 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ id:
         lateDeadline: exam.lateDeadline ? exam.lateDeadline.toISOString() : null,
         extraOpen: exam.extraOpen,
         lateMarkEnabled: exam.lateMarkEnabled,
+        questions: exam.questions,
       }}
       initialSubmissions={exam.submissions}
       initialCheckins={exam.checkins}

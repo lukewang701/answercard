@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Folder, Users, FileBarChart, QrCode, FileSpreadsheet, ChevronRight, FileStack, Trash2, X, PlayCircle } from 'lucide-react';
+import { Folder, Users, FileBarChart, QrCode, FileSpreadsheet, ChevronRight, FileStack, Trash2, X, PlayCircle, Edit } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function ExamListView({ initialExams }: { initialExams: any[] }) {
@@ -189,11 +189,16 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
           {activeGroup.exams.map((exam) => (
             <div key={exam.id} className="card flex flex-col h-full">
               <div className="flex-1">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="m-0 text-primary">{exam.name}</h3>
-                  <span className="text-sm bg-background px-2 py-1 rounded-full border border-border">
-                    代碼: {exam.shareCode}
-                  </span>
+                <div className="flex justify-between items-start mb-2 gap-2">
+                  <h3 className="m-0 text-primary flex-1">{exam.name}</h3>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs bg-background px-2 py-1 rounded-full border border-border">
+                      代碼: {exam.shareCode}
+                    </span>
+                    <Link href={`/teacher/exams/${exam.id}/edit`} className="text-foreground/50 hover:text-primary transition-colors" title="編輯試卷">
+                      <Edit size={18} />
+                    </Link>
+                  </div>
                 </div>
                 <p className="text-sm mb-4">日期: {new Date(exam.date).toLocaleDateString()}</p>
                 <div className="flex justify-between text-sm mb-6 text-foreground/80">

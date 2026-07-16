@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { CheckCircle, AlertCircle, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { CheckCircle, AlertCircle, ChevronLeft, ChevronRight, Clock, Download } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import { ReviewDownloadCard } from '@/components/ReviewDownloadCard';
 
 type Phase = 'identity' | 'answering' | 'result';
 
@@ -28,9 +30,11 @@ export function StudentDigitalFlow({
   const [checkingIn, setCheckingIn] = useState(false);
   const [checkinId, setCheckinId] = useState('');
 
-  // Answering
+  // Answering — page-based (5 questions per page)
   const [answers, setAnswers] = useState<string[][]>(Array.from({ length: totalQuestions }, () => []));
-  const [currentQ, setCurrentQ] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
+  const QUESTIONS_PER_PAGE = 5;
+  const totalPages = Math.ceil(totalQuestions / QUESTIONS_PER_PAGE);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
@@ -43,6 +47,27 @@ export function StudentDigitalFlow({
     const t = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(t);
   }, []);
+
+  // Download review
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [downloading, setDownloading] = useState(false);
+  const handleDownloadReview = async () => {
+    if (!cardRef.current) return;
+    setDownloading(true);
+    try {
+      const canvas = await html2canvas(cardRef.current, { scale: 2, backgroundColor: '#0F172A' });
+      const imgData = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = imgData;
+      link.download = `${examName}_答題檢討_${className}_${name}.png`;
+      link.click();
+    } catch (e) {
+      console.error(e);
+      alert('產生圖片時發生錯誤');
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   const handleCheckIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,12 +93,11 @@ export function StudentDigitalFlow({
     }
   };
 
-  const toggleOption = (opt: string) => {
+  const toggleOption = (qIndex: number, opt: string) => {
     setAnswers(prev => {
-      const next = prev.map((a, i) => {
-        if (i !== currentQ) return a;
-        return a.includes(opt) ? a.filter(x => x !== opt) : [...a, opt].sort();
-      });
+      const next = [...prev];
+      const cur = next[qIndex];
+      next[qIndex] = cur.includes(opt) ? cur.filter(x => x !== opt) : [...cur, opt].sort();
       return next;
     });
   };
@@ -195,126 +219,125 @@ export function StudentDigitalFlow({
 
   // ── Phase: Answering ─────────────────────────────────────────────────────
   if (phase === 'answering') {
-    const q = currentQ + 1;
-    const currentAnswers = answers[currentQ];
+    const pageStart = currentPage * QUESTIONS_PER_PAGE;
+    const pageEnd = Math.min(pageStart + QUESTIONS_PER_PAGE, totalQuestions);
+    const pageQuestions = Array.from({ length: pageEnd - pageStart }, (_, i) => pageStart + i);
+    const isLastPage = currentPage === totalPages - 1;
 
     return (
       <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', background: 'var(--background)' }}>
 
         {/* Header */}
-        <div style={{ background: 'var(--secondary)', padding: '0.75rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', flexShrink: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '0.85rem', opacity: 0.7 }}>{name} · {className} {seatNumber}號</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem', opacity: 0.6 }}>
-              <Clock size={13} /> {now.toLocaleTimeString()}
+        <div style={{ background: 'var(--secondary)', padding: '0.6rem 1rem', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+            <span style={{ fontSize: '0.82rem', opacity: 0.7 }}>{name} · {className} {seatNumber}號</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.78rem', opacity: 0.55 }}>
+              <Clock size={12} /> {now.toLocaleTimeString()}
             </span>
           </div>
-          {/* Progress bar */}
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.3rem', fontSize: '0.78rem', opacity: 0.7 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem', fontSize: '0.75rem', opacity: 0.65 }}>
               <span>作答進度</span>
               <span>{answered} / {totalQuestions} 題 ({progress}%)</span>
             </div>
-            <div style={{ height: '6px', borderRadius: '3px', background: 'var(--border)' }}>
+            <div style={{ height: '5px', borderRadius: '3px', background: 'var(--border)' }}>
               <div style={{ height: '100%', borderRadius: '3px', background: 'var(--primary)', width: `${progress}%`, transition: 'width 0.3s' }} />
             </div>
           </div>
         </div>
 
-        {/* Question area - fills available space */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '1.5rem 1rem', justifyContent: 'center' }}>
-          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-            <span style={{ fontSize: '0.85rem', opacity: 0.5, display: 'block', marginBottom: '0.25rem' }}>第 {q} 題 / 共 {totalQuestions} 題</span>
-            <span style={{ fontSize: '3rem', fontWeight: 700, color: 'var(--primary)' }}>{q}</span>
-          </div>
-
-          {/* Answer options */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: '400px', margin: '0 auto', width: '100%' }}>
-            {OPTIONS.map(opt => {
-              const selected = currentAnswers.includes(opt);
-              return (
-                <button
-                  key={opt}
-                  onClick={() => toggleOption(opt)}
-                  style={{
-                    padding: '1rem 1.5rem',
-                    borderRadius: '12px',
-                    border: `2px solid ${selected ? 'var(--primary)' : 'var(--border)'}`,
-                    background: selected ? 'var(--primary)' : 'var(--secondary)',
-                    color: selected ? 'white' : 'var(--foreground)',
-                    fontSize: '1.3rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    transition: 'all 0.15s',
-                    transform: selected ? 'scale(1.02)' : 'scale(1)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1rem',
-                  }}
-                >
-                  <span style={{ width: '2rem', height: '2rem', borderRadius: '50%', border: `2px solid ${selected ? 'rgba(255,255,255,0.5)' : 'var(--border)'}`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', flexShrink: 0 }}>
-                    {opt}
-                  </span>
-                  <span style={{ opacity: 0.7, fontSize: '0.95rem', fontWeight: 400 }}>選項 {opt}</span>
-                  {selected && <CheckCircle size={20} style={{ marginLeft: 'auto', opacity: 0.9 }} />}
-                </button>
-              );
-            })}
-          </div>
-
-          {currentAnswers.length > 1 && (
-            <div style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.8rem', color: 'var(--warning)', fontWeight: 600 }}>
-              ⚠️ 複選題：已選 {currentAnswers.join(', ')}
-            </div>
-          )}
+        {/* Questions for this page */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '0.75rem 1rem' }}>
+          {pageQuestions.map(qIdx => {
+            const qNum = qIdx + 1;
+            const currentAnswers = answers[qIdx];
+            return (
+              <div key={qIdx} style={{ marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid var(--border)' }}>
+                {/* Question label */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                    width: '1.8rem', height: '1.8rem', borderRadius: '50%', fontSize: '0.85rem', fontWeight: 700, flexShrink: 0,
+                    background: currentAnswers.length > 0 ? 'var(--primary)' : 'var(--secondary)',
+                    color: currentAnswers.length > 0 ? 'white' : 'var(--foreground)'
+                  }}>{qNum}</span>
+                  <span style={{ fontSize: '0.82rem', opacity: 0.55 }}>第 {qNum} 題{currentAnswers.length > 1 ? ` (複選：${currentAnswers.join(',')})` : ''}</span>
+                </div>
+                {/* Option buttons in a row */}
+                <div style={{ display: 'flex', gap: '0.4rem' }}>
+                  {OPTIONS.map(opt => {
+                    const selected = currentAnswers.includes(opt);
+                    return (
+                      <button
+                        key={opt}
+                        onClick={() => toggleOption(qIdx, opt)}
+                        style={{
+                          flex: 1, padding: '0.65rem 0', borderRadius: '8px', fontSize: '1rem', fontWeight: 700,
+                          border: `2px solid ${selected ? 'var(--primary)' : 'var(--border)'}`,
+                          background: selected ? 'var(--primary)' : 'var(--secondary)',
+                          color: selected ? 'white' : 'var(--foreground)',
+                          cursor: 'pointer', transition: 'all 0.12s',
+                        }}
+                      >{opt}</button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         {/* Navigation footer */}
-        <div style={{ padding: '1rem', background: 'var(--secondary)', display: 'flex', gap: '0.75rem', flexShrink: 0 }}>
+        <div style={{ padding: '0.75rem 1rem', background: 'var(--secondary)', display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
           <button
-            onClick={() => setCurrentQ(q => Math.max(0, q - 1))}
-            disabled={currentQ === 0}
+            onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
+            disabled={currentPage === 0}
             className="btn btn-secondary"
-            style={{ flex: 1, padding: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontSize: '1rem' }}
+            style={{ flex: 1, padding: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', fontSize: '0.95rem' }}
           >
-            <ChevronLeft size={20} /> 上一題
+            <ChevronLeft size={18} /> 上一頁
           </button>
 
-          {currentQ < totalQuestions - 1 ? (
+          {!isLastPage ? (
             <button
-              onClick={() => setCurrentQ(q => Math.min(totalQuestions - 1, q + 1))}
+              onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
               className="btn btn-primary"
-              style={{ flex: 1, padding: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontSize: '1rem' }}
+              style={{ flex: 1, padding: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', fontSize: '0.95rem' }}
             >
-              下一題 <ChevronRight size={20} />
+              下一頁 <ChevronRight size={18} />
             </button>
           ) : (
             <button
               onClick={handleSubmit}
               disabled={submitting}
               className="btn btn-primary"
-              style={{ flex: 1, padding: '0.85rem', fontSize: '1rem', fontWeight: 700, background: 'var(--success)' }}
+              style={{ flex: 1, padding: '0.75rem', fontSize: '0.95rem', fontWeight: 700, background: 'var(--success)' }}
             >
               {submitting ? '送出中...' : '✓ 送出答案卡'}
             </button>
           )}
         </div>
 
-        {/* Quick nav dots */}
-        <div style={{ padding: '0.5rem 1rem', display: 'flex', flexWrap: 'wrap', gap: '0.3rem', justifyContent: 'center', background: 'var(--secondary)', borderTop: '1px solid var(--border)' }}>
-          {Array.from({ length: totalQuestions }, (_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrentQ(i)}
-              style={{
-                width: '28px', height: '28px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 600, cursor: 'pointer', border: 'none',
-                background: i === currentQ ? 'var(--primary)' : answers[i].length > 0 ? 'rgba(34,197,94,0.3)' : 'var(--border)',
-                color: i === currentQ ? 'white' : 'var(--foreground)',
-              }}
-            >
-              {i + 1}
-            </button>
-          ))}
+        {/* Page nav dots */}
+        <div style={{ padding: '0.4rem 1rem 0.6rem', display: 'flex', flexWrap: 'wrap', gap: '0.3rem', justifyContent: 'center', background: 'var(--secondary)', borderTop: '1px solid var(--border)' }}>
+          {Array.from({ length: totalPages }, (_, i) => {
+            const pStart = i * QUESTIONS_PER_PAGE;
+            const pEnd = Math.min(pStart + QUESTIONS_PER_PAGE, totalQuestions);
+            const pageAnswered = answers.slice(pStart, pEnd).every(a => a.length > 0);
+            return (
+              <button
+                key={i}
+                onClick={() => setCurrentPage(i)}
+                style={{
+                  padding: '0.25rem 0.6rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', border: 'none',
+                  background: i === currentPage ? 'var(--primary)' : pageAnswered ? 'rgba(34,197,94,0.3)' : 'var(--border)',
+                  color: i === currentPage ? 'white' : 'var(--foreground)',
+                }}
+              >
+                第{i + 1}頁
+              </button>
+            );
+          })}
         </div>
 
         {submitError && (
@@ -340,28 +363,40 @@ export function StudentDigitalFlow({
             <>
               <div style={{ fontSize: '0.9rem', opacity: 0.7, marginBottom: '0.25rem' }}>原始分數</div>
               <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--foreground)', textDecoration: 'line-through', opacity: 0.5 }}>
-                {(result.rawScore ?? result.totalScore + result.latePenalty).toFixed(1)}
+                {Math.round(result.rawScore ?? (result.totalScore + result.latePenalty))}
               </div>
               <div style={{ fontSize: '0.9rem', color: 'var(--warning)', margin: '0.5rem 0', fontWeight: 600 }}>
                 遲交扣 {result.latePenalty} 分
               </div>
               <div style={{ fontSize: '0.85rem', opacity: 0.7, marginBottom: '0.25rem' }}>最後分數</div>
               <div style={{ fontSize: '3.5rem', fontWeight: 700, color: 'var(--primary)' }}>
-                {result.totalScore.toFixed(1)}
+                {Math.round(result.totalScore)}
               </div>
             </>
           ) : (
             <>
               <div style={{ fontSize: '0.9rem', opacity: 0.7, marginBottom: '0.25rem' }}>您的分數</div>
               <div style={{ fontSize: '4rem', fontWeight: 700, color: 'var(--primary)' }}>
-                {result?.totalScore != null ? result.totalScore.toFixed(1) : '--'}
+                {result?.totalScore != null ? Math.round(result.totalScore) : '--'}
               </div>
             </>
           )}
         </div>
 
-        <p style={{ opacity: 0.6, fontSize: '0.85rem' }}>老師已即時收到您的答案卡，可以關閉此頁面了。</p>
+        <p style={{ opacity: 0.6, fontSize: '0.85rem', marginBottom: '1.5rem' }}>老師已即時收到您的答案卡，可以關閉此頁面了。</p>
+
+        <button 
+          onClick={handleDownloadReview}
+          disabled={downloading}
+          className="btn btn-secondary" 
+          style={{ width: '100%', padding: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontSize: '1rem', fontWeight: 600 }}
+        >
+          {downloading ? '產生中...' : <><Download size={18} /> 下載答題檢討 (錯題)</>}
+        </button>
+
+        <ReviewDownloadCard ref={cardRef} submission={{ ...result, exam: { name: examName, ...result?.exam } }} />
       </div>
     </div>
   );
 }
+

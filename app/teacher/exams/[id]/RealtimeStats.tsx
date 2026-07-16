@@ -15,7 +15,13 @@ type RealtimeStatsProps = {
     lateDeadline: string | null;
     extraOpen: boolean;
     lateMarkEnabled: boolean;
+  examSettings: {
+    deadline: string | null;
+    lateDeadline: string | null;
+    extraOpen: boolean;
+    lateMarkEnabled: boolean;
   };
+  questions: any[];
   onCheckinsChange: (checkins: any[]) => void;
 };
 
@@ -26,9 +32,12 @@ function toLocalDatetimeInput(iso: string | null): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export function RealtimeStats({ examId, submissions, checkins, classStudents, examTotalScore, mode, examSettings, onCheckinsChange }: RealtimeStatsProps) {
+export function RealtimeStats({ examId, submissions, checkins, classStudents, examTotalScore, mode, examSettings, questions, onCheckinsChange }: RealtimeStatsProps) {
   const [showScores, setShowScores] = useState(false);
   const [now, setNow] = useState(new Date());
+
+  // Student Details Modal
+  const [studentDetailsTarget, setStudentDetailsTarget] = useState<any | null>(null);
 
   // Settings state
   const [deadline, setDeadline] = useState(toLocalDatetimeInput(examSettings.deadline));
@@ -195,53 +204,111 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
         <div className="custom-scrollbar" style={{ flex: 1, overflowY: 'auto' }}>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 align-content-start">
 
-            {/* Submitted students */}
-            {allStudents.filter(s => s.status === 'submitted').map(s => {
-              const sub = s.submission;
-              return (
-                <div key={s.name} style={{ backgroundColor: 'rgba(34,197,94,0.1)', borderRadius: '8px', padding: '0.6rem', border: '1px solid var(--success)', position: 'relative' }}>
-                  <span style={{ position: 'absolute', top: '0.4rem', right: '0.4rem', fontSize: '0.62rem', fontWeight: 700, color: 'var(--success)', background: 'rgba(34,197,94,0.15)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>已繳交</span>
-                  {sub?.isLate && (
-                    <span style={{ position: 'absolute', bottom: '0.4rem', right: '0.4rem', fontSize: '0.6rem', fontWeight: 700, color: 'var(--warning)', background: 'rgba(234,179,8,0.15)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>遲交 -{sub.latePenalty}</span>
-                  )}
-                  <div style={{ fontSize: '0.7rem', opacity: 0.6, marginBottom: '0.15rem' }}>{s.seatNumber}號</div>
-                  <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>{s.name}</div>
-                  {showScores && sub && (
-                    <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--primary)', marginTop: '0.2rem' }}>
-                      {sub.isLate && sub.rawScore != null ? (
-                        <span style={{ fontSize: '0.7rem' }}>
-                          <span style={{ textDecoration: 'line-through', opacity: 0.6 }}>{sub.rawScore.toFixed(1)}</span>
-                          {' → '}{sub.totalScore.toFixed(1)}
-                        </span>
-                      ) : sub.totalScore.toFixed(1)}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-
-            {/* Checked-in (digital mode) */}
-            {mode === 'digital' && allStudents.filter(s => s.status === 'checkedin').map(s => (
+            {allStudents.map(st => (
               <div
-                key={s.name}
-                onClick={() => setRecallTarget(s.checkin)}
-                style={{ backgroundColor: 'var(--secondary)', borderRadius: '8px', padding: '0.6rem', border: '1px solid var(--border)', position: 'relative', cursor: 'pointer' }}
-                title="點擊可收回答案卡"
+                key={st.name}
+                onClick={() => {
+                  if (st.status === 'submitted') setStudentDetailsTarget(st);
+                  else if (st.status === 'checkedin') setRecallTarget(st.checkin);
+                }}
+                className={`card flex flex-col p-3 transition-all ${st.status === 'submitted' ? 'cursor-pointer hover:border-primary/50 hover:shadow-md' : st.status === 'checkedin' ? 'cursor-pointer' : ''}`}
+                style={{
+                  backgroundColor: st.status === 'submitted' ? 'rgba(34,197,94,0.05)' : 'var(--background)',
+                  borderColor: st.status === 'submitted' ? 'var(--success)' : st.status === 'checkedin' ? 'var(--warning)' : 'var(--border)',
+                  borderWidth: '2px',
+                  opacity: st.status === 'missing' ? 0.6 : 1,
+                  position: 'relative'
+                }}
               >
-                <span style={{ position: 'absolute', top: '0.4rem', right: '0.4rem', fontSize: '0.62rem', fontWeight: 700, color: 'var(--foreground)', background: 'var(--background)', padding: '0.1rem 0.35rem', borderRadius: '4px', border: '1px solid var(--border)' }}>已領取</span>
-                <div style={{ fontSize: '0.7rem', opacity: 0.6, marginBottom: '0.15rem' }}>{s.seatNumber}號</div>
-                <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>{s.name}</div>
+                {st.status === 'submitted' && (
+                  <span style={{ position: 'absolute', top: '0.4rem', right: '0.4rem', fontSize: '0.62rem', fontWeight: 700, color: 'var(--success)', background: 'rgba(34,197,94,0.15)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>已繳交</span>
+                )}
+                {st.status === 'checkedin' && (
+                  <span style={{ position: 'absolute', top: '0.4rem', right: '0.4rem', fontSize: '0.62rem', fontWeight: 700, color: 'var(--warning)', background: 'rgba(234,179,8,0.15)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>已領取</span>
+                )}
+                {st.status === 'missing' && (
+                  <span style={{ position: 'absolute', top: '0.4rem', right: '0.4rem', fontSize: '0.62rem', fontWeight: 700, color: 'var(--danger)', background: 'rgba(239,68,68,0.1)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>缺交</span>
+                )}
+                <div style={{ fontSize: '0.7rem', opacity: 0.6, marginBottom: '0.15rem' }}>{st.seatNumber}號</div>
+                <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>{st.name}</div>
+                {showScores && st.submission && (
+                  <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--primary)', marginTop: '0.2rem' }}>
+                    {st.submission.isLate && st.submission.rawScore != null ? (
+                      <span style={{ fontSize: '0.7rem' }}>
+                        <span style={{ textDecoration: 'line-through', opacity: 0.6 }}>{Math.round(st.submission.rawScore)}</span>
+                        {' → '}{Math.round(st.submission.totalScore)}
+                      </span>
+                    ) : Math.round(st.submission.totalScore)}
+                  </div>
+                )}
               </div>
             ))}
 
-            {/* Missing students */}
-            {allStudents.filter(s => s.status === 'missing').map(s => (
-              <div key={s.name} style={{ backgroundColor: 'var(--background)', borderRadius: '8px', padding: '0.6rem', border: '1px dashed var(--danger)', position: 'relative', opacity: 0.7 }}>
-                <span style={{ position: 'absolute', top: '0.4rem', right: '0.4rem', fontSize: '0.62rem', fontWeight: 700, color: 'var(--danger)', background: 'rgba(239,68,68,0.1)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>缺交</span>
-                <div style={{ fontSize: '0.7rem', opacity: 0.6, marginBottom: '0.15rem' }}>{s.seatNumber}號</div>
-                <div style={{ fontWeight: 600, fontSize: '0.85rem', color: 'var(--danger)' }}>{s.name}</div>
+          </div>
+        </div>
+      )}
+
+      {/* Student Details Modal */}
+      {studentDetailsTarget && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setStudentDetailsTarget(null)}>
+          <div className="bg-secondary/90 border border-border p-6 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h3 className="m-0 text-xl font-bold mb-1">{studentDetailsTarget.seatNumber}號 {studentDetailsTarget.name} - 作答詳情</h3>
+                <div className="text-sm opacity-70">
+                  總分：<span className="text-primary font-bold text-lg">{Math.round(studentDetailsTarget.submission.totalScore)}</span>
+                  {studentDetailsTarget.submission.isLate && <span className="text-danger ml-2">(遲交扣 {studentDetailsTarget.submission.latePenalty} 分)</span>}
+                </div>
               </div>
-            ))}
+              <button onClick={() => setStudentDetailsTarget(null)} className="text-foreground/50 hover:text-foreground">
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-border text-sm opacity-70">
+                    <th className="py-2 pl-2 w-16">題號</th>
+                    <th className="py-2">學生作答</th>
+                    <th className="py-2">正確答案</th>
+                    <th className="py-2">得分</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {studentDetailsTarget.submission.answers.sort((a: any, b: any) => a.number - b.number).map((ans: any) => {
+                    const q = questions.find((x: any) => x.number === ans.number);
+                    let correctAnsStr = q?.correctAnswers || '';
+                    try { correctAnsStr = JSON.parse(correctAnsStr).join(' / '); } catch {}
+                    
+                    let studentAnsStr = ans.selectedAnswers;
+                    try { studentAnsStr = JSON.parse(studentAnsStr).join(''); } catch {}
+                    
+                    return (
+                      <tr key={ans.number} className="border-b border-border/50 hover:bg-background/50">
+                        <td className="py-3 pl-2 font-medium">#{ans.number}</td>
+                        <td className="py-3">
+                          <span className={`font-bold ${ans.isCorrect ? 'text-success' : 'text-danger'}`}>
+                            {studentAnsStr || '未作答'}
+                          </span>
+                        </td>
+                        <td className="py-3 opacity-80">{correctAnsStr}</td>
+                        <td className="py-3">
+                          <div className="flex items-center gap-2">
+                            {ans.isCorrect ? <CheckCircle size={16} className="text-success" /> : <X size={16} className="text-danger" />}
+                            <span className="text-sm">{ans.pointsEarned} 分</span>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            
+            <div className="mt-4 pt-4 border-t border-border flex justify-end">
+              <button className="btn btn-secondary" onClick={() => setStudentDetailsTarget(null)}>關閉</button>
+            </div>
           </div>
         </div>
       )}

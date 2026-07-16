@@ -89,7 +89,8 @@ export async function POST(
       });
     }
 
-    const totalScore = Math.max(0, rawScore - latePenalty);
+    const totalScore = Math.round(Math.max(0, rawScore - latePenalty));
+    rawScore = Math.round(rawScore);
 
     const submission = await prisma.submission.create({
       data: {

@@ -16,6 +16,7 @@ type ExamControlProps = {
     lateDeadline: string | null;
     extraOpen: boolean;
     lateMarkEnabled: boolean;
+    questions?: any[];
   };
   initialSubmissions: any[];
   initialCheckins: any[];
@@ -59,7 +60,7 @@ export function ExamControl({ exam, initialSubmissions, initialCheckins, classSt
   const qrLabel = mode === 'digital' ? '掃描領取數位答案卡' : '學生自助掃描碼';
 
   const scores = submissions.map((s: any) => s.totalScore);
-  const average = scores.length ? (scores.reduce((a: number, b: number) => a + b, 0) / scores.length).toFixed(1) : 0;
+  const average = scores.length ? Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length) : 0;
   const highest = scores.length ? Math.max(...scores) : 0;
   const lowest = scores.length ? Math.min(...scores) : 0;
 
@@ -167,6 +168,7 @@ export function ExamControl({ exam, initialSubmissions, initialCheckins, classSt
               extraOpen: exam.extraOpen,
               lateMarkEnabled: exam.lateMarkEnabled,
             }}
+            questions={exam.questions || []}
             onCheckinsChange={setCheckins}
           />
         </div>

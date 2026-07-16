@@ -1,13 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { OMRScanner } from '@/components/OMRScanner';
 import { AnswerConfirm } from '@/components/AnswerConfirm';
+import { Download } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import { ReviewDownloadCard } from '@/components/ReviewDownloadCard';
 
 export function StudentScannerFlow({ examId }: { examId: string }) {
   const [scanResult, setScanResult] = useState<any>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submissionResult, setSubmissionResult] = useState<any>(null);
+  const [downloading, setDownloading] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   const handleScanComplete = (result: any) => {
     setScanResult(result);
@@ -43,17 +48,35 @@ export function StudentScannerFlow({ examId }: { examId: string }) {
     }
   };
 
+  const handleDownloadReview = async () => {
+    if (!cardRef.current || !submissionResult) return;
+    setDownloading(true);
+    try {
+      const canvas = await html2canvas(cardRef.current, { scale: 2, backgroundColor: '#0F172A' });
+      const imgData = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = imgData;
+      link.download = `${submissionResult.exam?.name || '考試'}_答題檢討_${submissionResult.class}_${submissionResult.studentName}.png`;
+      link.click();
+    } catch (e) {
+      console.error(e);
+      alert('產生圖片時發生錯誤');
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   if (submissionResult) {
     return (
       <div className="card w-full max-w-2xl text-center animate-fade-in">
         <h2 className="mb-6 text-success">批改完成！</h2>
         <div className="text-6xl font-bold text-primary mb-2 flex flex-col items-center justify-center">
-          <div>{submissionResult.totalScore.toFixed(1)}</div>
+          <div>{Math.round(submissionResult.totalScore)}</div>
           {submissionResult.exam?.totalScore && submissionResult.exam.totalScore !== 100 && (
             <div className="text-2xl mt-2 text-foreground opacity-80">
               / {submissionResult.exam.totalScore} 
               <span className="text-xl ml-2 opacity-60">
-                ({((submissionResult.totalScore / submissionResult.exam.totalScore) * 100).toFixed(1)}%)
+                ({Math.round((submissionResult.totalScore / submissionResult.exam.totalScore) * 100)}%)
               </span>
             </div>
           )}
@@ -69,9 +92,21 @@ export function StudentScannerFlow({ examId }: { examId: string }) {
           <p className="mb-0 text-sm">老師已即時收到你的成績，辛苦了！可以關閉此頁面。</p>
         </div>
         
-        <button onClick={() => window.location.reload()} className="btn btn-secondary">
-          掃描另一張
-        </button>
+        <div className="flex flex-col gap-3">
+          <button 
+            onClick={handleDownloadReview} 
+            disabled={downloading}
+            className="btn btn-primary flex items-center justify-center gap-2"
+          >
+            {downloading ? '產生中...' : <><Download size={18} /> 下載答題檢討 (錯題)</>}
+          </button>
+          
+          <button onClick={() => window.location.reload()} className="btn btn-secondary">
+            掃描另一張
+          </button>
+        </div>
+
+        <ReviewDownloadCard ref={cardRef} submission={submissionResult} />
       </div>
     );
   }

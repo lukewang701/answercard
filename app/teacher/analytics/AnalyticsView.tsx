@@ -48,7 +48,7 @@ export default function AnalyticsView({ initialExams }: { initialExams: any[] })
       examsInGroup.forEach(e => allSubmissions.push(...e.submissions));
       
       const scores = allSubmissions.map(s => s.totalScore);
-      const avg = scores.length ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : 0;
+      const avg = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
       const max = scores.length ? Math.max(...scores) : 0;
       const min = scores.length ? Math.min(...scores) : 0;
 
@@ -259,9 +259,9 @@ export default function AnalyticsView({ initialExams }: { initialExams: any[] })
             </div>
           </div>
 
-          {/* Item Analysis List */}
+          {/* Item Analysis Table */}
           <div className="card">
-            <h3 className="mb-6 flex items-center gap-2">
+            <h3 className="mb-4 flex items-center gap-2">
               <FileText size={20} className="text-primary" />
               題目錯誤率分析表
               <span className="text-xs font-normal opacity-60 ml-2">(由高至低排列)</span>
@@ -270,54 +270,83 @@ export default function AnalyticsView({ initialExams }: { initialExams: any[] })
             {itemAnalysis?.length === 0 ? (
               <div className="text-center py-8 opacity-50">請至少選擇一個分析項目，或目前尚無繳交紀錄</div>
             ) : (
-              <div className="space-y-4">
-                {itemAnalysis?.map((stat, idx) => (
-                  <div key={stat.number} className="p-4 rounded-lg border border-border bg-secondary/5 flex flex-col md:flex-row md:items-center gap-4">
-                    
-                    {/* Rank & Q Number */}
-                    <div className="flex items-center gap-4 min-w-[120px]">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${idx < 3 ? 'bg-danger text-white' : 'bg-secondary text-foreground'}`}>
-                        #{idx + 1}
-                      </div>
-                      <div>
-                        <div className="text-sm opacity-70">第 {stat.number} 題</div>
-                        <div className="font-bold text-danger">{stat.errorRate.toFixed(1)}%</div>
-                      </div>
-                    </div>
-
-                    {/* Progress Bar */}
-                    <div className="flex-1 max-w-[200px]">
-                      <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
-                        <div className="h-full bg-danger rounded-full" style={{ width: `${stat.errorRate}%` }}></div>
-                      </div>
-                    </div>
-
-                    {/* Options Breakdown */}
-                    <div className="flex-1 flex flex-wrap gap-2 text-xs">
-                      {['A', 'B', 'C', 'D', 'E'].map(opt => {
-                        const count = stat.optionsCount[opt] || 0;
-                        const pct = stat.totalAnswers ? Math.round((count / stat.totalAnswers) * 100) : 0;
-                        const isCorrect = stat.correctAnswers.includes(opt);
-                        
-                        if (count === 0 && !isCorrect) return null; // Hide unused wrong options to save space
-                        
-                        return (
-                          <div key={opt} className={`px-2 py-1 rounded flex items-center gap-1 border ${isCorrect ? 'bg-success/10 border-success/30 text-success' : 'bg-background border-border opacity-70'}`}>
-                            <span className="font-bold">{opt}</span>
-                            <span>{pct}%</span>
-                          </div>
-                        );
-                      })}
-                      {stat.optionsCount['未作答'] > 0 && (
-                        <div className="px-2 py-1 rounded bg-background border border-border opacity-70 flex items-center gap-1">
-                          <span>未作答</span>
-                          <span>{Math.round((stat.optionsCount['未作答'] / stat.totalAnswers) * 100)}%</span>
-                        </div>
-                      )}
-                    </div>
-
-                  </div>
-                ))}
+              <div className="overflow-x-auto">
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '2px solid var(--border)' }}>
+                      <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', opacity: 0.6, fontWeight: 600, whiteSpace: 'nowrap' }}>排名</th>
+                      <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', opacity: 0.6, fontWeight: 600, whiteSpace: 'nowrap' }}>題號</th>
+                      <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', opacity: 0.6, fontWeight: 600, whiteSpace: 'nowrap', minWidth: '120px' }}>錯誤率</th>
+                      {['A', 'B', 'C', 'D', 'E'].map(opt => (
+                        <th key={opt} style={{ padding: '0.5rem 0.75rem', textAlign: 'center', opacity: 0.6, fontWeight: 600, minWidth: '64px' }}>{opt}</th>
+                      ))}
+                      <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', opacity: 0.6, fontWeight: 600, whiteSpace: 'nowrap' }}>未作答</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {itemAnalysis?.map((stat, idx) => {
+                      const rowBg = idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)';
+                      const isTop3 = idx < 3;
+                      return (
+                        <tr key={stat.number} style={{ backgroundColor: rowBg, borderBottom: '1px solid var(--border)' }}>
+                          {/* Rank */}
+                          <td style={{ padding: '0.6rem 0.75rem' }}>
+                            <span style={{
+                              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                              width: '1.75rem', height: '1.75rem', borderRadius: '50%', fontSize: '0.75rem', fontWeight: 700,
+                              background: isTop3 ? 'var(--danger)' : 'var(--secondary)',
+                              color: isTop3 ? 'white' : 'var(--foreground)'
+                            }}>#{idx + 1}</span>
+                          </td>
+                          {/* Q Number */}
+                          <td style={{ padding: '0.6rem 0.75rem', fontWeight: 600 }}>第 {stat.number} 題</td>
+                          {/* Error Rate Bar */}
+                          <td style={{ padding: '0.6rem 0.75rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                              <div style={{ flex: 1, height: '8px', borderRadius: '4px', background: 'var(--secondary)', overflow: 'hidden', minWidth: '60px' }}>
+                                <div style={{ height: '100%', borderRadius: '4px', width: `${stat.errorRate}%`, background: isTop3 ? 'var(--danger)' : 'var(--warning)', transition: 'width 0.4s' }} />
+                              </div>
+                              <span style={{ fontWeight: 700, color: isTop3 ? 'var(--danger)' : 'var(--warning)', minWidth: '3rem', textAlign: 'right' }}>
+                                {Math.round(stat.errorRate)}%
+                              </span>
+                            </div>
+                          </td>
+                          {/* Per-option cells */}
+                          {['A', 'B', 'C', 'D', 'E'].map(opt => {
+                            const count = stat.optionsCount[opt] || 0;
+                            const pct = stat.totalAnswers ? Math.round((count / stat.totalAnswers) * 100) : 0;
+                            const isCorrect = stat.correctAnswers.includes(opt);
+                            return (
+                              <td key={opt} style={{ padding: '0.6rem 0.5rem', textAlign: 'center' }}>
+                                <div style={{
+                                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px',
+                                  padding: '0.3rem 0.4rem', borderRadius: '6px',
+                                  background: isCorrect ? 'rgba(34,197,94,0.12)' : pct > 30 ? 'rgba(239,68,68,0.08)' : 'transparent',
+                                  border: isCorrect ? '1px solid rgba(34,197,94,0.4)' : '1px solid transparent',
+                                }}>
+                                  <span style={{ fontWeight: 700, fontSize: '0.8rem', color: isCorrect ? 'var(--success)' : pct > 30 ? 'var(--danger)' : 'var(--foreground)' }}>
+                                    {pct}%
+                                  </span>
+                                  <div style={{ width: '36px', height: '5px', borderRadius: '3px', background: 'var(--secondary)', overflow: 'hidden' }}>
+                                    <div style={{ height: '100%', width: `${pct}%`, borderRadius: '3px', background: isCorrect ? 'var(--success)' : pct > 30 ? 'var(--danger)' : 'var(--border)' }} />
+                                  </div>
+                                </div>
+                              </td>
+                            );
+                          })}
+                          {/* 未作答 */}
+                          <td style={{ padding: '0.6rem 0.5rem', textAlign: 'center' }}>
+                            {stat.optionsCount['未作答'] > 0 ? (
+                              <span style={{ fontSize: '0.78rem', opacity: 0.6 }}>
+                                {Math.round((stat.optionsCount['未作答'] / stat.totalAnswers) * 100)}%
+                              </span>
+                            ) : <span style={{ opacity: 0.2 }}>—</span>}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>
