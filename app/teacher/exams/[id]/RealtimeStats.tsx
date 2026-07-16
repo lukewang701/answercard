@@ -130,7 +130,7 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
             <span style={{ fontSize: '0.75rem', opacity: 0.5, fontWeight: 400 }}>(即時)</span>
           </h3>
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            {mode === 'digital' && deadline && (
+            {deadline && (
               <span style={{ fontSize: '0.72rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '999px', backgroundColor: `${phaseLabel[phase].color}22`, color: phaseLabel[phase].color, border: `1px solid ${phaseLabel[phase].color}44` }}>
                 {phaseLabel[phase].text}
               </span>
@@ -145,9 +145,8 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
           </div>
         </div>
 
-        {/* ── Settings bar (digital mode only) ── */}
-        {mode === 'digital' && (
-          <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', alignItems: 'center', padding: '0.5rem 0.6rem', background: 'var(--background)', borderRadius: '8px', fontSize: '0.75rem' }}>
+        {/* ── Settings bar (both modes) ── */}
+        <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', alignItems: 'center', padding: '0.5rem 0.6rem', background: 'var(--background)', borderRadius: '8px', fontSize: '0.75rem' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', whiteSpace: 'nowrap' }}>
               <Clock size={13} style={{ color: 'var(--primary)' }} /> 截止時間
               <input
@@ -187,7 +186,6 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
               </label>
             )}
           </div>
-        )}
       </div>
 
       {/* ── Student Grid ── */}

@@ -55,17 +55,15 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         where: { classId: id }
       });
 
-      // 3. Re-insert the updated students
+      // 3. Re-insert the updated students in one batch
       if (students && Array.isArray(students) && students.length > 0) {
-        for (const s of students) {
-          await tx.student.create({
-            data: {
-              classId: id,
-              seatNumber: s.seatNumber,
-              name: s.name
-            }
-          });
-        }
+        await tx.student.createMany({
+          data: students.map((s: any) => ({
+            classId: id,
+            seatNumber: s.seatNumber,
+            name: s.name
+          }))
+        });
       }
     });
 
