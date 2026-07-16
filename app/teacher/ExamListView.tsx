@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Folder, Users, FileBarChart, QrCode, FileSpreadsheet, ChevronRight, FileStack, Trash2, X, PlayCircle, Edit } from 'lucide-react';
+import { Folder, Users, FileBarChart, QrCode, FileSpreadsheet, ChevronRight, FileStack, Trash2, X, PlayCircle, Play, Edit } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function ExamListView({ initialExams }: { initialExams: any[] }) {

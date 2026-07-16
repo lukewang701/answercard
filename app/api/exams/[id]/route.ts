@@ -74,7 +74,7 @@ export async function PUT(
     if (existingExam.submissions.length > 0) {
       for (const sub of existingExam.submissions) {
         let rawScore = 0;
-        const updatedAnswersData = [];
+        const updatedAnswersData: any[] = [];
 
         for (const studentAns of sub.answers) {
           const q = newQs.find(cq => cq.number === studentAns.number);
