@@ -289,7 +289,7 @@ export default function NewExamPage() {
     try {
       const payload = {
         ...formData,
-        questions: questions.map(q => ({
+        questions: questions.slice(0, formData.totalQuestions).map(q => ({
           ...q,
           points: q.points === '' ? null : q.points,
           isMultiple: q.correctAnswers.length > 1 // Auto detect multi-select
