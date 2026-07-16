@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Exam {
+  id             String       @id @default(cuid())
+  name           String
+  baseName       String?
+  targetClass    String?
+  date           DateTime
+  totalQuestions Int
+  totalScore     Float        @default(100)
+  shareCode      String       @unique
+  note           String?
+  createdAt      DateTime     @default(now())
+  deadline       DateTime?
+  lateDeadline   DateTime?
+  extraOpen      Boolean      @default(false)
+  lateMarkEnabled Boolean     @default(true)
+
+  questions      Question[]
+  submissions    Submission[]
+  checkins       CheckIn[]
+}
+
+model Question {
+  id             String    @id @default(cuid())
+  exam           Exam      @relation(fields: [examId], references: [id])
+  examId         String
+  number         Int
+  correctAnswers String
+  points         Float?
+  isMultiple     Boolean   @default(false)
+}
+
+model Submission {
+  id          String   @id @default(cuid())
+  exam        Exam     @relation(fields: [examId], references: [id])
+  examId      String
+  studentName String
+  year        String
+  class       String
+  seatNumber  String
+  totalScore  Float
+  rawScore    Float?
+  isLate      Boolean  @default(false)
+  latePenalty Float    @default(0)
+  submittedAt DateTime @default(now())
+  submittedBy String
+
+  answers     Answer[]
+}
+
+model Answer {
+  id              String     @id @default(cuid())
+  submission      Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  submissionId    String
+  number          Int
+  selectedAnswers String
+  isCorrect       Boolean
+  pointsEarned    Float
+}
+
+model Class {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  
+  students  Student[]
+}
+
+model Student {
+  id         String   @id @default(cuid())
+  classId    String
+  class      Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  seatNumber String
+  name       String
+  
+  @@unique([classId, seatNumber])
+}
+
+model CheckIn {
+  id          String   @id @default(cuid())
+  examId      String
+  exam        Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  studentName String
+  seatNumber  String
+  className   String
+  checkedInAt DateTime @default(now())
+
+  @@unique([examId, seatNumber, className])
+}
