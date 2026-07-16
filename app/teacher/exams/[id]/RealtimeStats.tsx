@@ -197,7 +197,7 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
         </div>
       ) : (
         <div className="custom-scrollbar" style={{ flex: 1, overflowY: 'auto' }}>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 align-content-start">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem', alignContent: 'start' }}>
 
             {allStudents.map(st => (
               <div

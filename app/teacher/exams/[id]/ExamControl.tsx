@@ -127,18 +127,18 @@ export function ExamControl({ exam, initialSubmissions, initialCheckins, classSt
           <p style={{ fontFamily: 'monospace', fontSize: 'clamp(1.2rem, 2.5vw, 2rem)', letterSpacing: '0.2em', color: 'var(--primary)', fontWeight: 700, margin: '0 0 0.4rem 0', flexShrink: 0 }}>
             {exam.shareCode}
           </p>
-          <a href={qrUrl} target="_blank" rel="noreferrer" style={{ fontSize: 'clamp(0.65rem, 1.2vw, 0.9rem)', opacity: 0.6, color: 'var(--foreground)', textDecoration: 'underline', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%', display: 'block' }}>
+          <a href={qrUrl} target="_blank" rel="noreferrer" style={{ fontSize: 'clamp(0.85rem, 1.4vw, 1.1rem)', opacity: 0.75, color: 'var(--primary)', textDecoration: 'underline', wordBreak: 'break-all', display: 'block', textAlign: 'center', marginTop: '0.25rem' }}>
             {qrUrl}
           </a>
         </div>
 
         {/* Panel 2: Stats */}
-        <div className="card" style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: '1rem', overflow: 'hidden' }}>
+        <div className="card" style={{ flex: '0 0 auto', width: '18%', minWidth: '160px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: '1rem', overflow: 'hidden' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', flexShrink: 0 }}>
             <TrendingUp size={22} />
             <span style={{ fontWeight: 600, fontSize: '1.1rem' }}>成績總覽</span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
+          <div style={{ display: 'grid', gridTemplateRows: 'repeat(4, 1fr)', gap: '0.5rem', flex: 1 }}>
             {[
               { label: '已繳交', value: submissions.length, color: 'var(--primary)' },
               { label: '平均分數', value: average, color: 'var(--foreground)' },
