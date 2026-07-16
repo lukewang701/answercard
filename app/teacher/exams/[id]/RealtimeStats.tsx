@@ -314,7 +314,7 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
                         <td className="py-3">
                           <div className="flex items-center gap-2">
                             {ans.isCorrect ? <CheckCircle size={16} className="text-success" /> : <X size={16} className="text-danger" />}
-                            <span className="text-sm">{ans.pointsEarned} 分</span>
+                            <span className="text-sm">{Number(ans.pointsEarned.toFixed(2))} 分</span>
                           </div>
                         </td>
                       </tr>
