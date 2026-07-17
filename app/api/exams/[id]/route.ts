@@ -68,9 +68,9 @@ export async function PUT(
 
     // 3. Recalculate scores for all submissions outside the main transaction
     if (existingExam.submissions.length > 0) {
-      for (const sub of existingExam.submissions) {
+      await Promise.all(existingExam.submissions.map(async (sub) => {
         let rawScore = 0;
-        const updatedAnswersData: any[] = [];
+        const answerUpdates: Promise<any>[] = [];
 
         for (const studentAns of sub.answers) {
           const q = questions.find((cq: any) => cq.number === studentAns.number);
@@ -101,39 +101,29 @@ export async function PUT(
             rawScore += pointsEarned;
           }
 
-          updatedAnswersData.push({
-            id: studentAns.id,
-            isCorrect,
-            pointsEarned
-          });
+          answerUpdates.push(
+            prisma.answer.update({
+              where: { id: studentAns.id },
+              data: { isCorrect, pointsEarned }
+            })
+          );
         }
 
-        // Run updates for this submission in a mini-transaction to ensure consistency per student
-        // and avoid the 5-second timeout of the massive global transaction
-        await prisma.$transaction(async (tx) => {
-          for (const uAns of updatedAnswersData) {
-            await tx.answer.update({
-              where: { id: uAns.id },
-              data: {
-                isCorrect: uAns.isCorrect,
-                pointsEarned: uAns.pointsEarned
-              }
-            });
+        // Update all answers for this submission in parallel
+        await Promise.all(answerUpdates);
+
+        const latePenalty = sub.latePenalty || 0;
+        const finalTotalScore = Math.round(Math.max(0, rawScore - latePenalty));
+        const roundedRawScore = Math.round(rawScore);
+
+        await prisma.submission.update({
+          where: { id: sub.id },
+          data: {
+            rawScore: sub.isLate ? roundedRawScore : null,
+            totalScore: finalTotalScore
           }
-
-          const latePenalty = sub.latePenalty || 0;
-          const finalTotalScore = Math.round(Math.max(0, rawScore - latePenalty));
-          const roundedRawScore = Math.round(rawScore);
-
-          await tx.submission.update({
-            where: { id: sub.id },
-            data: {
-              rawScore: sub.isLate ? roundedRawScore : null,
-              totalScore: finalTotalScore
-            }
-          });
         });
-      }
+      }));
     }
 
     return NextResponse.json({ success: true });

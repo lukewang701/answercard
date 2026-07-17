@@ -15,6 +15,7 @@ interface QuestionDef {
 export function EditExamForm({ initialExam }: { initialExam: any }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
   const [formData, setFormData] = useState({
     name: initialExam.name || '',
     classes: initialExam.targetClass || '', // Single class name
@@ -319,9 +320,12 @@ export function EditExamForm({ initialExam }: { initialExam: any }) {
       
       const data = await res.json();
       if (res.ok && data.success) {
-        alert('儲存成功！若有已繳交的試卷，系統已自動重新計算分數。');
-        router.push(`/teacher/exams/${initialExam.id}`);
-        router.refresh();
+        setSaveSuccess(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => {
+          router.push(`/teacher/exams/${initialExam.id}`);
+          router.refresh();
+        }, 2000);
       } else {
         alert(data.error || '儲存失敗');
       }
@@ -340,6 +344,16 @@ export function EditExamForm({ initialExam }: { initialExam: any }) {
         </Link>
         <h1 className="m-0 flex-1">編輯試卷</h1>
       </div>
+
+      {saveSuccess && (
+        <div className="animate-fade-in" style={{ marginBottom: '1.5rem', padding: '1rem 1.5rem', borderRadius: '12px', background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.4)', display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--success)', fontWeight: 600, fontSize: '1rem' }}>
+          <span style={{ fontSize: '1.5rem' }}>✅</span>
+          <div>
+            <div>試卷內容已成功儲存！</div>
+            <div style={{ fontWeight: 400, fontSize: '0.85rem', opacity: 0.8 }}>若有已繳交的試卷，系統已自動重新計算分數，正在跳回試卷頁面⋯⋯</div>
+          </div>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit}>
         <div className="card mb-8">
