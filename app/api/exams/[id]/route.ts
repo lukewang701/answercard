@@ -51,24 +51,20 @@ export async function PUT(
         ? Math.max(0, (totalScore - definedPoints) / questionsWithoutPoints)
         : 0;
 
-      const newQs = await Promise.all(
-        questions.map((q: any) =>
-          tx.question.create({
-            data: {
-              examId: id,
-              number: q.number,
-              correctAnswers: JSON.stringify(q.correctAnswers),
-              points: q.points,
-              isMultiple: q.isMultiple
-            }
-          })
-        )
-      );
+      await tx.question.createMany({
+        data: questions.map((q: any) => ({
+          examId: id,
+          number: q.number,
+          correctAnswers: JSON.stringify(q.correctAnswers),
+          points: q.points,
+          isMultiple: q.isMultiple
+        }))
+      });
       
-      return { newQs, defaultPointsPerQ };
+      return { defaultPointsPerQ };
     });
 
-    const { newQs, defaultPointsPerQ } = createdQuestions;
+    const { defaultPointsPerQ } = createdQuestions;
 
     // 3. Recalculate scores for all submissions outside the main transaction
     if (existingExam.submissions.length > 0) {
@@ -77,13 +73,13 @@ export async function PUT(
         const updatedAnswersData: any[] = [];
 
         for (const studentAns of sub.answers) {
-          const q = newQs.find(cq => cq.number === studentAns.number);
+          const q = questions.find((cq: any) => cq.number === studentAns.number);
           let isCorrect = false;
           let pointsEarned = 0;
 
           if (q) {
-            const qPoints = q.points || defaultPointsPerQ;
-            const correctAnsArray = JSON.parse(q.correctAnswers);
+            const qPoints = q.points !== null ? q.points : defaultPointsPerQ;
+            const correctAnsArray = q.correctAnswers;
             const studentAnsArray = JSON.parse(studentAns.selectedAnswers).sort();
             
             let validCombos: string[] = [];
