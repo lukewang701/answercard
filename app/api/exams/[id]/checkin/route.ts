@@ -39,10 +39,10 @@ export async function POST(
 ) {
   const { id } = await params;
   try {
-    const { studentName, seatNumber, className } = await request.json();
+    const { studentName, seatNumber, className, deviceId } = await request.json();
 
-    if (!studentName || !seatNumber || !className) {
-      return NextResponse.json({ error: '請填寫完整資料' }, { status: 400 });
+    if (!studentName || !seatNumber || !className || !deviceId) {
+      return NextResponse.json({ error: '請填寫完整資料與裝置驗證' }, { status: 400 });
     }
 
     // Verify exam exists
@@ -82,15 +82,20 @@ export async function POST(
     const existing = await prisma.checkIn.findUnique({
       where: { examId_seatNumber_className: { examId: id, seatNumber: seatNumber.padStart(2, '0'), className } }
     });
-    if (existing && existing.studentName !== studentName) {
-      return NextResponse.json({ error: '此座號已有人領取答案卡' }, { status: 409 });
+    if (existing) {
+      if (existing.studentName !== studentName) {
+        return NextResponse.json({ error: '此座號已有人領取答案卡' }, { status: 409 });
+      }
+      if (existing.deviceId && existing.deviceId !== deviceId) {
+        return NextResponse.json({ error: '答案卡已被其他同學領取，若確認其他同學誤領，請告知老師' }, { status: 409 });
+      }
     }
 
     // Upsert check-in
     const checkIn = await prisma.checkIn.upsert({
       where: { examId_seatNumber_className: { examId: id, seatNumber: seatNumber.padStart(2, '0'), className } },
-      update: { studentName, checkedInAt: new Date() },
-      create: { examId: id, studentName, seatNumber: seatNumber.padStart(2, '0'), className }
+      update: { studentName, deviceId, checkedInAt: new Date() },
+      create: { examId: id, studentName, seatNumber: seatNumber.padStart(2, '0'), className, deviceId }
     });
 
     return NextResponse.json({

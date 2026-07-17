@@ -29,6 +29,17 @@ export function StudentDigitalFlow({
   const [identityError, setIdentityError] = useState('');
   const [checkingIn, setCheckingIn] = useState(false);
   const [checkinId, setCheckinId] = useState('');
+  const [deviceId, setDeviceId] = useState('');
+  const [isRecalled, setIsRecalled] = useState(false);
+
+  useEffect(() => {
+    let did = sessionStorage.getItem('student_device_id');
+    if (!did) {
+      did = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      sessionStorage.setItem('student_device_id', did);
+    }
+    setDeviceId(did);
+  }, []);
 
   // Answering — page-based (5 questions per page)
   const [answers, setAnswers] = useState<string[][]>(Array.from({ length: totalQuestions }, () => []));
@@ -41,12 +52,35 @@ export function StudentDigitalFlow({
   // Result
   const [result, setResult] = useState<any>(null);
 
-  // Live clock
+  // Live clock and polling status
   const [now, setNow] = useState(new Date());
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(t);
   }, []);
+
+  useEffect(() => {
+    if (phase !== 'answering' || !checkinId || !deviceId) return;
+    
+    const checkStatus = async () => {
+      try {
+        const res = await fetch(`/api/exams/${examId}/checkin/${checkinId}/status?deviceId=${deviceId}`);
+        if (!res.ok) {
+           setIsRecalled(true);
+           return;
+        }
+        const data = await res.json();
+        if (!data.valid) {
+          setIsRecalled(true);
+        }
+      } catch (e) {
+        // Ignore temporary network errors
+      }
+    };
+
+    const t = setInterval(checkStatus, 5000);
+    return () => clearInterval(t);
+  }, [phase, examId, checkinId, deviceId]);
 
   // Download review
   const cardRef = useRef<HTMLDivElement>(null);
@@ -77,7 +111,7 @@ export function StudentDigitalFlow({
       const res = await fetch(`/api/exams/${examId}/checkin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ className, seatNumber: seatNumber.padStart(2, '0'), studentName: name }),
+        body: JSON.stringify({ className, seatNumber: seatNumber.padStart(2, '0'), studentName: name, deviceId }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -226,6 +260,17 @@ export function StudentDigitalFlow({
 
     return (
       <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', background: 'var(--background)' }}>
+        
+        {isRecalled && (
+          <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+            <div className="card" style={{ maxWidth: '400px', width: '100%', padding: '2.5rem 1.5rem', textAlign: 'center', border: '1px solid var(--danger)' }}>
+              <AlertCircle size={64} className="text-danger mx-auto mb-4" />
+              <h2 style={{ margin: '0 0 1rem 0', color: 'var(--danger)', fontSize: '1.4rem' }}>此張答案卡已被收回</h2>
+              <p style={{ opacity: 0.8, marginBottom: '2rem', lineHeight: 1.5 }}>請下載正確答案卡</p>
+              <button className="btn btn-primary w-full" onClick={() => window.location.reload()}>返回首頁</button>
+            </div>
+          </div>
+        )}
 
         {/* Header */}
         <div style={{ background: 'var(--secondary)', padding: '0.6rem 1rem', flexShrink: 0 }}>

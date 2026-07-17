@@ -92,6 +92,7 @@ model CheckIn {
   studentName String
   seatNumber  String
   className   String
+  deviceId    String?
   checkedInAt DateTime @default(now())
 
   @@unique([examId, seatNumber, className])
