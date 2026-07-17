@@ -98,12 +98,36 @@ export function InactivityLock() {
     }
   };
 
+  useEffect(() => {
+    if (isLocked) {
+      document.body.style.overflow = 'hidden'; // block body scroll
+      
+      const handleKeyDown = (e: KeyboardEvent) => {
+        // Simple focus trap: prevent tabbing out of the modal
+        if (e.key === 'Tab') {
+          e.preventDefault();
+        }
+      };
+      window.addEventListener('keydown', handleKeyDown, { capture: true });
+      return () => {
+        document.body.style.overflow = '';
+        window.removeEventListener('keydown', handleKeyDown, { capture: true });
+      };
+    }
+  }, [isLocked]);
+
   if (!isLocked) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-transparent flex flex-col items-center pt-8">
+    <div className="fixed inset-0 z-[999999] bg-transparent flex flex-col items-center pt-8" style={{ pointerEvents: 'auto' }}>
       {/* Invisible overlay to block clicks on underlying page */}
-      <div className="absolute inset-0 bg-transparent" style={{ pointerEvents: 'auto' }}></div>
+      <div 
+        className="absolute inset-0 bg-transparent" 
+        style={{ pointerEvents: 'auto', cursor: 'not-allowed' }}
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+        onWheel={(e) => { e.preventDefault(); e.stopPropagation(); }}
+        onTouchMove={(e) => { e.preventDefault(); e.stopPropagation(); }}
+      ></div>
       
       {/* Unlock dialog at the top */}
       <div 
