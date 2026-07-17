@@ -1,9 +1,17 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { PwaRegister } from './PwaRegister';
 
 export const metadata: Metadata = {
   title: '答案卡掃描批改系統',
   description: '快速掃描批改學生答案卡，即時統計成績報表。',
+  manifest: '/manifest.json',
+  themeColor: '#0F172A',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: '答案卡系統',
+  },
 };
 
 export default function RootLayout({
@@ -14,6 +22,7 @@ export default function RootLayout({
   return (
     <html lang="zh-TW">
       <body suppressHydrationWarning>
+        <PwaRegister />
         <main className="min-h-screen">
           {children}
         </main>
