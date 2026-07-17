@@ -269,7 +269,7 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
       {/* Student Details Modal */}
       {studentDetailsTarget && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setStudentDetailsTarget(null)}>
-          <div className="bg-secondary/90 border border-border p-6 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+          <div className="bg-secondary/90 border border-border p-6 rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-start mb-4">
               <div>
                 <h3 className="m-0 text-xl font-bold mb-1">{studentDetailsTarget.seatNumber}號 {studentDetailsTarget.name} - 作答詳情</h3>
@@ -287,10 +287,10 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-border text-sm opacity-70">
-                    <th className="py-2 pl-2 w-16">題號</th>
-                    <th className="py-2">學生作答</th>
-                    <th className="py-2">正確答案</th>
-                    <th className="py-2">得分</th>
+                    <th className="py-2 px-2 text-left w-16">題號</th>
+                    <th className="py-2 px-2 text-left">學生作答</th>
+                    <th className="py-2 px-2 text-left">正確答案</th>
+                    <th className="py-2 px-2 text-left">得分</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -303,15 +303,15 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
                     try { studentAnsStr = JSON.parse(studentAnsStr).join(''); } catch {}
                     
                     return (
-                      <tr key={ans.number} className="border-b border-border/50 hover:bg-background/50">
-                        <td className="py-3 pl-2 font-medium">#{ans.number}</td>
-                        <td className="py-3">
+                      <tr key={ans.number} className="border-b border-border/50 hover:bg-background/50 transition-colors">
+                        <td className="py-3 px-2 font-medium">#{ans.number}</td>
+                        <td className="py-3 px-2">
                           <span className={`font-bold ${ans.isCorrect ? 'text-success' : 'text-danger'}`}>
                             {studentAnsStr || '未作答'}
                           </span>
                         </td>
-                        <td className="py-3 opacity-80">{correctAnsStr}</td>
-                        <td className="py-3">
+                        <td className="py-3 px-2 opacity-80">{correctAnsStr}</td>
+                        <td className="py-3 px-2">
                           <div className="flex items-center gap-2">
                             {ans.isCorrect ? <CheckCircle size={16} className="text-success" /> : <X size={16} className="text-danger" />}
                             <span className="text-sm">{Number(ans.pointsEarned.toFixed(2))} 分</span>
