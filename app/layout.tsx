@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { PwaRegister } from './PwaRegister';
+import NextTopLoader from 'nextjs-toploader';
 
 export const metadata: Metadata = {
   title: '答案卡掃描批改系統',
@@ -22,6 +23,7 @@ export default function RootLayout({
   return (
     <html lang="zh-TW">
       <body suppressHydrationWarning>
+        <NextTopLoader color="#3B82F6" showSpinner={true} />
         <PwaRegister />
         <main className="min-h-screen">
           {children}

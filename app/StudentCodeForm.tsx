@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation';
 
 export function StudentCodeForm() {
   const [code, setCode] = useState('');
+  const [isNavigating, setIsNavigating] = useState(false);
   const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (code.trim()) {
+      setIsNavigating(true);
       router.push(`/s/${code.trim()}`);
     }
   };
@@ -23,9 +25,10 @@ export function StudentCodeForm() {
         value={code}
         onChange={(e) => setCode(e.target.value)}
         maxLength={6}
+        disabled={isNavigating}
       />
-      <button type="submit" className="btn btn-secondary" disabled={!code.trim()}>
-        進入
+      <button type="submit" className="btn btn-secondary" disabled={!code.trim() || isNavigating}>
+        {isNavigating ? '讀取中...' : '進入'}
       </button>
     </form>
   );
