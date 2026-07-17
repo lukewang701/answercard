@@ -226,39 +226,58 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
                   if (st.status === 'submitted') setStudentDetailsTarget(st);
                   else if (st.status === 'checkedin') setRecallTarget(st.checkin);
                 }}
-                className={`transition-all ${st.status === 'submitted' ? 'cursor-pointer' : st.status === 'checkedin' ? 'cursor-pointer' : ''}`}
+                className={`transition-all duration-300 ${st.status === 'submitted' ? 'cursor-pointer hover:bg-success/20' : st.status === 'checkedin' ? 'cursor-pointer animate-pulse' : ''}`}
                 style={{
-                  backgroundColor: st.status === 'submitted' ? 'rgba(34,197,94,0.08)' : 'var(--background)',
-                  border: `1.5px solid ${st.status === 'submitted' ? 'var(--success)' : st.status === 'checkedin' ? 'var(--warning)' : 'var(--border)'}`,
+                  backgroundColor: st.status === 'submitted' ? 'rgba(34,197,94,0.12)' : st.status === 'checkedin' ? 'rgba(56, 189, 248, 0.08)' : 'transparent',
+                  border: st.status === 'submitted' ? '1.5px solid rgba(34,197,94,0.4)' : st.status === 'checkedin' ? '1.5px solid rgba(56,189,248,0.5)' : '1px dashed var(--border)',
+                  boxShadow: st.status === 'checkedin' ? '0 0 10px rgba(56,189,248,0.15)' : 'none',
                   borderRadius: '6px',
-                  padding: '0.3rem 0.5rem',
-                  opacity: st.status === 'missing' ? 0.55 : 1,
+                  padding: '0.4rem 0.5rem',
+                  opacity: st.status === 'missing' ? 0.6 : 1,
                   position: 'relative',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '0.1rem',
-                  minHeight: 0,
+                  justifyContent: 'center',
+                  minHeight: '44px',
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.25rem' }}>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>
-                    <span style={{ opacity: 0.55, fontSize: '0.68rem', marginRight: '0.2rem' }}>{st.seatNumber}</span>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 600, color: st.status === 'missing' ? 'var(--foreground)' : 'var(--foreground)' }}>
+                    <span style={{ opacity: 0.5, fontSize: '0.7rem', marginRight: '0.2rem' }}>{st.seatNumber}</span>
                     {st.name}
                   </span>
-                  {st.status === 'submitted' && <span style={{ fontSize: '0.58rem', fontWeight: 700, color: 'var(--success)', background: 'rgba(34,197,94,0.15)', padding: '0.05rem 0.25rem', borderRadius: '3px', flexShrink: 0 }}>繳✓</span>}
-                  {st.status === 'checkedin' && <span style={{ fontSize: '0.58rem', fontWeight: 700, color: 'var(--warning)', background: 'rgba(234,179,8,0.15)', padding: '0.05rem 0.25rem', borderRadius: '3px', flexShrink: 0 }}>領取</span>}
-                  {st.status === 'missing' && <span style={{ fontSize: '0.58rem', fontWeight: 700, color: 'var(--danger)', background: 'rgba(239,68,68,0.1)', padding: '0.05rem 0.25rem', borderRadius: '3px', flexShrink: 0 }}>缺</span>}
-                </div>
-                {showScores && st.submission && (
-                  <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--primary)' }}>
-                    {st.submission.isLate && st.submission.rawScore != null ? (
-                      <span style={{ fontSize: '0.68rem' }}>
-                        <span style={{ textDecoration: 'line-through', opacity: 0.6 }}>{Math.round(st.submission.rawScore)}</span>
-                        {' → '}{Math.round(st.submission.totalScore)}
+                  
+                  {st.status === 'submitted' && (
+                    showScores && st.submission ? (
+                      <span style={{ 
+                        fontSize: '0.75rem', fontWeight: 800, padding: '0.1rem 0.35rem', borderRadius: '4px', flexShrink: 0,
+                        backgroundColor: st.submission.totalScore >= 60 ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.15)',
+                        color: st.submission.totalScore >= 60 ? 'var(--success)' : 'var(--danger)',
+                        border: `1px solid ${st.submission.totalScore >= 60 ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`
+                      }}>
+                        {st.submission.isLate && st.submission.rawScore != null ? (
+                          <span>
+                            <span style={{ textDecoration: 'line-through', opacity: 0.6, fontSize: '0.65rem', marginRight: '2px' }}>{Math.round(st.submission.rawScore)}</span>
+                            {Math.round(st.submission.totalScore)}
+                          </span>
+                        ) : Math.round(st.submission.totalScore)}
                       </span>
-                    ) : Math.round(st.submission.totalScore)}
-                  </div>
-                )}
+                    ) : (
+                      <span style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--success)', background: 'rgba(34,197,94,0.15)', padding: '0.1rem 0.3rem', borderRadius: '4px', flexShrink: 0, border: '1px solid rgba(34,197,94,0.3)' }}>✅ 繳交</span>
+                    )
+                  )}
+
+                  {st.status === 'checkedin' && (
+                    <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#38BDF8', background: 'rgba(56,189,248,0.15)', padding: '0.1rem 0.3rem', borderRadius: '4px', flexShrink: 0, border: '1px solid rgba(56,189,248,0.3)', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                      <span style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: '#38BDF8', display: 'inline-block', animation: 'pulse 1.5s infinite' }}></span>
+                      作答中
+                    </span>
+                  )}
+
+                  {st.status === 'missing' && (
+                    <span style={{ fontSize: '0.65rem', fontWeight: 500, color: 'var(--foreground)', opacity: 0.4, padding: '0.1rem 0.2rem', flexShrink: 0 }}>未繳交</span>
+                  )}
+                </div>
               </div>
             ))}
 
