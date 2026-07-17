@@ -284,13 +284,13 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
             </div>
 
             <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-              <table className="w-full text-left border-collapse">
+              <table className="w-full text-center border-collapse">
                 <thead>
                   <tr className="border-b border-border text-sm opacity-70">
-                    <th className="py-2 px-2 text-left w-16">題號</th>
-                    <th className="py-2 px-2 text-left">學生作答</th>
-                    <th className="py-2 px-2 text-left">正確答案</th>
-                    <th className="py-2 px-2 text-left">得分</th>
+                    <th className="py-2 px-2 text-center w-16">題號</th>
+                    <th className="py-2 px-2 text-center">學生作答</th>
+                    <th className="py-2 px-2 text-center">正確答案</th>
+                    <th className="py-2 px-2 text-center">得分</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -312,7 +312,7 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
                         </td>
                         <td className="py-3 px-2 opacity-80">{correctAnsStr}</td>
                         <td className="py-3 px-2">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center justify-center gap-2">
                             {ans.isCorrect ? <CheckCircle size={16} className="text-success" /> : <X size={16} className="text-danger" />}
                             <span className="text-sm">{Number(ans.pointsEarned.toFixed(2))} 分</span>
                           </div>
