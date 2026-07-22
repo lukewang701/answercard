@@ -15,6 +15,7 @@ export function StudentDigitalFlow({
   examName,
   totalQuestions,
   targetClass,
+  allowPaperScan = false,
 }: {
   examId: string;
   examName: string;
