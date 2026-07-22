@@ -110,14 +110,14 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
           <FileStack className="text-primary" />
           {activeFolder ? (
             <>
-              <button className="text-white hover:text-primary transition-colors" onClick={() => setActiveFolder(null)}>
+              <button className="text-foreground hover:text-primary transition-colors" onClick={() => setActiveFolder(null)}>
                 所有資料夾
               </button>
               <ChevronRight size={18} className="opacity-50" />
               <span>{activeFolder}</span>
             </>
           ) : (
-            <span className="text-white">所有資料夾</span>
+            <span className="text-foreground">所有資料夾</span>
           )}
         </h2>
 
@@ -158,7 +158,7 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
                   </div>
                 </div>
                 <button 
-                  className="p-2 text-white hover:text-danger hover:bg-danger/10 rounded-lg transition-colors"
+                  className="p-2 text-foreground opacity-60 hover:text-danger hover:opacity-100 hover:bg-danger/10 rounded-lg transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     setDeleteFolderTarget(group);
