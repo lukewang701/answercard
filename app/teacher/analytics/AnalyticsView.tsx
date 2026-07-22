@@ -276,7 +276,7 @@ export default function AnalyticsView({ initialExams }: { initialExams: any[] })
                     <tr style={{ borderBottom: '2px solid var(--border)' }}>
                       <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', opacity: 0.6, fontWeight: 600, whiteSpace: 'nowrap' }}>排名</th>
                       <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', opacity: 0.6, fontWeight: 600, whiteSpace: 'nowrap' }}>題號</th>
-                      <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', opacity: 0.6, fontWeight: 600, whiteSpace: 'nowrap', minWidth: '120px' }}>錯誤率</th>
+                      <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', opacity: 0.6, fontWeight: 600, whiteSpace: 'nowrap', minWidth: '120px' }}>錯誤率</th>
                       {['A', 'B', 'C', 'D', 'E'].map(opt => (
                         <th key={opt} style={{ padding: '0.5rem 0.75rem', textAlign: 'center', opacity: 0.6, fontWeight: 600, minWidth: '64px' }}>{opt}</th>
                       ))}
@@ -301,14 +301,14 @@ export default function AnalyticsView({ initialExams }: { initialExams: any[] })
                           {/* Q Number */}
                           <td style={{ padding: '0.6rem 0.75rem', fontWeight: 600 }}>第 {stat.number} 題</td>
                           {/* Error Rate Bar */}
-                          <td style={{ padding: '0.6rem 0.75rem' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                              <span style={{ fontWeight: 700, color: isTop3 ? 'var(--danger)' : 'var(--warning)', minWidth: '2.5rem', textAlign: 'left' }}>
-                                {Math.round(stat.errorRate)}%
-                              </span>
+                          <td style={{ padding: '0.6rem 0.75rem', textAlign: 'center' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}>
                               <div style={{ flex: 1, height: '8px', borderRadius: '4px', background: 'var(--secondary)', overflow: 'hidden', minWidth: '60px' }}>
                                 <div style={{ height: '100%', borderRadius: '4px', width: `${stat.errorRate}%`, background: isTop3 ? 'var(--danger)' : 'var(--warning)', transition: 'width 0.4s' }} />
                               </div>
+                              <span style={{ fontWeight: 700, color: isTop3 ? 'var(--danger)' : 'var(--warning)', minWidth: '3rem', textAlign: 'center' }}>
+                                {Math.round(stat.errorRate)}%
+                              </span>
                             </div>
                           </td>
                           {/* Per-option cells */}
