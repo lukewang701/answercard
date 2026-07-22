@@ -16,7 +16,7 @@ export default async function StudentExamPage({
 
   const exam = await prisma.exam.findUnique({
     where: { shareCode: code.toUpperCase() },
-    select: { id: true, name: true, date: true, totalQuestions: true, targetClass: true, startTime: true }
+    select: { id: true, name: true, date: true, totalQuestions: true, targetClass: true, startTime: true, deadline: true }
   });
 
   if (!exam) return notFound();
@@ -47,6 +47,7 @@ export default async function StudentExamPage({
         totalQuestions={exam.totalQuestions}
         targetClass={exam.targetClass ?? ''}
         allowPaperScan={allowPaperScan}
+        deadline={exam.deadline ? exam.deadline.toISOString() : undefined}
       />
     </div>
   );

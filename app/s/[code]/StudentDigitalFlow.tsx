@@ -16,12 +16,14 @@ export function StudentDigitalFlow({
   totalQuestions,
   targetClass,
   allowPaperScan = false,
+  deadline,
 }: {
   examId: string;
   examName: string;
   totalQuestions: number;
   targetClass: string;
   allowPaperScan?: boolean;
+  deadline?: string;
 }) {
   const [phase, setPhase] = useState<Phase>('identity');
 
@@ -190,11 +192,28 @@ export function StudentDigitalFlow({
         setResult(data.submission);
       }
       setPhase('result');
+      setTimeout(() => {
+        if (window.confirm('答題已送出！是否要立即下載答題結果檢討檔案？')) {
+          handleDownloadReview();
+        }
+      }, 500);
     } catch {
       setSubmitError('網路發生錯誤，請重試');
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const getRemainingTime = () => {
+    if (!deadline) return '無時間限制';
+    const diff = new Date(deadline).getTime() - now.getTime();
+    if (diff <= 0) return '已超時';
+    const totalSecs = Math.floor(diff / 1000);
+    const h = Math.floor(totalSecs / 3600);
+    const m = Math.floor((totalSecs % 3600) / 60);
+    const s = totalSecs % 60;
+    if (h > 0) return `剩餘 ${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    return `剩餘 ${m}:${s.toString().padStart(2, '0')}`;
   };
 
   const answered = answers.filter(a => a.length > 0).length;
@@ -298,7 +317,7 @@ export function StudentDigitalFlow({
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
             <span style={{ fontSize: '0.82rem', opacity: 0.7 }}>{name} · {className} {seatNumber}號</span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.78rem', opacity: 0.55 }}>
-              <Clock size={12} /> {now.toLocaleTimeString()}
+              <Clock size={12} /> {getRemainingTime()}
             </span>
           </div>
           <div>
