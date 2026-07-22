@@ -339,106 +339,109 @@ export function StudentDigitalFlow({
           <>
             {/* Questions for this page */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '0.75rem 1rem' }}>
-          {pageQuestions.map(qIdx => {
-            const qNum = qIdx + 1;
-            const currentAnswers = answers[qIdx];
-            return (
-              <div key={qIdx} style={{ marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid var(--border)' }}>
-                {/* Question label */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                  <span style={{
-                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                    width: '1.8rem', height: '1.8rem', borderRadius: '50%', fontSize: '0.85rem', fontWeight: 700, flexShrink: 0,
-                    background: currentAnswers.length > 0 ? 'var(--primary)' : 'var(--secondary)',
-                    color: currentAnswers.length > 0 ? 'white' : 'var(--foreground)'
-                  }}>{qNum}</span>
-                  <span style={{ fontSize: '0.82rem', opacity: 0.55 }}>第 {qNum} 題{currentAnswers.length > 1 ? ` (複選：${currentAnswers.join(',')})` : ''}</span>
-                </div>
-                {/* Option buttons in a row */}
-                <div style={{ display: 'flex', gap: '0.4rem' }}>
-                  {OPTIONS.map(opt => {
-                    const selected = currentAnswers.includes(opt);
-                    return (
-                      <button
-                        key={opt}
-                        onClick={() => toggleOption(qIdx, opt)}
-                        style={{
-                          flex: 1, padding: '0.65rem 0', borderRadius: '8px', fontSize: '1rem', fontWeight: 700,
-                          border: `2px solid ${selected ? 'var(--primary)' : 'var(--border)'}`,
-                          background: selected ? 'var(--primary)' : 'var(--secondary)',
-                          color: selected ? 'white' : 'var(--foreground)',
-                          cursor: 'pointer', transition: 'all 0.12s',
-                        }}
-                      >{opt}</button>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              {pageQuestions.map(qIdx => {
+                const qNum = qIdx + 1;
+                const currentAnswers = answers[qIdx];
+                return (
+                  <div key={qIdx} style={{ marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid var(--border)' }}>
+                    {/* Question label */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                        width: '1.8rem', height: '1.8rem', borderRadius: '50%', fontSize: '0.85rem', fontWeight: 700, flexShrink: 0,
+                        background: currentAnswers.length > 0 ? 'var(--primary)' : 'var(--secondary)',
+                        color: currentAnswers.length > 0 ? 'white' : 'var(--foreground)'
+                      }}>{qNum}</span>
+                      <span style={{ fontSize: '0.82rem', opacity: 0.55 }}>第 {qNum} 題{currentAnswers.length > 1 ? ` (複選：${currentAnswers.join(',')})` : ''}</span>
+                    </div>
+                    {/* Option buttons in a row */}
+                    <div style={{ display: 'flex', gap: '0.4rem' }}>
+                      {OPTIONS.map(opt => {
+                        const selected = currentAnswers.includes(opt);
+                        return (
+                          <button
+                            key={opt}
+                            onClick={() => toggleOption(qIdx, opt)}
+                            style={{
+                              flex: 1, padding: '0.65rem 0', borderRadius: '8px', fontSize: '1rem', fontWeight: 700,
+                              border: `2px solid ${selected ? 'var(--primary)' : 'var(--border)'}`,
+                              background: selected ? 'var(--primary)' : 'var(--secondary)',
+                              color: selected ? 'white' : 'var(--foreground)',
+                              cursor: 'pointer', transition: 'all 0.12s',
+                            }}
+                          >{opt}</button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
 
-        {/* Navigation footer */}
-        <div style={{ padding: '0.75rem 1rem', background: 'var(--secondary)', display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
-          <button
-            onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
-            disabled={currentPage === 0}
-            className="btn btn-secondary"
-            style={{ flex: 1, padding: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', fontSize: '0.95rem' }}
-          >
-            <ChevronLeft size={18} /> 上一頁
-          </button>
-
-          {!isLastPage ? (
-            <button
-              onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
-              className="btn btn-primary"
-              style={{ flex: 1, padding: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', fontSize: '0.95rem' }}
-            >
-              下一頁 <ChevronRight size={18} />
-            </button>
-          ) : (
-            <button
-              onClick={handleSubmit}
-              disabled={submitting}
-              className="btn btn-primary"
-              style={{ flex: 1, padding: '0.75rem', fontSize: '0.95rem', fontWeight: 700, background: 'var(--success)' }}
-            >
-              {submitting ? '送出中...' : '✓ 送出答案卡'}
-            </button>
-          )}
-        </div>
-
-        {/* Page nav dots */}
-        <div style={{ padding: '0.4rem 1rem 0.6rem', display: 'flex', flexWrap: 'wrap', gap: '0.3rem', justifyContent: 'center', background: 'var(--secondary)', borderTop: '1px solid var(--border)' }}>
-          {Array.from({ length: totalPages }, (_, i) => {
-            const pStart = i * QUESTIONS_PER_PAGE;
-            const pEnd = Math.min(pStart + QUESTIONS_PER_PAGE, totalQuestions);
-            const pageAnswered = answers.slice(pStart, pEnd).every(a => a.length > 0);
-            return (
+            {/* Navigation footer */}
+            <div style={{ padding: '0.75rem 1rem', background: 'var(--secondary)', display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
               <button
-                key={i}
-                onClick={() => setCurrentPage(i)}
-                style={{
-                  padding: '0.25rem 0.6rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', border: 'none',
-                  background: i === currentPage ? 'var(--primary)' : pageAnswered ? 'rgba(34,197,94,0.3)' : 'var(--border)',
-                  color: i === currentPage ? 'white' : 'var(--foreground)',
-                }}
+                onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
+                disabled={currentPage === 0}
+                className="btn btn-secondary"
+                style={{ flex: 1, padding: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', fontSize: '0.95rem' }}
               >
-                第{i + 1}頁
+                <ChevronLeft size={18} /> 上一頁
               </button>
-            );
-          })}
-        </div>
 
-        {submitError && (
-          <div style={{ padding: '0.75rem 1rem', color: 'var(--danger)', background: 'rgba(239,68,68,0.1)', textAlign: 'center', fontSize: '0.9rem' }}>
-            {submitError}
-          </div>
+              {!isLastPage ? (
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
+                  className="btn btn-primary"
+                  style={{ flex: 1, padding: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', fontSize: '0.95rem' }}
+                >
+                  下一頁 <ChevronRight size={18} />
+                </button>
+              ) : (
+                <button
+                  onClick={handleSubmit}
+                  disabled={submitting}
+                  className="btn btn-primary"
+                  style={{ flex: 1, padding: '0.75rem', fontSize: '0.95rem', fontWeight: 700, background: 'var(--success)' }}
+                >
+                  {submitting ? '送出中...' : '✓ 送出答案卡'}
+                </button>
+              )}
+            </div>
+
+            {/* Page nav dots */}
+            <div style={{ padding: '0.4rem 1rem 0.6rem', display: 'flex', flexWrap: 'wrap', gap: '0.3rem', justifyContent: 'center', background: 'var(--secondary)', borderTop: '1px solid var(--border)' }}>
+              {Array.from({ length: totalPages }, (_, i) => {
+                const pStart = i * QUESTIONS_PER_PAGE;
+                const pEnd = Math.min(pStart + QUESTIONS_PER_PAGE, totalQuestions);
+                const pageAnswered = answers.slice(pStart, pEnd).every(a => a.length > 0);
+                return (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentPage(i)}
+                    style={{
+                      padding: '0.25rem 0.6rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', border: 'none',
+                      background: i === currentPage ? 'var(--primary)' : pageAnswered ? 'rgba(34,197,94,0.3)' : 'var(--border)',
+                      color: i === currentPage ? 'white' : 'var(--foreground)',
+                    }}
+                  >
+                    第{i + 1}頁
+                  </button>
+                );
+              })}
+            </div>
+
+            {submitError && (
+              <div style={{ padding: '0.75rem 1rem', color: 'var(--danger)', background: 'rgba(239,68,68,0.1)', textAlign: 'center', fontSize: '0.9rem' }}>
+                {submitError}
+              </div>
+            )}
+          </>
         )}
       </div>
     );
   }
+
 
   // ── Phase: Result ────────────────────────────────────────────────────────
   return (
