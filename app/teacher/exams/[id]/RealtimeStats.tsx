@@ -41,8 +41,9 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
   const [deadline, setDeadline] = useState(toLocalDatetimeInput(examSettings.deadline));
   const [allowLateSubmission, setAllowLateSubmission] = useState(examSettings.allowLateSubmission);
   const [lateDeadline, setLateDeadline] = useState(toLocalDatetimeInput(examSettings.lateDeadline));
+  const [lateMarkEnabled, setLateMarkEnabled] = useState(examSettings.lateMarkEnabled);       // for allowLateSubmission
   const [extraOpen, setExtraOpen] = useState(examSettings.extraOpen);
-  const [lateMarkEnabled, setLateMarkEnabled] = useState(examSettings.lateMarkEnabled);
+  const [extraOpenLateMark, setExtraOpenLateMark] = useState(examSettings.lateMarkEnabled);  // for extraOpen
   const [savingSettings, setSavingSettings] = useState(false);
 
   // Recall modal
@@ -56,7 +57,7 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
     return () => clearInterval(t);
   }, []);
 
-  const saveSettings = useCallback(async (patch: Partial<{ startTime: string; deadline: string; allowLateSubmission: boolean; lateDeadline: string; extraOpen: boolean; lateMarkEnabled: boolean }>) => {
+  const saveSettings = useCallback(async (patch: Partial<{ startTime: string; deadline: string; allowLateSubmission: boolean; lateDeadline: string; extraOpen: boolean; lateMarkEnabled: boolean; extraOpenLateMark: boolean }>) => {
     setSavingSettings(true);
     try {
       await fetch(`/api/exams/${examId}/settings`, {
@@ -231,6 +232,16 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
               />
               開啟補交
             </label>
+            {extraOpen && (
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                <input
+                  type="checkbox"
+                  checked={extraOpenLateMark}
+                  onChange={e => { setExtraOpenLateMark(e.target.checked); saveSettings({ extraOpenLateMark: e.target.checked }); }}
+                />
+                標記遲交並扣5分
+              </label>
+            )}
           </div>
       </div>
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { Folder, Users, FileBarChart, ChevronRight, FileStack, Trash2, X, Play, Edit, ClipboardList, Key, Calendar, BarChart2, LineChart, Scan, FileText, Copy } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -68,7 +68,18 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
 
   const handleOpenFolder = (groupKey: string) => {
     setActiveFolder(groupKey);
+    window.history.pushState({ folder: groupKey }, '', `?folder=${encodeURIComponent(groupKey)}`);
   };
+
+  // Sync activeFolder with browser back/forward
+  useEffect(() => {
+    const onPop = (e: PopStateEvent) => {
+      const params = new URLSearchParams(window.location.search);
+      setActiveFolder(params.get('folder'));
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
 
   const activeGroup = groups.find(g => g.key === activeFolder);
 
@@ -110,7 +121,10 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
           <FileStack className="text-primary" />
           {activeFolder ? (
             <>
-              <button className="text-foreground hover:text-primary transition-colors" onClick={() => setActiveFolder(null)}>
+              <button
+                className="text-foreground hover:text-primary transition-colors"
+                onClick={() => { setActiveFolder(null); window.history.pushState({}, '', window.location.pathname); }}
+              >
                 所有資料夾
               </button>
               <ChevronRight size={18} className="opacity-50" />
