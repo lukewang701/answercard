@@ -199,7 +199,7 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
 
       {/* View: Child Exams in Folder */}
       {activeFolder && activeGroup && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-fade-in">
           {activeGroup.exams.map((exam) => {
             const submissions = exam.submissions || [];
             const submittedCount = submissions.length || exam._count?.submissions || 0;
@@ -211,17 +211,17 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
             <div key={exam.id} className="card flex flex-col" style={{ padding: '1.5rem', gap: '0', background: 'var(--secondary)' }}>
 
               {/* ── Row 1: Name | Share Code ── */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.25rem', paddingBottom: '1.25rem', borderBottom: '1px solid var(--border)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.25rem', paddingBottom: '1.25rem', borderBottom: '1px solid var(--border)', flexWrap: 'wrap' }}>
                 {/* Name side */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: '150px' }}>
                   <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(59,130,246,0.12)', color: 'var(--primary)' }}>
                     <ClipboardList size={20} />
                   </div>
-                  <h3 className="text-primary m-0 truncate" style={{ fontSize: '1.25rem', fontWeight: 700 }}>{exam.name}</h3>
+                  <h3 className="text-foreground m-0 truncate" style={{ fontSize: '1.25rem', fontWeight: 700 }}>{exam.name}</h3>
                 </div>
 
                 {/* Divider */}
-                <div style={{ width: '1px', height: '2.5rem', background: 'var(--border)', flexShrink: 0 }} />
+                <div className="hidden sm:block" style={{ width: '1px', height: '2.5rem', background: 'var(--border)', flexShrink: 0 }} />
 
                 {/* Share code side */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
@@ -247,8 +247,8 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
               </div>
 
               {/* ── Row 2: Date | Questions ── */}
-              <div style={{ display: 'flex', gap: '1.25rem', marginBottom: '1.25rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1 }}>
+              <div style={{ display: 'flex', gap: '1.25rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: '120px' }}>
                   <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(59,130,246,0.12)', color: 'var(--primary)' }}>
                     <Calendar size={18} />
                   </div>
@@ -258,7 +258,7 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: '120px' }}>
                   <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(16,185,129,0.12)', color: 'var(--success)' }}>
                     <ClipboardList size={18} />
                   </div>
@@ -270,9 +270,9 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
               </div>
 
               {/* ── Row 3: Stats ── */}
-              <div style={{ display: 'flex', borderRadius: '12px', marginBottom: '1.25rem', border: '1px solid var(--border)', background: 'var(--background)', overflow: 'hidden' }}>
-                <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem', borderRight: '1px solid var(--border)' }}>
-                  <div style={{ width: '3rem', height: '3rem', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--primary)', color: 'white' }}>
+              <div style={{ display: 'flex', borderRadius: '12px', marginBottom: '1.25rem', border: '1px solid var(--border)', background: 'var(--background)', overflow: 'hidden', flexWrap: 'wrap' }}>
+                <div style={{ flex: 1, minWidth: '140px', display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem', borderRight: '1px solid var(--border)' }}>
+                  <div style={{ width: '3rem', height: '3rem', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--primary)', color: 'var(--background)' }}>
                     <BarChart2 size={22} />
                   </div>
                   <div>
@@ -284,8 +284,8 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
                   </div>
                 </div>
 
-                <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem' }}>
-                  <div style={{ width: '3rem', height: '3rem', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--accent)', color: 'white' }}>
+                <div style={{ flex: 1, minWidth: '140px', display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem' }}>
+                  <div style={{ width: '3rem', height: '3rem', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--accent)', color: 'var(--background)' }}>
                     <LineChart size={22} />
                   </div>
                   <div>

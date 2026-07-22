@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { QRCodeSVG } from 'qrcode.react';
 import { Camera, QrCode, TrendingUp, Download, ArrowLeft } from 'lucide-react';
 import { RealtimeStats } from './RealtimeStats';
@@ -29,7 +30,8 @@ type ExamControlProps = {
 
 export function ExamControl({ exam, initialSubmissions, initialCheckins, classStudents, shareUrl }: ExamControlProps) {
   const [allowScan, setAllowScan] = useState<boolean>(false);
-  const [submissions, setSubmissions] = useState<any[]>(initialSubmissions);
+  const router = useRouter();
+  const [submissions, setSubmissions] = useState<any[]>(initialSubmissions || []);
   const [checkins, setCheckins] = useState<any[]>(initialCheckins);
 
   // Polling for real-time updates
@@ -69,9 +71,9 @@ export function ExamControl({ exam, initialSubmissions, initialCheckins, classSt
       
       {/* ── Top Bar ── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0, flexWrap: 'wrap' }}>
-        <Link href="/teacher" className="btn btn-secondary px-2" style={{ padding: '0.35rem 0.6rem' }}>
+        <button onClick={() => router.back()} className="btn btn-secondary px-2" style={{ padding: '0.35rem 0.6rem' }}>
           <ArrowLeft size={18} />
-        </Link>
+        </button>
         <h2 className="m-0 flex-1" style={{ fontSize: '1.2rem', fontWeight: 700, minWidth: 0 }}>{exam.name}</h2>
 
         {/* Scan option checkbox */}
