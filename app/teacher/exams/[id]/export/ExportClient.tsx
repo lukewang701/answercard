@@ -18,7 +18,7 @@ export function ExportClient({ exam, questionStats }: { exam: any, questionStats
       座號: sub.seatNumber,
       姓名: sub.studentName,
       是否遲交: sub.isLate ? '是' : '否',
-      原始分數: sub.isLate && sub.rawScore != null ? sub.rawScore.toFixed(1) : sub.totalScore.toFixed(1),
+      原始分數: sub.isLate ? (sub.rawScore != null ? sub.rawScore.toFixed(1) : (sub.totalScore + (sub.latePenalty ?? 5)).toFixed(1)) : sub.totalScore.toFixed(1),
       遲交扣分: sub.isLate ? `-${sub.latePenalty ?? 5}` : '-',
       最後分數: sub.totalScore.toFixed(1),
       ...(exam.totalScore !== 100 ? {
