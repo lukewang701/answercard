@@ -44,6 +44,8 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ id:
         shareCode: exam.shareCode,
         totalScore: exam.totalScore,
         deadline: exam.deadline ? exam.deadline.toISOString() : null,
+        startTime: exam.startTime ? exam.startTime.toISOString() : null,
+        allowLateSubmission: exam.allowLateSubmission,
         lateDeadline: exam.lateDeadline ? exam.lateDeadline.toISOString() : null,
         extraOpen: exam.extraOpen,
         lateMarkEnabled: exam.lateMarkEnabled,

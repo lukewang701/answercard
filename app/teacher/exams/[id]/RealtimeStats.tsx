@@ -110,7 +110,7 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
       })
     : submissions.map(s => ({ name: s.studentName, seatNumber: s.seatNumber, status: 'submitted', submission: s, checkin: null }));
 
-  const panelTitle = mode === 'digital' ? '領取答案卡和繳交名單' : '繳交名單';
+  const panelTitle = '領取答案卡和繳交名單';
 
   const handleRecall = async () => {
     if (!recallTarget) return;
@@ -149,7 +149,7 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
 
       {/* ── Header ── */}
       <div style={{ flexShrink: 0, marginBottom: '0.75rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: mode === 'digital' ? '0.6rem' : 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
           <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem' }}>
             <Users size={18} /> {panelTitle}
             <span style={{ fontSize: '0.75rem', opacity: 0.5, fontWeight: 400 }}>(即時)</span>
@@ -237,7 +237,7 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
       {/* ── Student Grid ── */}
       {allStudents.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '2rem', opacity: 0.5 }}>
-          {mode === 'digital' ? '尚無學生資料，請先在「班級管理」建立班級名單' : '目前還沒有學生繳交試卷'}
+          尚無學生資料，請先在「班級管理」建立班級名單
         </div>
       ) : (
         <div className="custom-scrollbar" style={{ flex: 1, overflowY: 'auto' }}>
