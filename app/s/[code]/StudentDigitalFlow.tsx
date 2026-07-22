@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { CheckCircle, AlertCircle, ChevronLeft, ChevronRight, Clock, Download } from 'lucide-react';
+import { CheckCircle, AlertCircle, ChevronLeft, ChevronRight, Clock, Download, Camera, Edit2 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { ReviewDownloadCard } from '@/components/ReviewDownloadCard';
+import { OMRScanner } from '@/components/OMRScanner';
 
 type Phase = 'identity' | 'answering' | 'result';
 
@@ -19,6 +20,7 @@ export function StudentDigitalFlow({
   examName: string;
   totalQuestions: number;
   targetClass: string;
+  allowPaperScan?: boolean;
 }) {
   const [phase, setPhase] = useState<Phase>('identity');
 
@@ -48,6 +50,24 @@ export function StudentDigitalFlow({
   const totalPages = Math.ceil(totalQuestions / QUESTIONS_PER_PAGE);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  
+  // Tab for scanner vs manual
+  const [answeringTab, setAnsweringTab] = useState<'manual' | 'scanner'>('manual');
+
+  const handleScanComplete = (result: any) => {
+    if (result.success && result.answers) {
+      const newAnswers = [...answers];
+      result.answers.forEach((ans: any) => {
+        const qIdx = ans.number - 1;
+        if (qIdx >= 0 && qIdx < totalQuestions) {
+          newAnswers[qIdx] = ans.selectedAnswers;
+        }
+      });
+      setAnswers(newAnswers);
+      setAnsweringTab('manual');
+      alert('已自動填寫掃描結果，請確認答案是否正確再送出！');
+    }
+  };
 
   // Result
   const [result, setResult] = useState<any>(null);
@@ -291,8 +311,34 @@ export function StudentDigitalFlow({
           </div>
         </div>
 
-        {/* Questions for this page */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '0.75rem 1rem' }}>
+        {allowPaperScan && (
+          <div style={{ display: 'flex', gap: '0.5rem', padding: '0.75rem 1rem', background: 'var(--background)', borderBottom: '1px solid var(--border)' }}>
+            <button 
+              onClick={() => setAnsweringTab('manual')}
+              style={{ flex: 1, padding: '0.6rem', borderRadius: '8px', border: '1px solid var(--border)', background: answeringTab === 'manual' ? 'var(--primary)' : 'var(--secondary)', color: answeringTab === 'manual' ? 'white' : 'var(--foreground)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', fontWeight: 600, fontSize: '0.9rem' }}
+            >
+              <Edit2 size={16} /> 直接填寫
+            </button>
+            <button 
+              onClick={() => setAnsweringTab('scanner')}
+              style={{ flex: 1, padding: '0.6rem', borderRadius: '8px', border: '1px solid var(--border)', background: answeringTab === 'scanner' ? 'var(--primary)' : 'var(--secondary)', color: answeringTab === 'scanner' ? 'white' : 'var(--foreground)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', fontWeight: 600, fontSize: '0.9rem' }}
+            >
+              <Camera size={16} /> 掃描紙本答案卡
+            </button>
+          </div>
+        )}
+
+        {answeringTab === 'scanner' ? (
+          <div style={{ flex: 1, overflowY: 'auto', padding: '1rem' }}>
+            <div className="mb-4 text-sm text-foreground/80 p-3 bg-secondary rounded-lg">
+              請將鏡頭對準您的紙本答案卡，系統會自動辨識選項並填入下方。若辨識結果有誤，您可以隨後在「直接填寫」中手動修改。
+            </div>
+            <OMRScanner onScanComplete={handleScanComplete} />
+          </div>
+        ) : (
+          <>
+            {/* Questions for this page */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '0.75rem 1rem' }}>
           {pageQuestions.map(qIdx => {
             const qNum = qIdx + 1;
             const currentAnswers = answers[qIdx];

@@ -23,6 +23,7 @@ model Exam {
   lateDeadline   DateTime?
   extraOpen      Boolean      @default(false)
   lateMarkEnabled Boolean     @default(true)
+  allowPaperScan Boolean      @default(false)
 
   questions      Question[]
   submissions    Submission[]

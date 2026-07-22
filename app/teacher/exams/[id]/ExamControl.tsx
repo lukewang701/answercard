@@ -27,7 +27,7 @@ type ExamControlProps = {
 type Mode = 'digital' | 'self-scan';
 
 export function ExamControl({ exam, initialSubmissions, initialCheckins, classStudents, shareUrl }: ExamControlProps) {
-  const [mode, setMode] = useState<Mode>('digital');
+  const [allowScan, setAllowScan] = useState<boolean>(false);
   const [submissions, setSubmissions] = useState<any[]>(initialSubmissions);
   const [checkins, setCheckins] = useState<any[]>(initialCheckins);
 
@@ -55,9 +55,8 @@ export function ExamControl({ exam, initialSubmissions, initialCheckins, classSt
     return () => clearInterval(interval);
   }, [exam.id]);
 
-  const digitalQrUrl = `${shareUrl}?mode=digital`;
-  const qrUrl = mode === 'digital' ? digitalQrUrl : shareUrl;
-  const qrLabel = mode === 'digital' ? '掃描領取數位答案卡' : '學生自助掃描碼';
+  const qrUrl = allowScan ? `${shareUrl}?scan=1` : shareUrl;
+  const qrLabel = allowScan ? '數位答案卡 (含掃描功能)' : '掃描領取數位答案卡';
 
   const scores = submissions.map((s: any) => s.totalScore);
   const average = scores.length ? Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length) : 0;
@@ -74,32 +73,17 @@ export function ExamControl({ exam, initialSubmissions, initialCheckins, classSt
         </Link>
         <h2 className="m-0 flex-1" style={{ fontSize: '1.2rem', fontWeight: 700, minWidth: 0 }}>{exam.name}</h2>
 
-        {/* Mode switcher */}
-        <div style={{ display: 'flex', gap: '0.4rem', background: 'var(--secondary)', borderRadius: '10px', padding: '0.3rem' }}>
-          <button
-            onClick={() => setMode('digital')}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '0.4rem',
-              padding: '0.3rem 0.75rem', borderRadius: '7px', fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer', border: 'none',
-              background: mode === 'digital' ? 'var(--primary)' : 'transparent',
-              color: mode === 'digital' ? 'white' : 'var(--foreground)',
-              transition: 'all 0.2s',
-            }}
-          >
-            <Smartphone size={15} /> 學生填寫數位答案卡
-          </button>
-          <button
-            onClick={() => setMode('self-scan')}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '0.4rem',
-              padding: '0.3rem 0.75rem', borderRadius: '7px', fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer', border: 'none',
-              background: mode === 'self-scan' ? 'var(--primary)' : 'transparent',
-              color: mode === 'self-scan' ? 'white' : 'var(--foreground)',
-              transition: 'all 0.2s',
-            }}
-          >
-            <QrCode size={15} /> 學生自助掃描
-          </button>
+        {/* Scan option checkbox */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--secondary)', borderRadius: '10px', padding: '0.4rem 0.8rem' }}>
+          <label className="flex items-center gap-2 cursor-pointer text-sm font-semibold select-none m-0">
+            <input 
+              type="checkbox" 
+              checked={allowScan}
+              onChange={(e) => setAllowScan(e.target.checked)}
+              className="w-4 h-4 rounded text-primary focus:ring-primary focus:ring-offset-secondary"
+            />
+            開放學生掃描紙本答案卡
+          </label>
         </div>
 
         <Link href={`/teacher/exams/${exam.id}/scan`} className="btn btn-secondary flex items-center gap-2" style={{ fontSize: '0.85rem', padding: '0.35rem 0.85rem' }}>
