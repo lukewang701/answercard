@@ -199,7 +199,7 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
 
       {/* View: Child Exams in Folder */}
       {activeFolder && activeGroup && (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 animate-fade-in">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 animate-fade-in">
           {activeGroup.exams.map((exam) => {
             const submissions = exam.submissions || [];
             const submittedCount = submissions.length || exam._count?.submissions || 0;
@@ -232,17 +232,6 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
                     <span style={{ fontSize: '0.72rem', opacity: 0.6, lineHeight: 1 }}>代碼</span>
                     <span style={{ fontWeight: 800, fontSize: '1.2rem', letterSpacing: '0.08em', lineHeight: 1.3 }}>{exam.shareCode}</span>
                   </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigator.clipboard.writeText(exam.shareCode);
-                      alert('代碼已複製');
-                    }}
-                    className="flex items-center gap-1 text-sm border border-border rounded-md hover:text-primary transition-colors text-foreground"
-                    style={{ padding: '0.3rem 0.7rem', background: 'var(--background)', flexShrink: 0 }}
-                  >
-                    <Edit size={13} /> 複製
-                  </button>
                 </div>
               </div>
 
@@ -304,16 +293,10 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
                   <Play size={20} fill="currentColor" />
                   進入試卷
                 </Link>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                  <Link href={`/teacher/exams/${exam.id}/scan`} className="btn btn-primary flex items-center justify-center gap-2" style={{ padding: '0.65rem' }}>
-                    <Scan size={18} />
-                    掃描批改
-                  </Link>
-                  <Link href={`/teacher/exams/${exam.id}/export`} className="btn flex items-center justify-center gap-2 border border-border hover:bg-secondary transition-colors" style={{ padding: '0.65rem', background: 'var(--background)', color: 'var(--foreground)' }}>
-                    <FileText size={18} />
-                    匯出報表
-                  </Link>
-                </div>
+                <Link href={`/teacher/exams/${exam.id}/export`} className="btn flex items-center justify-center gap-2 border border-border hover:bg-secondary transition-colors w-full" style={{ padding: '0.85rem', fontSize: '1.1rem', background: 'var(--background)', color: 'var(--foreground)' }}>
+                  <FileText size={18} />
+                  匯出報表
+                </Link>
               </div>
 
             </div>

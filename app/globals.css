@@ -92,6 +92,7 @@ p { margin-bottom: 1rem; color: var(--foreground); opacity: 0.8; }
 .text-danger { color: var(--danger); }
 .text-success { color: var(--success); }
 .text-white { color: white; }
+.text-foreground { color: var(--foreground); }
 
 /* Buttons */
 .btn {
