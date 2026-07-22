@@ -237,20 +237,14 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
 
               {/* ── Row 2: Date | Questions ── */}
               <div style={{ display: 'flex', gap: '1.25rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: '120px' }}>
-                  <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(59,130,246,0.12)', color: 'var(--primary)' }}>
-                    <Calendar size={18} />
-                  </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: '100px' }}>
                   <div>
                     <div style={{ fontSize: '0.72rem', opacity: 0.6, marginBottom: '0.1rem' }}>日期</div>
                     <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>{new Date(exam.date).toLocaleDateString('zh-TW')}</div>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: '120px' }}>
-                  <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(16,185,129,0.12)', color: 'var(--success)' }}>
-                    <ClipboardList size={18} />
-                  </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: '100px' }}>
                   <div>
                     <div style={{ fontSize: '0.72rem', opacity: 0.6, marginBottom: '0.1rem' }}>題目數</div>
                     <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>共 {exam.totalQuestions} 題</div>
@@ -260,10 +254,7 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
 
               {/* ── Row 3: Stats ── */}
               <div style={{ display: 'flex', borderRadius: '12px', marginBottom: '1.25rem', border: '1px solid var(--border)', background: 'var(--background)', overflow: 'hidden', flexWrap: 'wrap' }}>
-                <div style={{ flex: 1, minWidth: '140px', display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem', borderRight: '1px solid var(--border)' }}>
-                  <div style={{ width: '3rem', height: '3rem', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--primary)', color: 'var(--background)' }}>
-                    <BarChart2 size={22} />
-                  </div>
+                <div style={{ flex: 1, minWidth: '100px', display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', borderRight: '1px solid var(--border)' }}>
                   <div>
                     <div style={{ fontSize: '0.75rem', opacity: 0.6, marginBottom: '0.15rem' }}>已繳交</div>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.3rem' }}>
@@ -273,10 +264,7 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
                   </div>
                 </div>
 
-                <div style={{ flex: 1, minWidth: '140px', display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem' }}>
-                  <div style={{ width: '3rem', height: '3rem', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--accent)', color: 'var(--background)' }}>
-                    <LineChart size={22} />
-                  </div>
+                <div style={{ flex: 1, minWidth: '100px', display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem' }}>
                   <div>
                     <div style={{ fontSize: '0.75rem', opacity: 0.6, marginBottom: '0.15rem' }}>平均分數</div>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.3rem' }}>
@@ -288,13 +276,13 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
               </div>
 
               {/* ── Action Buttons ── */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <Link href={`/teacher/exams/${exam.id}`} className="btn btn-primary w-full flex items-center justify-center gap-2" style={{ padding: '0.85rem', fontSize: '1.1rem' }}>
-                  <Play size={20} fill="currentColor" />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <Link href={`/teacher/exams/${exam.id}`} className="btn btn-primary flex items-center justify-center gap-1.5" style={{ padding: '0.65rem', fontSize: '0.95rem' }}>
+                  <Play size={16} fill="currentColor" />
                   進入試卷
                 </Link>
-                <Link href={`/teacher/exams/${exam.id}/export`} className="btn flex items-center justify-center gap-2 border border-border hover:bg-secondary transition-colors w-full" style={{ padding: '0.85rem', fontSize: '1.1rem', background: 'var(--background)', color: 'var(--foreground)' }}>
-                  <FileText size={18} />
+                <Link href={`/teacher/exams/${exam.id}/export`} className="btn flex items-center justify-center gap-1.5 border border-border hover:bg-secondary transition-colors" style={{ padding: '0.65rem', fontSize: '0.95rem', background: 'var(--background)', color: 'var(--foreground)' }}>
+                  <FileText size={16} />
                   匯出報表
                 </Link>
               </div>
