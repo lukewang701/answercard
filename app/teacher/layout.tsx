@@ -2,7 +2,6 @@
 
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { InactivityLock } from './InactivityLock';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function TeacherLayout({
@@ -54,7 +53,6 @@ export default function TeacherLayout({
         </div>
       </header>
       <main style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
-        <InactivityLock />
         {children}
       </main>
     </div>

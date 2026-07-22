@@ -67,17 +67,21 @@ export function GradeManager({ exams, classes }: { exams: any[], classes: any[] 
       const scoreData = sortedSubmissions.map((sub: any, index: number) => {
         allClassNames.add(sub.class);
         
+        const penalty = sub.isLate ? (sub.latePenalty ?? 5) : 0;
+        const raw = sub.isLate && sub.rawScore != null ? sub.rawScore : sub.totalScore;
+        const finalScore = sub.isLate ? Math.max(0, raw - penalty) : sub.totalScore;
+        
         return {
           年級: sub.year,
           班級: sub.class,
           座號: sub.seatNumber,
           姓名: sub.studentName,
           是否遲交: sub.isLate ? '是' : '否',
-          原始分數: sub.isLate ? (sub.rawScore != null ? sub.rawScore.toFixed(1) : (sub.totalScore + (sub.latePenalty ?? 5)).toFixed(1)) : sub.totalScore.toFixed(1),
-          遲交扣分: sub.isLate ? `-${sub.latePenalty ?? 5}` : '-',
-          最後分數: sub.totalScore.toFixed(1),
+          原始分數: raw.toFixed(1),
+          遲交扣分: sub.isLate ? `-${penalty}` : '-',
+          最後分數: finalScore.toFixed(1),
           ...(exam.totalScore !== 100 ? {
-            '百分比(%)': ((sub.totalScore / exam.totalScore) * 100).toFixed(1) + '%'
+            '百分比(%)': ((finalScore / exam.totalScore) * 100).toFixed(1) + '%'
           } : {}),
           名次: index + 1
         };
