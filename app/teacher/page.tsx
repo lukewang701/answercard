@@ -10,6 +10,9 @@ export default async function TeacherDashboard() {
   const exams = await prisma.exam.findMany({
     orderBy: { createdAt: 'desc' },
     include: {
+      submissions: {
+        select: { totalScore: true }
+      },
       _count: {
         select: { submissions: true }
       }

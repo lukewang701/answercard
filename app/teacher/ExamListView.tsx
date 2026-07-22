@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Folder, Users, FileBarChart, ChevronRight, FileStack, Trash2, X, Play, Edit } from 'lucide-react';
+import { Folder, Users, FileBarChart, ChevronRight, FileStack, Trash2, X, Play, Edit, ClipboardList, Key, Calendar, BarChart2, LineChart, Scan, FileText, Copy } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function ExamListView({ initialExams }: { initialExams: any[] }) {
@@ -186,43 +186,123 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
       {/* View: Child Exams in Folder */}
       {activeFolder && activeGroup && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
-          {activeGroup.exams.map((exam) => (
-            <div key={exam.id} className="card flex flex-col h-full">
+          {activeGroup.exams.map((exam) => {
+            const submissions = exam.submissions || [];
+            const submittedCount = submissions.length || exam._count?.submissions || 0;
+            const avgScore = submittedCount > 0 
+              ? (submissions.reduce((acc: any, sub: any) => acc + (sub.totalScore || 0), 0) / submittedCount).toFixed(1)
+              : 0;
+
+            return (
+            <div key={exam.id} className="card p-5 flex flex-col h-full bg-background md:bg-secondary">
               <div className="flex-1">
-                <div className="flex justify-between items-start mb-2 gap-2">
-                  <h3 className="m-0 text-primary flex-1">{exam.name}</h3>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs bg-background px-2 py-1 rounded-full border border-border">
-                      代碼: {exam.shareCode}
-                    </span>
-                    <Link href={`/teacher/exams/${exam.id}/edit`} className="text-foreground/50 hover:text-primary transition-colors" title="編輯試卷">
-                      <Edit size={18} />
-                    </Link>
+                {/* Top Row: Name & Share Code */}
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 pb-5 gap-4 border-b border-border/50">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(59, 130, 246, 0.1)', color: 'var(--primary)' }}>
+                      <ClipboardList size={22} />
+                    </div>
+                    <h3 className="m-0 text-primary text-xl truncate">{exam.name}</h3>
+                  </div>
+
+                  <div className="flex items-center gap-4 w-full sm:w-auto">
+                    <div className="flex items-center gap-2 flex-1 sm:flex-none">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(59, 130, 246, 0.1)', color: 'var(--primary)' }}>
+                        <Key size={22} />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-xs opacity-60">代碼</span>
+                        <span className="font-bold text-lg leading-tight tracking-wider">{exam.shareCode}</span>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigator.clipboard.writeText(exam.shareCode);
+                        alert('代碼已複製');
+                      }}
+                      className="flex items-center gap-1.5 text-sm bg-background border border-border px-3 py-1.5 rounded-md hover:bg-secondary hover:text-primary transition-colors shrink-0"
+                    >
+                      <Edit size={14} /> 複製
+                    </button>
                   </div>
                 </div>
-                <p className="text-sm mb-4">日期: {new Date(exam.date).toLocaleDateString()}</p>
-                <div className="flex justify-between text-sm mb-6 text-foreground/80">
-                  <span>共 {exam.totalQuestions} 題</span>
-                  <span>已繳交: <strong className="text-success">{exam._count?.submissions || 0}</strong> 份</span>
+
+                {/* Middle Row: Date & Questions */}
+                <div className="flex flex-col sm:flex-row justify-between mb-5 gap-4">
+                  <div className="flex items-center gap-3 flex-1">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(59, 130, 246, 0.1)', color: 'var(--primary)' }}>
+                      <Calendar size={22} />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xs opacity-60">日期</span>
+                      <span className="font-bold text-lg leading-tight">
+                        {new Date(exam.date).toLocaleDateString('zh-TW')}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 flex-1">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)' }}>
+                      <ClipboardList size={22} />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xs opacity-60">題目數</span>
+                      <span className="font-bold text-lg leading-tight">共 {exam.totalQuestions} 題</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom Stats Row */}
+                <div className="flex flex-col sm:flex-row rounded-xl mb-6 border border-border" style={{ background: 'rgba(59, 130, 246, 0.05)' }}>
+                  <div className="flex items-center gap-4 flex-1 p-4 border-b sm:border-b-0 sm:border-r border-border/50">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center shrink-0 text-white" style={{ background: 'var(--primary)' }}>
+                      <BarChart2 size={24} />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm opacity-60 mb-1">已繳交</span>
+                      <div className="flex items-baseline gap-1">
+                        <span className="font-bold text-2xl leading-none text-success">{submittedCount}</span>
+                        <span className="text-sm opacity-60">份</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4 flex-1 p-4">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center shrink-0 text-white" style={{ background: 'var(--accent)' }}>
+                      <LineChart size={24} />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm opacity-60 mb-1">平均分數</span>
+                      <div className="flex items-baseline gap-1">
+                        <span className="font-bold text-2xl leading-none text-accent">{avgScore > 0 ? avgScore : '--'}</span>
+                        <span className="text-sm opacity-60">分</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
               
-              <div className="flex flex-col gap-2 pt-4 border-t border-border">
-                <Link href={`/teacher/exams/${exam.id}`} className="btn btn-primary w-full flex items-center justify-center gap-2">
-                  <Play size={18} />
+              {/* Action Buttons */}
+              <div className="flex flex-col gap-3">
+                <Link href={`/teacher/exams/${exam.id}`} className="btn btn-primary w-full py-3 flex items-center justify-center gap-2 text-[1.1rem]">
+                  <Play size={20} fill="currentColor" />
                   進入試卷
                 </Link>
-                <div className="grid grid-cols-2 gap-2">
-                  <Link href={`/teacher/exams/${exam.id}/scan`} className="btn btn-primary flex items-center justify-center gap-2 text-sm">
+                <div className="grid grid-cols-2 gap-3">
+                  <Link href={`/teacher/exams/${exam.id}/scan`} className="btn btn-primary py-2.5 flex items-center justify-center gap-2">
+                    <Scan size={18} />
                     掃描批改
                   </Link>
-                  <Link href={`/teacher/exams/${exam.id}/export`} className="btn btn-secondary flex items-center justify-center gap-2 text-sm">
+                  <Link href={`/teacher/exams/${exam.id}/export`} className="btn bg-background text-foreground border border-border hover:bg-secondary py-2.5 flex items-center justify-center gap-2 transition-colors">
+                    <FileText size={18} />
                     匯出報表
                   </Link>
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
