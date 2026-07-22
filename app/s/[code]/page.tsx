@@ -9,7 +9,7 @@ export default async function StudentExamPage({
   searchParams,
 }: {
   params: Promise<{ code: string }>;
-  searchParams: Promise<{ mode?: string }>;
+  searchParams: Promise<{ mode?: string; scan?: string }>;
 }) {
   const { code } = await params;
   const { scan } = await searchParams;
