@@ -2,7 +2,7 @@
 
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { FileSpreadsheet, FileText } from 'lucide-react';
 
 export function ExportClient({ exam, questionStats }: { exam: any, questionStats: any[] }) {
@@ -44,13 +44,7 @@ export function ExportClient({ exam, questionStats }: { exam: any, questionStats
   const handleExportPDF = () => {
     const doc = new jsPDF();
     
-    // Use an embedded basic font or use English/Pinyin for demo if CJK is missing in default jsPDF
-    // Note: jsPDF default doesn't support CJK out of the box, we would normally load a custom font.
-    // For this prototype, we'll try to just output it.
-    
     doc.setFontSize(20);
-    // Since jsPDF default font doesn't render Chinese, we'll use English labels in the PDF to prevent mojibake 
-    // unless we load a custom font. For a real app, we use a custom font.
     doc.text(`Exam Results: ${exam.name}`, 14, 22);
     
     doc.setFontSize(12);
@@ -72,7 +66,7 @@ export function ExportClient({ exam, questionStats }: { exam: any, questionStats
       return row;
     });
 
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 40,
       head: [head],
       body: tableData,

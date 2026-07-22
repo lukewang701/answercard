@@ -98,17 +98,17 @@ export function ExamControl({ exam, initialSubmissions, initialCheckins, classSt
       <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0">
 
         {/* Panel 1: QR Code */}
-        <div className="card" style={{ flex: 2, minWidth: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', textAlign: 'center', padding: '1rem', overflow: 'hidden' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.6rem', flexShrink: 0 }}>
-            <QrCode size={22} />
-            <span style={{ fontWeight: 600, fontSize: '1.1rem' }}>{qrLabel}</span>
+        <div className="card" style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '2rem 1rem', overflow: 'hidden' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', flexShrink: 0 }}>
+            <QrCode size={24} />
+            <span style={{ fontWeight: 600, fontSize: '1.2rem' }}>{qrLabel}</span>
           </div>
 
-          <div style={{ backgroundColor: 'white', padding: '0.75rem', borderRadius: '8px', marginBottom: '0.75rem', width: '80%', maxWidth: '300px', flexShrink: 1 }}>
-            <QRCodeSVG value={qrUrl} size={600} level="H" style={{ width: '100%', height: 'auto', display: 'block' }} />
+          <div style={{ backgroundColor: 'white', padding: '1rem', borderRadius: '12px', marginBottom: '1rem', width: '90%', maxWidth: '400px', flexShrink: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <QRCodeSVG value={qrUrl} size={800} level="H" style={{ width: '100%', height: 'auto', display: 'block' }} />
           </div>
 
-          <p style={{ fontFamily: 'monospace', fontSize: 'clamp(1.2rem, 2.5vw, 2rem)', letterSpacing: '0.2em', color: 'var(--primary)', fontWeight: 700, margin: '0 0 0.4rem 0', flexShrink: 0 }}>
+          <p style={{ fontFamily: 'monospace', fontSize: 'clamp(1.5rem, 3vw, 2.5rem)', letterSpacing: '0.3em', color: 'var(--primary)', fontWeight: 700, margin: '0 0 0.5rem 0', flexShrink: 0 }}>
             {exam.shareCode}
           </p>
           <a href={qrUrl} target="_blank" rel="noreferrer" style={{ fontSize: 'clamp(0.85rem, 1.4vw, 1.1rem)', opacity: 0.75, color: 'var(--primary)', textDecoration: 'underline', wordBreak: 'break-all', display: 'block', textAlign: 'center', marginTop: '0.25rem' }}>

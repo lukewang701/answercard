@@ -45,10 +45,16 @@ export const ReviewDownloadCard = forwardRef<HTMLDivElement, { submission: any }
             {submission.year}年{submission.class}班<br/>
             {submission.seatNumber}號 {submission.studentName}
           </p>
-          <div style={{ display: 'inline-block', background: '#1E293B', padding: '1.5rem 2.5rem', borderRadius: '16px', border: '1px solid #334155', width: '100%', boxSizing: 'border-box' }}>
-            <div style={{ fontSize: '1.1rem', opacity: 0.7, marginBottom: '0.5rem' }}>您的分數</div>
-            <div style={{ fontSize: '5rem', fontWeight: 700, color: '#38BDF8', lineHeight: 1 }}>
-              {Math.round(submission.totalScore)}
+          <div style={{ display: 'inline-block', background: '#1E293B', padding: '1.5rem', borderRadius: '16px', border: '1px solid #334155', width: '100%', boxSizing: 'border-box' }}>
+            <div style={{ fontSize: '1.1rem', opacity: 0.7, marginBottom: '0.8rem' }}>您的分數</div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+              <div style={{ fontSize: '4.5rem', fontWeight: 700, color: '#38BDF8', lineHeight: 1 }}>
+                {Math.round(submission.totalScore)}
+                <span style={{ fontSize: '2rem', color: '#94A3B8', fontWeight: 600, marginLeft: '4px' }}>/ {exam?.totalScore || 100}</span>
+              </div>
+              <div style={{ fontSize: '1.4rem', color: '#94A3B8', fontWeight: 600, opacity: 0.8 }}>
+                ({Math.round((submission.totalScore / (exam?.totalScore || 100)) * 100)}%)
+              </div>
             </div>
           </div>
           

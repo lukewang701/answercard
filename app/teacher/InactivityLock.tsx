@@ -119,7 +119,7 @@ export function InactivityLock() {
   if (!isLocked) return null;
 
   return (
-    <div className="fixed inset-0 z-[999999] bg-transparent flex flex-col items-center pt-8" style={{ pointerEvents: 'auto' }}>
+    <div className="fixed inset-0 z-[999999] bg-background/80 backdrop-blur-sm flex flex-col items-center pt-8" style={{ pointerEvents: 'auto' }}>
       {/* Invisible overlay to block clicks on underlying page */}
       <div 
         className="absolute inset-0 bg-transparent" 
