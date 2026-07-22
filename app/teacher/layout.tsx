@@ -36,7 +36,10 @@ export default function TeacherLayout({
           </Link>
           <div className="flex gap-6 items-center overflow-x-auto whitespace-nowrap w-full md:w-auto pb-2 md:pb-0 custom-scrollbar">
             <Link href="/teacher" className={`text-sm ${pathname === '/teacher' ? 'font-bold text-primary' : 'text-foreground hover:text-primary transition-colors'}`}>
-              試卷與成績管理
+              試卷管理
+            </Link>
+            <Link href="/teacher/grades" className={`text-sm ${pathname.startsWith('/teacher/grades') ? 'font-bold text-primary' : 'text-foreground hover:text-primary transition-colors'}`}>
+              成績管理
             </Link>
             <Link href="/teacher/analytics" className={`text-sm ${pathname.startsWith('/teacher/analytics') ? 'font-bold text-primary' : 'text-foreground hover:text-primary transition-colors'}`}>
               試題檢討

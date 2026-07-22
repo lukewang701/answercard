@@ -199,7 +199,7 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
 
       {/* View: Child Exams in Folder */}
       {activeFolder && activeGroup && (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-fade-in">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 animate-fade-in">
           {activeGroup.exams.map((exam) => {
             const submissions = exam.submissions || [];
             const submittedCount = submissions.length || exam._count?.submissions || 0;
@@ -208,7 +208,7 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
               : 0;
 
             return (
-            <div key={exam.id} className="card flex flex-col" style={{ padding: '1.5rem', gap: '0', background: 'var(--secondary)' }}>
+            <div key={exam.id} className="card flex flex-col" style={{ padding: '1.25rem', gap: '0', background: 'var(--secondary)' }}>
 
               {/* ── Row 1: Name | Share Code ── */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.25rem', paddingBottom: '1.25rem', borderBottom: '1px solid var(--border)', flexWrap: 'wrap' }}>
@@ -217,7 +217,7 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
                   <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(59,130,246,0.12)', color: 'var(--primary)' }}>
                     <ClipboardList size={20} />
                   </div>
-                  <h3 className="text-foreground m-0 truncate" style={{ fontSize: '1.25rem', fontWeight: 700 }}>{exam.name}</h3>
+                  <h3 className="text-foreground m-0 truncate" style={{ fontSize: '1.1rem', fontWeight: 700 }}>{exam.name}</h3>
                 </div>
 
                 {/* Divider */}
@@ -238,7 +238,7 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
                       navigator.clipboard.writeText(exam.shareCode);
                       alert('代碼已複製');
                     }}
-                    className="flex items-center gap-1 text-sm border border-border rounded-md hover:bg-background hover:text-primary transition-colors"
+                    className="flex items-center gap-1 text-sm border border-border rounded-md hover:text-primary transition-colors text-foreground"
                     style={{ padding: '0.3rem 0.7rem', background: 'var(--background)', flexShrink: 0 }}
                   >
                     <Edit size={13} /> 複製

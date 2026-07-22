@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
-import Link from 'next/link';
 import { OMRScanner } from '@/components/OMRScanner';
 import { use } from 'react';
 import { AnswerConfirm } from '@/components/AnswerConfirm';
@@ -48,9 +47,9 @@ export default function ScanPage({ params }: { params: Promise<{ id: string }> }
   return (
     <div className="container py-8">
       <div className="flex items-center gap-4 mb-8">
-        <Link href={`/teacher/exams/${id}`} className="btn btn-secondary px-2">
+        <button type="button" onClick={() => router.back()} className="btn btn-secondary px-2">
           <ArrowLeft size={20} />
-        </Link>
+        </button>
         <h1 className="m-0">批次掃描答案卡</h1>
       </div>
 

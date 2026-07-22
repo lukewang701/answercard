@@ -323,9 +323,9 @@ export default function NewExamPage() {
   return (
     <div className="container py-8 relative">
       <div className="flex items-center gap-4 mb-8">
-        <Link href="/teacher" className="btn btn-secondary px-2">
+        <button type="button" onClick={() => router.back()} className="btn btn-secondary px-2">
           <ArrowLeft size={20} />
-        </Link>
+        </button>
         <h1 className="m-0 flex-1">建立新試卷</h1>
       </div>
 

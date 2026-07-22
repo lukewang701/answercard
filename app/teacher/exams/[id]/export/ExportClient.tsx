@@ -1,11 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { FileSpreadsheet, FileText } from 'lucide-react';
+import { FileSpreadsheet, FileText, Loader2 } from 'lucide-react';
 
 export function ExportClient({ exam, questionStats }: { exam: any, questionStats: any[] }) {
+  const [isExportingPDF, setIsExportingPDF] = useState(false);
   
   const handleExportExcel = () => {
     // 1. Student scores sheet
@@ -41,38 +43,78 @@ export function ExportClient({ exam, questionStats }: { exam: any, questionStats
     XLSX.writeFile(wb, `${exam.name}_成績報表.xlsx`);
   };
 
-  const handleExportPDF = () => {
-    const doc = new jsPDF();
-    
-    doc.setFontSize(20);
-    doc.text(`Exam Results: ${exam.name}`, 14, 22);
-    
-    doc.setFontSize(12);
-    doc.text(`Total Submissions: ${exam.submissions.length}`, 14, 32);
-    
-    const head = exam.totalScore !== 100 ? ['Rank', 'Class', 'Seat', 'Name', 'Score', 'Percentage'] : ['Rank', 'Class', 'Seat', 'Name', 'Score'];
-
-    const tableData = exam.submissions.map((sub: any, index: number) => {
-      const row = [
-        index + 1,
-        `${sub.year}-${sub.class}`,
-        sub.seatNumber,
-        sub.studentName,
-        sub.totalScore.toFixed(1)
-      ];
-      if (exam.totalScore !== 100) {
-        row.push(((sub.totalScore / exam.totalScore) * 100).toFixed(1) + '%');
+  const handleExportPDF = async () => {
+    try {
+      setIsExportingPDF(true);
+      const doc = new jsPDF();
+      
+      // Fetch Chinese font
+      const fontUrl = 'https://cdn.jsdelivr.net/npm/noto-sans-tc@1.0.1/fonts/NotoSansTC-Regular.ttf';
+      const response = await fetch(fontUrl);
+      const buffer = await response.arrayBuffer();
+      
+      // Base64 encode the font array buffer
+      let binary = '';
+      const bytes = new Uint8Array(buffer);
+      for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
       }
-      return row;
-    });
+      const fontBase64 = btoa(binary);
+      
+      doc.addFileToVFS('NotoSansTC-Regular.ttf', fontBase64);
+      doc.addFont('NotoSansTC-Regular.ttf', 'NotoSansTC', 'normal');
+      doc.setFont('NotoSansTC');
+      
+      doc.setFontSize(20);
+      doc.text(`Exam Results: ${exam.name}`, 14, 22);
+      
+      doc.setFontSize(12);
+      doc.text(`Total Submissions: ${exam.submissions.length}`, 14, 32);
+      
+      const head = exam.totalScore !== 100 
+        ? ['Class', 'Seat', 'Name', 'Score', 'Percentage', 'Rank'] 
+        : ['Class', 'Seat', 'Name', 'Score', 'Rank'];
 
-    autoTable(doc, {
-      startY: 40,
-      head: [head],
-      body: tableData,
-    });
-    
-    doc.save(`${exam.name}_Results.pdf`);
+      // Sort by seat number
+      const sortedSubmissions = [...exam.submissions].sort((a, b) => {
+        const seatA = parseInt(a.seatNumber) || 0;
+        const seatB = parseInt(b.seatNumber) || 0;
+        return seatA - seatB;
+      });
+
+      const tableData = sortedSubmissions.map((sub: any, index: number) => {
+        // Original rank in exam.submissions was index + 1 (since it came pre-sorted by score)
+        const rank = exam.submissions.findIndex((s: any) => s.id === sub.id) + 1;
+        
+        const row = [
+          `${sub.year}-${sub.class}`,
+          sub.seatNumber,
+          sub.studentName,
+          sub.totalScore.toFixed(1)
+        ];
+        
+        if (exam.totalScore !== 100) {
+          row.push(((sub.totalScore / exam.totalScore) * 100).toFixed(1) + '%');
+        }
+        
+        row.push(rank);
+        return row;
+      });
+
+      autoTable(doc, {
+        startY: 40,
+        head: [head],
+        body: tableData,
+        styles: { font: 'NotoSansTC' }
+      });
+      
+      doc.save(`${exam.name}_Results.pdf`);
+    } catch (e) {
+      console.error(e);
+      alert('無法載入字體或產生PDF');
+    } finally {
+      setIsExportingPDF(false);
+    }
   };
 
   return (
@@ -90,8 +132,12 @@ export function ExportClient({ exam, questionStats }: { exam: any, questionStats
         <FileText size={64} className="mx-auto mb-6 text-danger" />
         <h2 className="mb-4">匯出 PDF (快速列印)</h2>
         <p className="mb-8 px-8">包含全班成績排名清單，排版最佳化，適合直接列印出來張貼或歸檔備查。</p>
-        <button onClick={handleExportPDF} className="btn btn-danger py-3 px-8 text-lg">
-          下載 PDF 報表
+        <button onClick={handleExportPDF} disabled={isExportingPDF} className="btn btn-danger py-3 px-8 text-lg flex items-center justify-center gap-2 mx-auto">
+          {isExportingPDF ? (
+            <><Loader2 className="animate-spin" size={20} /> 產生中...</>
+          ) : (
+            '下載 PDF 報表'
+          )}
         </button>
       </div>
     </div>
