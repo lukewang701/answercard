@@ -190,7 +190,7 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
             const submissions = exam.submissions || [];
             const submittedCount = submissions.length || exam._count?.submissions || 0;
             const avgScore = submittedCount > 0 
-              ? (submissions.reduce((acc: any, sub: any) => acc + (sub.totalScore || 0), 0) / submittedCount).toFixed(1)
+              ? Math.round(submissions.reduce((acc: number, sub: any) => acc + (sub.totalScore || 0), 0) / submittedCount)
               : 0;
 
             return (
