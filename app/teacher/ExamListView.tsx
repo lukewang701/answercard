@@ -194,112 +194,114 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
               : 0;
 
             return (
-            <div key={exam.id} className="card p-5 flex flex-col h-full bg-background md:bg-secondary">
-              <div className="flex-1">
-                {/* Top Row: Name & Share Code */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 pb-5 gap-4 border-b border-border/50">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(59, 130, 246, 0.1)', color: 'var(--primary)' }}>
-                      <ClipboardList size={22} />
-                    </div>
-                    <h3 className="m-0 text-primary text-xl truncate">{exam.name}</h3>
-                  </div>
+            <div key={exam.id} className="card flex flex-col" style={{ padding: '1.5rem', gap: '0', background: 'var(--secondary)' }}>
 
-                  <div className="flex items-center gap-4 w-full sm:w-auto">
-                    <div className="flex items-center gap-2 flex-1 sm:flex-none">
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(59, 130, 246, 0.1)', color: 'var(--primary)' }}>
-                        <Key size={22} />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-xs opacity-60">代碼</span>
-                        <span className="font-bold text-lg leading-tight tracking-wider">{exam.shareCode}</span>
-                      </div>
-                    </div>
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigator.clipboard.writeText(exam.shareCode);
-                        alert('代碼已複製');
-                      }}
-                      className="flex items-center gap-1.5 text-sm bg-background border border-border px-3 py-1.5 rounded-md hover:bg-secondary hover:text-primary transition-colors shrink-0"
-                    >
-                      <Edit size={14} /> 複製
-                    </button>
+              {/* ── Row 1: Name | Share Code ── */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.25rem', paddingBottom: '1.25rem', borderBottom: '1px solid var(--border)' }}>
+                {/* Name side */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: 0 }}>
+                  <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(59,130,246,0.12)', color: 'var(--primary)' }}>
+                    <ClipboardList size={20} />
+                  </div>
+                  <h3 className="text-primary m-0 truncate" style={{ fontSize: '1.25rem', fontWeight: 700 }}>{exam.name}</h3>
+                </div>
+
+                {/* Divider */}
+                <div style={{ width: '1px', height: '2.5rem', background: 'var(--border)', flexShrink: 0 }} />
+
+                {/* Share code side */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
+                  <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(59,130,246,0.12)', color: 'var(--primary)' }}>
+                    <Key size={18} />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontSize: '0.72rem', opacity: 0.6, lineHeight: 1 }}>代碼</span>
+                    <span style={{ fontWeight: 800, fontSize: '1.2rem', letterSpacing: '0.08em', lineHeight: 1.3 }}>{exam.shareCode}</span>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigator.clipboard.writeText(exam.shareCode);
+                      alert('代碼已複製');
+                    }}
+                    className="flex items-center gap-1 text-sm border border-border rounded-md hover:bg-background hover:text-primary transition-colors"
+                    style={{ padding: '0.3rem 0.7rem', background: 'var(--background)', flexShrink: 0 }}
+                  >
+                    <Edit size={13} /> 複製
+                  </button>
+                </div>
+              </div>
+
+              {/* ── Row 2: Date | Questions ── */}
+              <div style={{ display: 'flex', gap: '1.25rem', marginBottom: '1.25rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1 }}>
+                  <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(59,130,246,0.12)', color: 'var(--primary)' }}>
+                    <Calendar size={18} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.72rem', opacity: 0.6, marginBottom: '0.1rem' }}>日期</div>
+                    <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>{new Date(exam.date).toLocaleDateString('zh-TW')}</div>
                   </div>
                 </div>
 
-                {/* Middle Row: Date & Questions */}
-                <div className="flex flex-col sm:flex-row justify-between mb-5 gap-4">
-                  <div className="flex items-center gap-3 flex-1">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(59, 130, 246, 0.1)', color: 'var(--primary)' }}>
-                      <Calendar size={22} />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs opacity-60">日期</span>
-                      <span className="font-bold text-lg leading-tight">
-                        {new Date(exam.date).toLocaleDateString('zh-TW')}
-                      </span>
-                    </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1 }}>
+                  <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(16,185,129,0.12)', color: 'var(--success)' }}>
+                    <ClipboardList size={18} />
                   </div>
+                  <div>
+                    <div style={{ fontSize: '0.72rem', opacity: 0.6, marginBottom: '0.1rem' }}>題目數</div>
+                    <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>共 {exam.totalQuestions} 題</div>
+                  </div>
+                </div>
+              </div>
 
-                  <div className="flex items-center gap-3 flex-1">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)' }}>
-                      <ClipboardList size={22} />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs opacity-60">題目數</span>
-                      <span className="font-bold text-lg leading-tight">共 {exam.totalQuestions} 題</span>
+              {/* ── Row 3: Stats ── */}
+              <div style={{ display: 'flex', borderRadius: '12px', marginBottom: '1.25rem', border: '1px solid var(--border)', background: 'var(--background)', overflow: 'hidden' }}>
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem', borderRight: '1px solid var(--border)' }}>
+                  <div style={{ width: '3rem', height: '3rem', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--primary)', color: 'white' }}>
+                    <BarChart2 size={22} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.75rem', opacity: 0.6, marginBottom: '0.15rem' }}>已繳交</div>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.3rem' }}>
+                      <span style={{ fontWeight: 800, fontSize: '1.75rem', lineHeight: 1, color: 'var(--success)' }}>{submittedCount}</span>
+                      <span style={{ fontSize: '0.85rem', opacity: 0.6 }}>份</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Bottom Stats Row */}
-                <div className="flex flex-col sm:flex-row rounded-xl mb-6 border border-border" style={{ background: 'rgba(59, 130, 246, 0.05)' }}>
-                  <div className="flex items-center gap-4 flex-1 p-4 border-b sm:border-b-0 sm:border-r border-border/50">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center shrink-0 text-white" style={{ background: 'var(--primary)' }}>
-                      <BarChart2 size={24} />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-sm opacity-60 mb-1">已繳交</span>
-                      <div className="flex items-baseline gap-1">
-                        <span className="font-bold text-2xl leading-none text-success">{submittedCount}</span>
-                        <span className="text-sm opacity-60">份</span>
-                      </div>
-                    </div>
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem' }}>
+                  <div style={{ width: '3rem', height: '3rem', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--accent)', color: 'white' }}>
+                    <LineChart size={22} />
                   </div>
-
-                  <div className="flex items-center gap-4 flex-1 p-4">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center shrink-0 text-white" style={{ background: 'var(--accent)' }}>
-                      <LineChart size={24} />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-sm opacity-60 mb-1">平均分數</span>
-                      <div className="flex items-baseline gap-1">
-                        <span className="font-bold text-2xl leading-none text-accent">{avgScore > 0 ? avgScore : '--'}</span>
-                        <span className="text-sm opacity-60">分</span>
-                      </div>
+                  <div>
+                    <div style={{ fontSize: '0.75rem', opacity: 0.6, marginBottom: '0.15rem' }}>平均分數</div>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.3rem' }}>
+                      <span style={{ fontWeight: 800, fontSize: '1.75rem', lineHeight: 1, color: 'var(--accent)' }}>{avgScore > 0 ? avgScore : '--'}</span>
+                      <span style={{ fontSize: '0.85rem', opacity: 0.6 }}>分</span>
                     </div>
                   </div>
                 </div>
               </div>
-              
-              {/* Action Buttons */}
-              <div className="flex flex-col gap-3">
-                <Link href={`/teacher/exams/${exam.id}`} className="btn btn-primary w-full py-3 flex items-center justify-center gap-2 text-[1.1rem]">
+
+              {/* ── Action Buttons ── */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <Link href={`/teacher/exams/${exam.id}`} className="btn btn-primary w-full flex items-center justify-center gap-2" style={{ padding: '0.85rem', fontSize: '1.1rem' }}>
                   <Play size={20} fill="currentColor" />
                   進入試卷
                 </Link>
-                <div className="grid grid-cols-2 gap-3">
-                  <Link href={`/teacher/exams/${exam.id}/scan`} className="btn btn-primary py-2.5 flex items-center justify-center gap-2">
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                  <Link href={`/teacher/exams/${exam.id}/scan`} className="btn btn-primary flex items-center justify-center gap-2" style={{ padding: '0.65rem' }}>
                     <Scan size={18} />
                     掃描批改
                   </Link>
-                  <Link href={`/teacher/exams/${exam.id}/export`} className="btn bg-background text-foreground border border-border hover:bg-secondary py-2.5 flex items-center justify-center gap-2 transition-colors">
+                  <Link href={`/teacher/exams/${exam.id}/export`} className="btn flex items-center justify-center gap-2 border border-border hover:bg-secondary transition-colors" style={{ padding: '0.65rem', background: 'var(--background)', color: 'var(--foreground)' }}>
                     <FileText size={18} />
                     匯出報表
                   </Link>
                 </div>
               </div>
+
             </div>
             );
           })}
