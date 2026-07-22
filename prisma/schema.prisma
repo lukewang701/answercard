@@ -19,7 +19,9 @@ model Exam {
   shareCode      String       @unique
   note           String?
   createdAt      DateTime     @default(now())
+  startTime      DateTime?
   deadline       DateTime?
+  allowLateSubmission Boolean @default(false)
   lateDeadline   DateTime?
   extraOpen      Boolean      @default(false)
   lateMarkEnabled Boolean     @default(true)

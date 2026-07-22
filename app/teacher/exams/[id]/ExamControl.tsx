@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { QRCodeSVG } from 'qrcode.react';
-import { Camera, QrCode, TrendingUp, Download, Smartphone, Users, ArrowLeft } from 'lucide-react';
+import { Camera, QrCode, TrendingUp, Download, ArrowLeft } from 'lucide-react';
 import { RealtimeStats } from './RealtimeStats';
 
 type ExamControlProps = {
@@ -13,6 +13,8 @@ type ExamControlProps = {
     shareCode: string;
     totalScore: number;
     deadline: string | null;
+    startTime: string | null;
+    allowLateSubmission: boolean;
     lateDeadline: string | null;
     extraOpen: boolean;
     lateMarkEnabled: boolean;
@@ -24,7 +26,6 @@ type ExamControlProps = {
   shareUrl: string;
 };
 
-type Mode = 'digital' | 'self-scan';
 
 export function ExamControl({ exam, initialSubmissions, initialCheckins, classStudents, shareUrl }: ExamControlProps) {
   const [allowScan, setAllowScan] = useState<boolean>(false);
@@ -98,7 +99,7 @@ export function ExamControl({ exam, initialSubmissions, initialCheckins, classSt
       <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0">
 
         {/* Panel 1: QR Code */}
-        <div className="card" style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '2rem 1rem', overflow: 'hidden' }}>
+        <div className="card" style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '2rem 1rem', overflowY: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', flexShrink: 0 }}>
             <QrCode size={24} />
             <span style={{ fontWeight: 600, fontSize: '1.2rem' }}>{qrLabel}</span>
@@ -117,7 +118,7 @@ export function ExamControl({ exam, initialSubmissions, initialCheckins, classSt
         </div>
 
         {/* Panel 2: Stats */}
-        <div className="card" style={{ flex: '0 0 auto', width: '18%', minWidth: '160px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: '1rem', overflow: 'hidden' }}>
+        <div className="card" style={{ flex: '0 0 auto', width: '18%', minWidth: '160px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: '1rem', overflowY: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', flexShrink: 0 }}>
             <TrendingUp size={22} />
             <span style={{ fontWeight: 600, fontSize: '1.1rem' }}>成績總覽</span>
@@ -138,16 +139,17 @@ export function ExamControl({ exam, initialSubmissions, initialCheckins, classSt
         </div>
 
         {/* Panel 3: Submissions / Checkins */}
-        <div className="card" style={{ flex: 3, minWidth: 0, display: 'flex', flexDirection: 'column', padding: '1rem', overflow: 'hidden' }}>
+        <div className="card" style={{ flex: 3, minWidth: 0, display: 'flex', flexDirection: 'column', padding: '1rem', overflowY: 'auto' }}>
           <RealtimeStats
             examId={exam.id}
             submissions={submissions}
             checkins={checkins}
             classStudents={classStudents}
             examTotalScore={exam.totalScore}
-            mode={mode}
             examSettings={{
+              startTime: exam.startTime,
               deadline: exam.deadline,
+              allowLateSubmission: exam.allowLateSubmission,
               lateDeadline: exam.lateDeadline,
               extraOpen: exam.extraOpen,
               lateMarkEnabled: exam.lateMarkEnabled,

@@ -19,19 +19,25 @@ export async function POST(
 
     // ── Timing check ──────────────────────────────────────────────────────────
     const now = new Date();
+    const startTime = exam.startTime ? new Date(exam.startTime) : null;
     const deadline = exam.deadline ? new Date(exam.deadline) : null;
     const lateDeadline = exam.lateDeadline ? new Date(exam.lateDeadline) : null;
-    const effectiveEnd = lateDeadline || deadline;
+
+    if (startTime && now < startTime) {
+      return NextResponse.json({ error: '考試尚未開始，無法繳交答案卡' }, { status: 403 });
+    }
 
     let isLate = false;
     let latePenalty = 0;
 
     if (deadline && now > deadline) {
       // Past deadline — check whether we're in late window, extra-open, or fully closed
-      if (lateDeadline && now <= lateDeadline) {
+      if (exam.allowLateSubmission && lateDeadline && now <= lateDeadline) {
         // In the late window
-        isLate = true;
-        latePenalty = 5;
+        if (exam.lateMarkEnabled) {
+          isLate = true;
+          latePenalty = 5;
+        }
       } else if (exam.extraOpen) {
         // Extra submission open — teacher decides penalty via lateMarkEnabled
         if (exam.lateMarkEnabled) {

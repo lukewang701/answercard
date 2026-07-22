@@ -19,17 +19,19 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { deadline, lateDeadline, extraOpen, lateMarkEnabled } = body;
+    const { startTime, deadline, allowLateSubmission, lateDeadline, extraOpen, lateMarkEnabled } = body;
 
     const updated = await prisma.exam.update({
       where: { id },
       data: {
+        startTime: startTime ? new Date(startTime) : null,
         deadline: deadline ? new Date(deadline) : null,
+        allowLateSubmission: allowLateSubmission ?? undefined,
         lateDeadline: lateDeadline ? new Date(lateDeadline) : null,
         extraOpen: extraOpen ?? undefined,
         lateMarkEnabled: lateMarkEnabled ?? undefined,
       },
-      select: { id: true, deadline: true, lateDeadline: true, extraOpen: true, lateMarkEnabled: true }
+      select: { id: true, startTime: true, deadline: true, allowLateSubmission: true, lateDeadline: true, extraOpen: true, lateMarkEnabled: true }
     });
 
     return NextResponse.json({ success: true, exam: updated });

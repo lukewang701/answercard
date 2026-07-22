@@ -9,9 +9,10 @@ type RealtimeStatsProps = {
   checkins: any[];
   classStudents: any[];
   examTotalScore: number;
-  mode: 'digital' | 'self-scan';
   examSettings: {
+    startTime: string | null;
     deadline: string | null;
+    allowLateSubmission: boolean;
     lateDeadline: string | null;
     extraOpen: boolean;
     lateMarkEnabled: boolean;
@@ -28,7 +29,7 @@ function toLocalDatetimeInput(iso: string | null): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export function RealtimeStats({ examId, submissions, checkins, classStudents, examTotalScore, mode, examSettings, questions, onCheckinsChange, onSubmissionsChange }: RealtimeStatsProps) {
+export function RealtimeStats({ examId, submissions, checkins, classStudents, examTotalScore, examSettings, questions, onCheckinsChange, onSubmissionsChange }: RealtimeStatsProps) {
   const [showScores, setShowScores] = useState(false);
   const [now, setNow] = useState(new Date());
 
@@ -36,7 +37,9 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
   const [studentDetailsTarget, setStudentDetailsTarget] = useState<any | null>(null);
 
   // Settings state
+  const [startTime, setStartTime] = useState(toLocalDatetimeInput(examSettings.startTime));
   const [deadline, setDeadline] = useState(toLocalDatetimeInput(examSettings.deadline));
+  const [allowLateSubmission, setAllowLateSubmission] = useState(examSettings.allowLateSubmission);
   const [lateDeadline, setLateDeadline] = useState(toLocalDatetimeInput(examSettings.lateDeadline));
   const [extraOpen, setExtraOpen] = useState(examSettings.extraOpen);
   const [lateMarkEnabled, setLateMarkEnabled] = useState(examSettings.lateMarkEnabled);
@@ -53,7 +56,7 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
     return () => clearInterval(t);
   }, []);
 
-  const saveSettings = useCallback(async (patch: Partial<{ deadline: string; lateDeadline: string; extraOpen: boolean; lateMarkEnabled: boolean }>) => {
+  const saveSettings = useCallback(async (patch: Partial<{ startTime: string; deadline: string; allowLateSubmission: boolean; lateDeadline: string; extraOpen: boolean; lateMarkEnabled: boolean }>) => {
     setSavingSettings(true);
     try {
       await fetch(`/api/exams/${examId}/settings`, {
@@ -170,6 +173,16 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
         {/* ── Settings bar (both modes) ── */}
         <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', alignItems: 'center', padding: '0.5rem 0.6rem', background: 'var(--background)', borderRadius: '8px', fontSize: '0.75rem' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', whiteSpace: 'nowrap' }}>
+              <Clock size={13} style={{ color: 'var(--primary)' }} /> 開始時間
+              <input
+                type="datetime-local"
+                value={startTime}
+                onChange={e => setStartTime(e.target.value)}
+                onBlur={e => saveSettings({ startTime: e.target.value })}
+                style={{ fontSize: '0.72rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--secondary)', color: 'var(--foreground)' }}
+              />
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', whiteSpace: 'nowrap' }}>
               <Clock size={13} style={{ color: 'var(--primary)' }} /> 截止時間
               <input
                 type="datetime-local"
@@ -179,17 +192,38 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
                 style={{ fontSize: '0.72rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--secondary)', color: 'var(--foreground)' }}
               />
             </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', whiteSpace: 'nowrap' }}>
-              <AlertTriangle size={13} style={{ color: 'var(--warning)' }} /> 遲交截止
-              <input
-                type="datetime-local"
-                value={lateDeadline}
-                onChange={e => setLateDeadline(e.target.value)}
-                onBlur={e => saveSettings({ lateDeadline: e.target.value })}
-                style={{ fontSize: '0.72rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--secondary)', color: 'var(--foreground)' }}
-              />
-            </label>
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+              <input
+                type="checkbox"
+                checked={allowLateSubmission}
+                onChange={e => { setAllowLateSubmission(e.target.checked); saveSettings({ allowLateSubmission: e.target.checked }); }}
+              />
+              允許截止時間後補交
+            </label>
+            {allowLateSubmission && (
+              <>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', whiteSpace: 'nowrap' }}>
+                  <AlertTriangle size={13} style={{ color: 'var(--warning)' }} /> 補交截止時間
+                  <input
+                    type="datetime-local"
+                    value={lateDeadline}
+                    onChange={e => setLateDeadline(e.target.value)}
+                    onBlur={e => saveSettings({ lateDeadline: e.target.value })}
+                    style={{ fontSize: '0.72rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--secondary)', color: 'var(--foreground)' }}
+                  />
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                  <input
+                    type="checkbox"
+                    checked={lateMarkEnabled}
+                    onChange={e => { setLateMarkEnabled(e.target.checked); saveSettings({ lateMarkEnabled: e.target.checked }); }}
+                  />
+                  標記遲交並扣5分
+                </label>
+              </>
+            )}
+            
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', whiteSpace: 'nowrap', marginLeft: 'auto' }}>
               <input
                 type="checkbox"
                 checked={extraOpen}
@@ -197,16 +231,6 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
               />
               開啟補交
             </label>
-            {extraOpen && (
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                <input
-                  type="checkbox"
-                  checked={lateMarkEnabled}
-                  onChange={e => { setLateMarkEnabled(e.target.checked); saveSettings({ lateMarkEnabled: e.target.checked }); }}
-                />
-                標記遲交並扣5分
-              </label>
-            )}
           </div>
       </div>
 
