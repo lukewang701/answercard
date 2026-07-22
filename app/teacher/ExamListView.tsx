@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Folder, Users, FileBarChart, QrCode, FileSpreadsheet, ChevronRight, FileStack, Trash2, X, PlayCircle, Play, Edit } from 'lucide-react';
+import { Folder, Users, FileBarChart, ChevronRight, FileStack, Trash2, X, Play, Edit } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function ExamListView({ initialExams }: { initialExams: any[] }) {
@@ -110,14 +110,14 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
           <FileStack className="text-primary" />
           {activeFolder ? (
             <>
-              <button className="text-foreground/70 hover:text-primary transition-colors" onClick={() => setActiveFolder(null)}>
+              <button className="text-white hover:text-primary transition-colors" onClick={() => setActiveFolder(null)}>
                 所有資料夾
               </button>
               <ChevronRight size={18} className="opacity-50" />
               <span>{activeFolder}</span>
             </>
           ) : (
-            '所有資料夾'
+            <span className="text-white">所有資料夾</span>
           )}
         </h2>
 
@@ -158,7 +158,7 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
                   </div>
                 </div>
                 <button 
-                  className="p-2 text-foreground/40 hover:text-danger hover:bg-danger/10 rounded-lg transition-colors"
+                  className="p-2 text-white hover:text-danger hover:bg-danger/10 rounded-lg transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     setDeleteFolderTarget(group);
@@ -214,11 +214,9 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
                 </Link>
                 <div className="grid grid-cols-2 gap-2">
                   <Link href={`/teacher/exams/${exam.id}/scan`} className="btn btn-primary flex items-center justify-center gap-2 text-sm">
-                    <QrCode size={16} />
                     掃描批改
                   </Link>
                   <Link href={`/teacher/exams/${exam.id}/export`} className="btn btn-secondary flex items-center justify-center gap-2 text-sm">
-                    <FileSpreadsheet size={16} />
                     匯出報表
                   </Link>
                 </div>

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import prisma from '@/lib/prisma';
-import { PlusCircle, QrCode, FileSpreadsheet, FileBarChart } from 'lucide-react';
+import { PlusCircle } from 'lucide-react';
 import ExamListView from './ExamListView';
 
 export const dynamic = 'force-dynamic';

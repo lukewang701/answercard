@@ -303,12 +303,12 @@ export default function AnalyticsView({ initialExams }: { initialExams: any[] })
                           {/* Error Rate Bar */}
                           <td style={{ padding: '0.6rem 0.75rem' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                              <span style={{ fontWeight: 700, color: isTop3 ? 'var(--danger)' : 'var(--warning)', minWidth: '2.5rem', textAlign: 'left' }}>
+                                {Math.round(stat.errorRate)}%
+                              </span>
                               <div style={{ flex: 1, height: '8px', borderRadius: '4px', background: 'var(--secondary)', overflow: 'hidden', minWidth: '60px' }}>
                                 <div style={{ height: '100%', borderRadius: '4px', width: `${stat.errorRate}%`, background: isTop3 ? 'var(--danger)' : 'var(--warning)', transition: 'width 0.4s' }} />
                               </div>
-                              <span style={{ fontWeight: 700, color: isTop3 ? 'var(--danger)' : 'var(--warning)', minWidth: '3rem', textAlign: 'right' }}>
-                                {Math.round(stat.errorRate)}%
-                              </span>
                             </div>
                           </td>
                           {/* Per-option cells */}
