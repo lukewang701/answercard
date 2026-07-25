@@ -8,7 +8,10 @@ export default async function EditExamPage({ params }: { params: Promise<{ id: s
   const { id } = await params;
   const exam = await prisma.exam.findUnique({
     where: { id },
-    include: { questions: { orderBy: { number: 'asc' } } }
+    include: { 
+      questions: { orderBy: { number: 'asc' } },
+      _count: { select: { submissions: true } }
+    }
   });
 
   if (!exam) return notFound();

@@ -95,6 +95,9 @@ export function ExamControl({ exam, initialSubmissions, initialCheckins, classSt
         <Link href={`/teacher/exams/${exam.id}/export`} className="btn btn-secondary flex items-center gap-2" style={{ fontSize: '0.85rem', padding: '0.35rem 0.85rem' }}>
           <Download size={16} /> 匯出報表
         </Link>
+        <Link href={`/teacher/exams/${exam.id}/edit`} className="btn btn-secondary flex items-center gap-2" style={{ fontSize: '0.85rem', padding: '0.35rem 0.85rem' }}>
+          編輯試卷
+        </Link>
       </div>
 
       {/* ── Three Panels ── */}

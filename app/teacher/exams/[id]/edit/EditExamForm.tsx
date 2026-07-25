@@ -25,6 +25,14 @@ export function EditExamForm({ initialExam }: { initialExam: any }) {
     note: initialExam.note || ''
   });
 
+  const DEFAULT_MAPPINGS = ['F=AB', 'G=AC', 'H=AD', 'I=AE', 'J=BC'];
+  const [optionMappings, setOptionMappings] = useState<string[]>(
+    initialExam.optionMappings ? JSON.parse(initialExam.optionMappings) : [...DEFAULT_MAPPINGS]
+  );
+  const [showOptionMappings, setShowOptionMappings] = useState(initialExam.showOptionMappings ?? true);
+
+  const submissionCount = initialExam._count?.submissions || 0;
+
   const [classesList, setClassesList] = useState<{ id: string; name: string }[]>([]);
 
   useEffect(() => {
@@ -301,10 +309,17 @@ export function EditExamForm({ initialExam }: { initialExam: any }) {
     e.preventDefault();
     if (!formData.name) return alert('請輸入試卷名稱');
     
+    if (submissionCount > 0) {
+      const confirmMsg = `目前已有 ${submissionCount} 位學生交卷。\n\n儲存變更將會自動重新計算這些學生的成績，且此動作無法復原。\n\n確定要儲存變更嗎？`;
+      if (!window.confirm(confirmMsg)) return;
+    }
+
     setLoading(true);
     try {
       const payload = {
         ...formData,
+        optionMappings,
+        showOptionMappings,
         questions: questions.slice(0, formData.totalQuestions).map(q => ({
           ...q,
           points: q.points === '' ? null : q.points,
@@ -351,6 +366,18 @@ export function EditExamForm({ initialExam }: { initialExam: any }) {
           <div>
             <div>試卷內容已成功儲存！</div>
             <div style={{ fontWeight: 400, fontSize: '0.85rem', opacity: 0.8 }}>若有已繳交的試卷，系統已自動重新計算分數，正在跳回試卷頁面⋯⋯</div>
+          </div>
+        </div>
+      )}
+
+      {submissionCount > 0 && !saveSuccess && (
+        <div className="animate-fade-in" style={{ marginBottom: '1.5rem', padding: '1rem 1.5rem', borderRadius: '12px', background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.4)', display: 'flex', alignItems: 'flex-start', gap: '0.75rem', color: 'var(--danger)', fontWeight: 600 }}>
+          <span style={{ fontSize: '1.5rem', lineHeight: 1 }}>⚠️</span>
+          <div>
+            <div style={{ fontSize: '1.05rem', marginBottom: '0.2rem' }}>此試卷已有 {submissionCount} 位學生交卷</div>
+            <div style={{ fontWeight: 400, fontSize: '0.9rem', opacity: 0.9 }}>
+              如果您在此處修改了標準答案或配分，系統會在儲存時<strong>自動重新計算</strong>所有已交卷學生的成績。
+            </div>
           </div>
         </div>
       )}
@@ -575,6 +602,53 @@ export function EditExamForm({ initialExam }: { initialExam: any }) {
               </div>
             </div>
           )}
+        </div>
+
+        {/* ── Option Mappings ── */}
+        <div className="card mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="m-0">選項轉換</h2>
+            <label className="flex items-center gap-2 cursor-pointer text-sm select-none">
+              <input
+                type="checkbox"
+                className="accent-primary w-4 h-4 cursor-pointer"
+                checked={showOptionMappings}
+                onChange={e => setShowOptionMappings(e.target.checked)}
+              />
+              顯示在學生數位答案卡
+            </label>
+          </div>
+          <p className="text-sm opacity-70 mb-4">
+            讓學生在只有 A–E 選項的答案卡上填入額外選項（F–J）。每一行格式為「代號=對應選項」，例如 F=AB 代表選 F 等同於同時選 A 與 B。
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+            {optionMappings.map((mapping, idx) => (
+              <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <input
+                  type="text"
+                  value={mapping}
+                  onChange={e => {
+                    const val = e.target.value.toUpperCase().replace(/[^A-Z=]/g, '');
+                    setOptionMappings(prev => { const n = [...prev]; n[idx] = val; return n; });
+                  }}
+                  style={{ width: '80px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.05em', padding: '0.4rem 0.5rem', fontSize: '1rem', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--background)', color: 'var(--foreground)' }}
+                  placeholder="F=AB"
+                />
+                <button
+                  type="button"
+                  onClick={() => setOptionMappings(prev => prev.filter((_, i) => i !== idx))}
+                  style={{ color: 'var(--danger)', opacity: 0.7, padding: '0.2rem', borderRadius: '4px', lineHeight: 1 }}
+                  title="移除"
+                >✕</button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => setOptionMappings(prev => [...prev, ''])}
+              className="btn btn-secondary"
+              style={{ padding: '0.4rem 0.9rem', fontSize: '0.9rem' }}
+            >+ 新增</button>
+          </div>
         </div>
 
         <div className="flex justify-end gap-4 sticky bottom-4 bg-secondary p-4 rounded-lg border shadow-lg" style={{ borderColor: 'var(--border)', zIndex: 10 }}>

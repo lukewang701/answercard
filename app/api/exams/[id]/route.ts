@@ -9,7 +9,7 @@ export async function PUT(
   
   try {
     const data = await request.json();
-    const { name, classes, date, totalQuestions, totalScore, note, questions } = data;
+    const { name, classes, date, totalQuestions, totalScore, note, questions, optionMappings, showOptionMappings } = data;
 
     // 1. Validate exam exists
     const existingExam = await prisma.exam.findUnique({
@@ -36,7 +36,9 @@ export async function PUT(
           date: new Date(date),
           totalQuestions,
           totalScore,
-          note
+          note,
+          optionMappings: optionMappings ? JSON.stringify(optionMappings) : null,
+          showOptionMappings: showOptionMappings !== false
         }
       });
 
