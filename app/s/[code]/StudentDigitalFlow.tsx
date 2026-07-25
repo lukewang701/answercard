@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { CheckCircle, AlertCircle, ChevronLeft, ChevronRight, Clock, Download, Camera, Edit2 } from 'lucide-react';
+import { CheckCircle, AlertCircle, ChevronLeft, ChevronRight, Clock, Download, Camera, Edit2, ArrowLeftRight } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { ReviewDownloadCard } from '@/components/ReviewDownloadCard';
 import { OMRScanner } from '@/components/OMRScanner';
@@ -17,6 +17,7 @@ export function StudentDigitalFlow({
   targetClass,
   allowPaperScan = false,
   deadline,
+  optionMappings,
 }: {
   examId: string;
   examName: string;
@@ -24,6 +25,7 @@ export function StudentDigitalFlow({
   targetClass: string;
   allowPaperScan?: boolean;
   deadline?: string;
+  optionMappings?: string[];
 }) {
   const [phase, setPhase] = useState<Phase>('identity');
 
@@ -81,6 +83,19 @@ export function StudentDigitalFlow({
     const t = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(t);
   }, []);
+
+  // Option mapping panel toggle
+  const [showMappingsPanel, setShowMappingsPanel] = useState(false);
+  const mappingsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const openMappingsPanel = () => {
+    setShowMappingsPanel(true);
+    if (mappingsTimerRef.current) clearTimeout(mappingsTimerRef.current);
+    mappingsTimerRef.current = setTimeout(() => setShowMappingsPanel(false), 20000);
+  };
+  const closeMappingsPanel = () => {
+    setShowMappingsPanel(false);
+    if (mappingsTimerRef.current) clearTimeout(mappingsTimerRef.current);
+  };
 
   useEffect(() => {
     if (phase !== 'answering' || !checkinId || !deviceId) return;
@@ -314,21 +329,57 @@ export function StudentDigitalFlow({
 
         {/* Header */}
         <div style={{ background: 'var(--secondary)', padding: '0.6rem 1rem', flexShrink: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-            <span style={{ fontSize: '0.82rem', opacity: 0.7 }}>{name} · {className} {seatNumber}號</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.78rem', opacity: 0.55 }}>
-              <Clock size={12} /> {getRemainingTime()}
-            </span>
-          </div>
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem', fontSize: '0.75rem', opacity: 0.65 }}>
-              <span>作答進度</span>
-              <span>{answered} / {totalQuestions} 題 ({progress}%)</span>
+          {showMappingsPanel && optionMappings && optionMappings.length > 0 ? (
+            /* ── Mappings panel ── */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                <span style={{ fontSize: '0.78rem', fontWeight: 700, opacity: 0.8 }}>選項轉換</span>
+                <button
+                  onClick={closeMappingsPanel}
+                  style={{ fontSize: '0.72rem', opacity: 0.6, padding: '0.1rem 0.4rem', borderRadius: '4px', border: '1px solid var(--border)' }}
+                >
+                  ✕ 關閉
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                {optionMappings.map((m, i) => (
+                  <span key={i} style={{ display: 'inline-block', padding: '0.2rem 0.55rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--background)', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.04em', color: 'var(--primary)' }}>
+                    {m}
+                  </span>
+                ))}
+              </div>
             </div>
-            <div style={{ height: '5px', borderRadius: '3px', background: 'var(--border)' }}>
-              <div style={{ height: '100%', borderRadius: '3px', background: 'var(--primary)', width: `${progress}%`, transition: 'width 0.3s' }} />
-            </div>
-          </div>
+          ) : (
+            /* ── Normal header ── */
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+                <span style={{ fontSize: '0.82rem', opacity: 0.7 }}>{name} · {className} {seatNumber}號</span>
+                {/* Middle: option mapping icon */}
+                {optionMappings && optionMappings.length > 0 && (
+                  <button
+                    onClick={openMappingsPanel}
+                    title="選項轉換"
+                    style={{ padding: '0.15rem 0.45rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--background)', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.72rem', fontWeight: 600 }}
+                  >
+                    <ArrowLeftRight size={12} />
+                    <span>選項轉換</span>
+                  </button>
+                )}
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.78rem', opacity: 0.55 }}>
+                  <Clock size={12} /> {getRemainingTime()}
+                </span>
+              </div>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem', fontSize: '0.75rem', opacity: 0.65 }}>
+                  <span>作答進度</span>
+                  <span>{answered} / {totalQuestions} 題 ({progress}%)</span>
+                </div>
+                <div style={{ height: '5px', borderRadius: '3px', background: 'var(--border)' }}>
+                  <div style={{ height: '100%', borderRadius: '3px', background: 'var(--primary)', width: `${progress}%`, transition: 'width 0.3s' }} />
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
         {allowPaperScan && (

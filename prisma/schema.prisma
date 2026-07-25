@@ -26,6 +26,8 @@ model Exam {
   extraOpen      Boolean      @default(false)
   lateMarkEnabled Boolean     @default(true)
   allowPaperScan Boolean      @default(false)
+  optionMappings  String?      // JSON string, e.g. '["F=AB","G=AC"]'
+  showOptionMappings Boolean   @default(true)
 
   questions      Question[]
   submissions    Submission[]

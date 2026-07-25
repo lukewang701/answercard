@@ -25,6 +25,10 @@ export default function NewExamPage() {
     note: ''
   });
 
+  const DEFAULT_MAPPINGS = ['F=AB', 'G=AC', 'H=AD', 'I=AE', 'J=BC'];
+  const [optionMappings, setOptionMappings] = useState<string[]>([...DEFAULT_MAPPINGS]);
+  const [showOptionMappings, setShowOptionMappings] = useState(true);
+
   const [classesList, setClassesList] = useState<{ id: string; name: string }[]>([]);
   const [selectedClasses, setSelectedClasses] = useState<string[]>([]);
 
@@ -289,6 +293,8 @@ export default function NewExamPage() {
     try {
       const payload = {
         ...formData,
+        optionMappings,
+        showOptionMappings,
         questions: questions.slice(0, formData.totalQuestions).map(q => ({
           ...q,
           points: q.points === '' ? null : q.points,
@@ -560,6 +566,53 @@ export default function NewExamPage() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* ── Option Mappings ── */}
+        <div className="card mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="m-0">選項轉換</h2>
+            <label className="flex items-center gap-2 cursor-pointer text-sm select-none">
+              <input
+                type="checkbox"
+                className="accent-primary w-4 h-4 cursor-pointer"
+                checked={showOptionMappings}
+                onChange={e => setShowOptionMappings(e.target.checked)}
+              />
+              顯示在學生數位答案卡
+            </label>
+          </div>
+          <p className="text-sm opacity-70 mb-4">
+            讓學生在只有 A–E 選項的答案卡上填入額外選項（F–J）。每一行格式為「代號=對應選項」，例如 F=AB 代表選 F 等同於同時選 A 與 B。
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+            {optionMappings.map((mapping, idx) => (
+              <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <input
+                  type="text"
+                  value={mapping}
+                  onChange={e => {
+                    const val = e.target.value.toUpperCase().replace(/[^A-Z=]/g, '');
+                    setOptionMappings(prev => { const n = [...prev]; n[idx] = val; return n; });
+                  }}
+                  style={{ width: '80px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.05em', padding: '0.4rem 0.5rem', fontSize: '1rem', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--background)', color: 'var(--foreground)' }}
+                  placeholder="F=AB"
+                />
+                <button
+                  type="button"
+                  onClick={() => setOptionMappings(prev => prev.filter((_, i) => i !== idx))}
+                  style={{ color: 'var(--danger)', opacity: 0.7, padding: '0.2rem', borderRadius: '4px', lineHeight: 1 }}
+                  title="移除"
+                >✕</button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => setOptionMappings(prev => [...prev, ''])}
+              className="btn btn-secondary"
+              style={{ padding: '0.4rem 0.9rem', fontSize: '0.9rem' }}
+            >+ 新增</button>
+          </div>
         </div>
 
         <div className="flex justify-end gap-4 sticky bottom-4 bg-secondary p-4 rounded-lg border shadow-lg" style={{ borderColor: 'var(--border)', zIndex: 10 }}>

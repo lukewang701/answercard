@@ -26,7 +26,7 @@ export async function POST(
     }
 
     const data = await request.json();
-    const { name, classes, date, totalQuestions, totalScore = 100, note, questions } = data;
+    const { name, classes, date, totalQuestions, totalScore = 100, note, questions, optionMappings, showOptionMappings } = data;
 
     // Parse classes string (e.g. "101, 102, 103" -> ["101", "102", "103"])
     // If empty or whitespace, we still want to create at least 1 exam
@@ -59,6 +59,8 @@ export async function POST(
           totalScore: Number(totalScore) || 100,
           note,
           shareCode,
+          optionMappings: optionMappings ? JSON.stringify(optionMappings) : null,
+          showOptionMappings: showOptionMappings !== false,
           questions: {
             create: questions.map((q: any) => ({
               number: q.number,
