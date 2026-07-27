@@ -14,10 +14,20 @@ export default async function StudentExamPage({
   const { code } = await params;
   const { scan } = await searchParams;
 
-  const exam = await prisma.exam.findUnique({
-    where: { shareCode: code.toUpperCase() },
-    select: { id: true, name: true, date: true, totalQuestions: true, targetClass: true, startTime: true, deadline: true, optionMappings: true, showOptionMappings: true, allowLateSubmission: true, lateDeadline: true }
-  });
+  let exam: Awaited<ReturnType<typeof prisma.exam.findUnique>> | null = null;
+  try {
+    exam = await prisma.exam.findUnique({
+      where: { shareCode: code.toUpperCase() },
+      select: { id: true, name: true, date: true, totalQuestions: true, targetClass: true, startTime: true, deadline: true, optionMappings: true, showOptionMappings: true, allowLateSubmission: true, lateDeadline: true }
+    });
+  } catch (err: any) {
+    return (
+      <div style={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a', color: '#f87171', fontFamily: 'monospace', padding: '2rem', flexDirection: 'column', gap: '1rem' }}>
+        <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>⚠️ 資料庫錯誤（請截圖回報）</div>
+        <pre style={{ fontSize: '0.8rem', opacity: 0.8, whiteSpace: 'pre-wrap', wordBreak: 'break-all', maxWidth: '600px' }}>{err?.message ?? String(err)}</pre>
+      </div>
+    );
+  }
 
   if (!exam) return notFound();
 
