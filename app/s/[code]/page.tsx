@@ -14,7 +14,7 @@ export default async function StudentExamPage({
   const { code } = await params;
   const { scan } = await searchParams;
 
-  let exam: Awaited<ReturnType<typeof prisma.exam.findUnique>> | null = null;
+  let exam: any = null;
   try {
     exam = await prisma.exam.findUnique({
       where: { shareCode: code.toUpperCase() },
