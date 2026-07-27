@@ -16,7 +16,7 @@ export default async function StudentExamPage({
 
   const exam = await prisma.exam.findUnique({
     where: { shareCode: code.toUpperCase() },
-    select: { id: true, name: true, date: true, totalQuestions: true, targetClass: true, startTime: true, deadline: true, optionMappings: true, showOptionMappings: true }
+    select: { id: true, name: true, date: true, totalQuestions: true, targetClass: true, startTime: true, deadline: true, optionMappings: true, showOptionMappings: true, allowLateSubmission: true, lateDeadline: true }
   });
 
   if (!exam) return notFound();
@@ -48,6 +48,8 @@ export default async function StudentExamPage({
         targetClass={exam.targetClass ?? ''}
         allowPaperScan={allowPaperScan}
         deadline={exam.deadline ? exam.deadline.toISOString() : undefined}
+        allowLateSubmission={exam.allowLateSubmission}
+        lateDeadline={exam.lateDeadline ? exam.lateDeadline.toISOString() : undefined}
         optionMappings={exam.showOptionMappings && exam.optionMappings ? JSON.parse(exam.optionMappings) : undefined}
       />
     </div>

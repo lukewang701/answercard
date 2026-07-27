@@ -17,6 +17,8 @@ export function StudentDigitalFlow({
   targetClass,
   allowPaperScan = false,
   deadline,
+  allowLateSubmission = false,
+  lateDeadline,
   optionMappings,
 }: {
   examId: string;
@@ -25,6 +27,8 @@ export function StudentDigitalFlow({
   targetClass: string;
   allowPaperScan?: boolean;
   deadline?: string;
+  allowLateSubmission?: boolean;
+  lateDeadline?: string;
   optionMappings?: string[];
 }) {
   const [phase, setPhase] = useState<Phase>('identity');
@@ -128,15 +132,24 @@ export function StudentDigitalFlow({
     setDownloading(true);
     try {
       const canvas = await html2canvas(cardRef.current, { scale: 2, backgroundColor: '#0F172A' });
-      const imgData = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.href = imgData;
-      link.download = `${examName}_答題檢討_${className}_${name}.png`;
-      link.click();
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          setDownloading(false);
+          return;
+        }
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${examName}_答題檢討_${className}_${name}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        setDownloading(false);
+      }, 'image/png');
     } catch (e) {
       console.error(e);
       alert('產生圖片時發生錯誤');
-    } finally {
       setDownloading(false);
     }
   };
@@ -174,9 +187,10 @@ export function StudentDigitalFlow({
     });
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e?: React.FormEvent | null, isAutoSubmit = false) => {
+    if (e && e.preventDefault) e.preventDefault();
     const unanswered = answers.filter(a => a.length === 0).length;
-    if (unanswered > 0) {
+    if (unanswered > 0 && !isAutoSubmit) {
       if (!confirm(`還有 ${unanswered} 題未作答，確定要送出嗎？`)) return;
     }
     setSubmitting(true);
@@ -220,8 +234,12 @@ export function StudentDigitalFlow({
   };
 
   const getRemainingTime = () => {
-    if (!deadline) return '無時間限制';
-    const diff = new Date(deadline).getTime() - now.getTime();
+    let target = deadline;
+    if (allowLateSubmission && lateDeadline) {
+      target = lateDeadline;
+    }
+    if (!target) return '無時間限制';
+    const diff = new Date(target).getTime() - now.getTime();
     if (diff <= 0) return '已超時';
     const totalSecs = Math.floor(diff / 1000);
     const h = Math.floor(totalSecs / 3600);
@@ -230,6 +248,27 @@ export function StudentDigitalFlow({
     if (h > 0) return `剩餘 ${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     return `剩餘 ${m}:${s.toString().padStart(2, '0')}`;
   };
+
+  useEffect(() => {
+    if (phase !== 'answering') return;
+    let target = deadline;
+    if (allowLateSubmission && lateDeadline) {
+      target = lateDeadline;
+    }
+    if (!target) return;
+
+    const checkAutoSubmit = () => {
+      if (submitting) return;
+      const targetTime = new Date(target).getTime();
+      if (new Date().getTime() >= targetTime) {
+        alert('作答時間已結束，系統將自動收回答案卡並計分！');
+        handleSubmit(null, true);
+      }
+    };
+    checkAutoSubmit(); // check immediately
+    const t = setInterval(checkAutoSubmit, 1000);
+    return () => clearInterval(t);
+  }, [phase, deadline, allowLateSubmission, lateDeadline, submitting, answers, className, seatNumber, name, checkinId]);
 
   const answered = answers.filter(a => a.length > 0).length;
   const progress = Math.round((answered / totalQuestions) * 100);
@@ -343,7 +382,7 @@ export function StudentDigitalFlow({
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
                 {optionMappings.map((m, i) => (
-                  <span key={i} style={{ display: 'inline-block', padding: '0.2rem 0.55rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--background)', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.04em', color: 'var(--primary)' }}>
+                  <span key={i} className="text-primary dark:text-[#4ade80]" style={{ display: 'inline-block', padding: '0.2rem 0.55rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--background)', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.04em' }}>
                     {m}
                   </span>
                 ))}
@@ -359,7 +398,8 @@ export function StudentDigitalFlow({
                   <button
                     onClick={openMappingsPanel}
                     title="選項轉換"
-                    style={{ padding: '0.15rem 0.45rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--background)', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.72rem', fontWeight: 600 }}
+                    className="text-primary dark:text-[#4ade80]"
+                    style={{ padding: '0.15rem 0.45rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--background)', display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.72rem', fontWeight: 600 }}
                   >
                     <ArrowLeftRight size={12} />
                     <span>選項轉換</span>
