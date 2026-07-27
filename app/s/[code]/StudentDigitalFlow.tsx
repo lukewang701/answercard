@@ -88,6 +88,18 @@ export function StudentDigitalFlow({
     return () => clearInterval(t);
   }, []);
 
+  // Auto-save answers to localStorage
+  useEffect(() => {
+    if (phase === 'answering' && className && seatNumber) {
+      const cacheKey = `answecard_${examId}_${className}_${seatNumber.padStart(2, '0')}`;
+      try {
+        localStorage.setItem(cacheKey, JSON.stringify(answers));
+      } catch (e) {
+        console.error('Failed to save answers to cache', e);
+      }
+    }
+  }, [answers, phase, examId, className, seatNumber]);
+
   // Option mapping panel toggle
   const [showMappingsPanel, setShowMappingsPanel] = useState(false);
   const mappingsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -170,6 +182,21 @@ export function StudentDigitalFlow({
         return;
       }
       setCheckinId(data.checkinId);
+      
+      // Try to load cached answers
+      const cacheKey = `answecard_${examId}_${className}_${seatNumber.padStart(2, '0')}`;
+      try {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length === totalQuestions) {
+            setAnswers(parsed);
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load cached answers', e);
+      }
+      
       setPhase('answering');
     } catch {
       setIdentityError('網路發生錯誤，請重試');
@@ -212,6 +239,12 @@ export function StudentDigitalFlow({
         setSubmitError(data.error || '送出失敗');
         return;
       }
+      
+      // Clear cache on successful submission
+      const cacheKey = `answecard_${examId}_${className}_${seatNumber.padStart(2, '0')}`;
+      try {
+        localStorage.removeItem(cacheKey);
+      } catch (e) {}
       // Fetch full submission details
       const detailRes = await fetch(`/api/submissions/${data.submission.id}`);
       if (detailRes.ok) {
