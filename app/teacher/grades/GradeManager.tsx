@@ -141,7 +141,7 @@ export function GradeManager({ exams, classes }: { exams: any[], classes: any[] 
   const latestUpdate = filteredExams.length > 0 ? Math.max(...filteredExams.map(e => e.lastUpdated)) : null;
 
   return (
-    <div className="bg-secondary/40 border border-border rounded-xl p-6 shadow-sm">
+    <div className="w-full">
       
       {/* ── Top Bar ── */}
       <div className="flex flex-col md:flex-row gap-6 mb-8 justify-between items-end">
@@ -153,7 +153,7 @@ export function GradeManager({ exams, classes }: { exams: any[], classes: any[] 
               <input 
                 type="text" 
                 placeholder="輸入關鍵字..." 
-                className="w-full pl-9 py-2 bg-background/50 border-border rounded-md text-sm"
+                className="w-full pl-9 py-2 bg-transparent border border-border rounded-md text-sm"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
               />
@@ -163,7 +163,7 @@ export function GradeManager({ exams, classes }: { exams: any[], classes: any[] 
           <div className="w-48">
             <label className="block text-sm mb-2 opacity-80 text-foreground font-medium">依班級篩選</label>
             <select 
-              className="w-full py-2 bg-background/50 border-border rounded-md text-sm appearance-none"
+              className="w-full py-2 bg-transparent border border-border rounded-md text-sm appearance-none"
               value={selectedClass}
               onChange={e => setSelectedClass(e.target.value)}
               style={{ backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%24%2024%22%20fill%3D%22none%22%20stroke%3D%22%23666%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center', backgroundSize: '16px' }}
@@ -176,57 +176,57 @@ export function GradeManager({ exams, classes }: { exams: any[], classes: any[] 
           </div>
         </div>
 
-        <button onClick={handleDownload} className="btn bg-primary text-white hover:bg-primary-hover flex items-center gap-2 py-2 px-5 rounded-md shadow-sm transition-colors">
+        <button onClick={handleDownload} className="btn flex items-center gap-2 py-2 px-5 rounded-md shadow-sm transition-colors text-white border-none" style={{ backgroundColor: '#3b82f6' }}>
           <Download size={16} />
           下載所選成績 ({selectedExams.length})
         </button>
       </div>
 
-      {/* ── Table Container ── */}
-      <div className="bg-background rounded-lg border border-border/80 overflow-hidden">
-        
-        {/* Table Header Tab */}
-        <div className="px-6 py-4 flex items-center gap-4 text-sm font-medium border-b border-border/50">
-          <span className="text-primary font-bold">全部</span>
-          <span className="opacity-70">共 {filteredExams.length} 份試卷</span>
-        </div>
+      {/* Table Header Tab */}
+      <div className="flex items-center gap-4 text-sm font-medium mb-3 pl-2">
+        <span className="text-[#3b82f6] font-bold">全部</span>
+        <span className="opacity-70">共 {filteredExams.length} 份試卷</span>
+      </div>
 
+      {/* ── Table Container ── */}
+      <div className="bg-transparent rounded-lg border border-border overflow-hidden">
+        
         {/* Column Headers */}
-        <div className="grid grid-cols-[auto_2fr_1fr_1fr_1fr_auto] gap-4 px-6 py-3 border-b border-border text-xs font-semibold opacity-70 items-center">
-          <button onClick={handleSelectAll} className="p-1 hover:text-primary transition-colors">
+        <div className="grid grid-cols-[auto_2fr_1fr_1fr_1fr_auto] gap-4 px-6 py-4 border-b border-border text-sm font-semibold opacity-80 items-center">
+          <button onClick={handleSelectAll} className="p-1 hover:opacity-80 transition-colors">
             {selectedExams.length === filteredExams.length && filteredExams.length > 0 ? (
-              <CheckSquare size={18} className="text-primary" />
+              <CheckSquare size={18} className="text-foreground" />
             ) : (
-              <Square size={18} />
+              <Square size={18} className="text-foreground" />
             )}
           </button>
-          <div className="flex items-center gap-1 cursor-pointer hover:text-primary" onClick={() => toggleSort('name')}>
+          <div className="flex items-center gap-2 cursor-pointer hover:opacity-80" onClick={() => toggleSort('name')}>
             試卷名稱 <ChevronDown size={14} className={sortField==='name'&&sortOrder==='asc'?'rotate-180':''} />
           </div>
-          <div className="flex items-center gap-1 cursor-pointer hover:text-primary" onClick={() => toggleSort('date')}>
+          <div className="flex items-center gap-2 cursor-pointer hover:opacity-80" onClick={() => toggleSort('date')}>
             日期 <ChevronDown size={14} className={sortField==='date'&&sortOrder==='asc'?'rotate-180':''} />
           </div>
-          <div className="flex items-center gap-1 cursor-pointer hover:text-primary" onClick={() => toggleSort('submitted')}>
+          <div className="flex items-center gap-2 cursor-pointer hover:opacity-80" onClick={() => toggleSort('submitted')}>
             已繳交 <ChevronDown size={14} className={sortField==='submitted'&&sortOrder==='asc'?'rotate-180':''} />
           </div>
-          <div className="flex items-center gap-1 cursor-pointer hover:text-primary" onClick={() => toggleSort('average')}>
+          <div className="flex items-center gap-2 cursor-pointer hover:opacity-80" onClick={() => toggleSort('average')}>
             平均分數 <ChevronDown size={14} className={sortField==='average'&&sortOrder==='asc'?'rotate-180':''} />
           </div>
           <div className="w-8"></div>
         </div>
 
         {/* Rows */}
-        <div className="divide-y divide-border/50 max-h-[50vh] overflow-y-auto">
+        <div className="divide-y divide-border max-h-[50vh] overflow-y-auto">
           {filteredExams.map(exam => {
             const pct = exam.totalExpected > 0 ? Math.round((exam.submitted / exam.totalExpected) * 100) : 0;
-            const pctColor = pct === 100 ? 'text-success' : pct === 0 ? 'text-danger' : 'text-warning';
+            const pctColor = pct === 100 ? 'text-[#22c55e]' : pct === 0 ? 'text-[#ef4444]' : 'text-foreground';
             return (
-              <div key={exam.id} className={`grid grid-cols-[auto_2fr_1fr_1fr_1fr_auto] gap-4 px-6 py-4 items-center text-sm hover:bg-secondary/20 transition-colors ${selectedExams.includes(exam.id) ? 'bg-secondary/10' : ''}`}>
-                <button onClick={(e) => toggleExam(exam.id, e)} className="p-1 text-foreground/50 hover:text-primary transition-colors">
-                  {selectedExams.includes(exam.id) ? <CheckSquare size={18} className="text-primary" /> : <Square size={18} />}
+              <div key={exam.id} className={`grid grid-cols-[auto_2fr_1fr_1fr_1fr_auto] gap-4 px-6 py-4 items-center text-sm hover:bg-white/5 transition-colors ${selectedExams.includes(exam.id) ? 'bg-white/5' : ''}`}>
+                <button onClick={(e) => toggleExam(exam.id, e)} className="p-1 text-foreground hover:opacity-80 transition-colors">
+                  {selectedExams.includes(exam.id) ? <CheckSquare size={18} /> : <Square size={18} />}
                 </button>
-                <div className="flex items-center gap-3 font-medium cursor-pointer" onClick={() => window.location.href = `/teacher/exams/${exam.id}`}>
-                  <FileText size={18} className="text-primary" />
+                <div className="flex items-center gap-3 font-bold text-base cursor-pointer" onClick={() => window.location.href = `/teacher/exams/${exam.id}`}>
+                  <FileText size={20} className="text-[#3b82f6]" />
                   {exam.name}
                 </div>
                 <div className="flex items-center gap-2 opacity-80">
@@ -237,7 +237,7 @@ export function GradeManager({ exams, classes }: { exams: any[], classes: any[] 
                   <Users size={16} className="opacity-70" />
                   <span className={pctColor}>{exam.submitted} / {exam.totalExpected} <span className="opacity-70 text-xs">({pct}%)</span></span>
                 </div>
-                <div className={`font-medium ${exam.average !== null ? 'text-primary' : 'opacity-50'}`}>
+                <div className={`font-medium ${exam.average !== null ? 'text-[#3b82f6]' : 'opacity-50'}`}>
                   {exam.average !== null ? `${exam.average.toFixed(1)} 分` : '—'}
                 </div>
                 <button className="p-1 opacity-50 hover:opacity-100 transition-opacity">
@@ -253,23 +253,19 @@ export function GradeManager({ exams, classes }: { exams: any[], classes: any[] 
       </div>
 
       {/* ── Summary Footer ── */}
-      <div className="mt-4 bg-secondary/80 rounded-lg p-5 grid grid-cols-2 md:grid-cols-4 gap-6 border border-border/50">
+      <div className="mt-6 bg-transparent border border-border rounded-lg p-5 grid grid-cols-2 md:grid-cols-4 gap-6">
         <div className="flex items-center gap-4">
-          <div className="bg-primary/20 p-3 rounded-lg text-primary">
-            <FileText size={24} />
-          </div>
+          <FileText size={32} className="text-[#3b82f6]" strokeWidth={1.5} />
           <div>
-            <div className="text-xs opacity-70 mb-1">總試卷數</div>
+            <div className="text-sm opacity-70 mb-1">總試卷數</div>
             <div className="text-xl font-bold">{totalExams}</div>
           </div>
         </div>
         
         <div className="flex items-center gap-4">
-          <div className="bg-primary/20 p-3 rounded-lg text-primary">
-            <Users size={24} />
-          </div>
+          <Users size={32} className="text-[#3b82f6]" strokeWidth={1.5} />
           <div>
-            <div className="text-xs opacity-70 mb-1">已繳交總數</div>
+            <div className="text-sm opacity-70 mb-1">已繳交總數</div>
             <div className="text-xl font-bold flex items-baseline gap-2">
               {totalSubmitted} / {totalExpected}
               <span className="text-sm font-normal opacity-70">
@@ -280,23 +276,19 @@ export function GradeManager({ exams, classes }: { exams: any[], classes: any[] 
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="bg-success/20 p-3 rounded-lg text-success">
-            <TrendingUp size={24} />
-          </div>
+          <TrendingUp size={32} className="text-[#22c55e]" strokeWidth={1.5} />
           <div>
-            <div className="text-xs opacity-70 mb-1">平均分數 (已繳交)</div>
-            <div className={`text-xl font-bold ${overallAverage !== null ? 'text-success' : 'opacity-50'}`}>
+            <div className="text-sm opacity-70 mb-1">平均分數 (已繳交)</div>
+            <div className={`text-xl font-bold ${overallAverage !== null ? 'text-[#22c55e]' : 'opacity-50'}`}>
               {overallAverage !== null ? `${overallAverage.toFixed(1)} 分` : '—'}
             </div>
           </div>
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="bg-warning/20 p-3 rounded-lg text-warning">
-            <Clock size={24} />
-          </div>
+          <Clock size={32} className="text-[#f97316]" strokeWidth={1.5} />
           <div>
-            <div className="text-xs opacity-70 mb-1">最近更新</div>
+            <div className="text-sm opacity-70 mb-1">最近更新</div>
             <div className="text-sm font-medium">
               {latestUpdate ? new Date(latestUpdate).toLocaleString('zh-TW', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '無'}
             </div>
