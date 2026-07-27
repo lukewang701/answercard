@@ -163,7 +163,7 @@ export default function AnalyticsView({ initialExams }: { initialExams: any[] })
     <div>
       {/* Header & Controls */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="m-0 flex items-center gap-2">
+        <h2 className="m-0 flex items-center gap-2 text-foreground">
           <BarChart2 className="text-primary" />
           {activeFolder ? (
             <>

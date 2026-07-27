@@ -505,7 +505,7 @@ export function EditExamForm({ initialExam }: { initialExam: any }) {
             style={{ borderBottomColor: openSections.click ? 'var(--border)' : 'transparent' }}
             onClick={() => toggleSection('click')}
           >
-            <h2 className="m-0 text-lg text-white">點選快速設定答案</h2>
+            <h2 className="m-0 text-lg text-foreground">點選快速設定答案</h2>
             <span className="text-foreground/50">{openSections.click ? '▼' : '▶'}</span>
           </button>
           
@@ -607,7 +607,7 @@ export function EditExamForm({ initialExam }: { initialExam: any }) {
         {/* ── Option Mappings ── */}
         <div className="card mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="m-0">選項轉換</h2>
+            <h2 className="m-0 text-foreground">選項轉換</h2>
             <label className="flex items-center gap-2 cursor-pointer text-sm select-none">
               <input
                 type="checkbox"

@@ -468,7 +468,7 @@ export default function NewExamPage() {
             style={{ borderBottomColor: openSections.click ? 'var(--border)' : 'transparent' }}
             onClick={() => toggleSection('click')}
           >
-            <h2 className="m-0 text-lg text-white">點選快速設定答案</h2>
+            <h2 className="m-0 text-lg text-foreground">點選快速設定答案</h2>
             <span className="text-foreground/50">{openSections.click ? '▼' : '▶'}</span>
           </button>
           
