@@ -192,62 +192,65 @@ export function GradeManager({ exams, classes }: { exams: any[], classes: any[] 
       <div className="bg-transparent rounded-lg border border-border overflow-hidden">
         
         {/* Column Headers */}
-        <div className="grid grid-cols-[auto_2fr_1fr_1fr_1fr_auto] gap-4 px-6 py-4 border-b border-border text-sm font-semibold opacity-80 items-center">
-          <button onClick={handleSelectAll} className="p-1 hover:opacity-80 transition-colors">
+        <div style={{ display: 'grid', gridTemplateColumns: 'auto 2fr 1fr 1fr 1fr auto', gap: '1rem', padding: '1rem 1.5rem', borderBottom: '1px solid var(--border)', fontSize: '0.85rem', fontWeight: 600, opacity: 0.8, alignItems: 'center' }}>
+          <button onClick={handleSelectAll} style={{ padding: '0.25rem', cursor: 'pointer', display: 'flex' }}>
             {selectedExams.length === filteredExams.length && filteredExams.length > 0 ? (
-              <CheckSquare size={18} className="text-foreground" />
+              <CheckSquare size={18} />
             ) : (
-              <Square size={18} className="text-foreground" />
+              <Square size={18} />
             )}
           </button>
-          <div className="flex items-center gap-2 cursor-pointer hover:opacity-80" onClick={() => toggleSort('name')}>
-            試卷名稱 <ChevronDown size={14} className={sortField==='name'&&sortOrder==='asc'?'rotate-180':''} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer' }} onClick={() => toggleSort('name')}>
+            試卷名稱 <ChevronDown size={14} style={{ transform: sortField==='name'&&sortOrder==='asc' ? 'rotate(180deg)' : 'none' }} />
           </div>
-          <div className="flex items-center gap-2 cursor-pointer hover:opacity-80" onClick={() => toggleSort('date')}>
-            日期 <ChevronDown size={14} className={sortField==='date'&&sortOrder==='asc'?'rotate-180':''} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer' }} onClick={() => toggleSort('date')}>
+            日期 <ChevronDown size={14} style={{ transform: sortField==='date'&&sortOrder==='asc' ? 'rotate(180deg)' : 'none' }} />
           </div>
-          <div className="flex items-center gap-2 cursor-pointer hover:opacity-80" onClick={() => toggleSort('submitted')}>
-            已繳交 <ChevronDown size={14} className={sortField==='submitted'&&sortOrder==='asc'?'rotate-180':''} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer' }} onClick={() => toggleSort('submitted')}>
+            已繳交 <ChevronDown size={14} style={{ transform: sortField==='submitted'&&sortOrder==='asc' ? 'rotate(180deg)' : 'none' }} />
           </div>
-          <div className="flex items-center gap-2 cursor-pointer hover:opacity-80" onClick={() => toggleSort('average')}>
-            平均分數 <ChevronDown size={14} className={sortField==='average'&&sortOrder==='asc'?'rotate-180':''} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer' }} onClick={() => toggleSort('average')}>
+            平均分數 <ChevronDown size={14} style={{ transform: sortField==='average'&&sortOrder==='asc' ? 'rotate(180deg)' : 'none' }} />
           </div>
-          <div className="w-8"></div>
+          <div style={{ width: '2rem' }}></div>
         </div>
 
         {/* Rows */}
-        <div className="divide-y divide-border max-h-[50vh] overflow-y-auto">
+        <div style={{ overflowY: 'auto', maxHeight: '50vh', borderTop: 'none' }}>
           {filteredExams.map(exam => {
             const pct = exam.totalExpected > 0 ? Math.round((exam.submitted / exam.totalExpected) * 100) : 0;
-            const pctColor = pct === 100 ? 'text-[#22c55e]' : pct === 0 ? 'text-[#ef4444]' : 'text-foreground';
+            const pctColor = pct === 100 ? '#22c55e' : pct === 0 ? '#ef4444' : 'var(--foreground)';
             return (
-              <div key={exam.id} className={`grid grid-cols-[auto_2fr_1fr_1fr_1fr_auto] gap-4 px-6 py-4 items-center text-sm hover:bg-white/5 transition-colors ${selectedExams.includes(exam.id) ? 'bg-white/5' : ''}`}>
-                <button onClick={(e) => toggleExam(exam.id, e)} className="p-1 text-foreground hover:opacity-80 transition-colors">
+              <div key={exam.id} style={{ display: 'grid', gridTemplateColumns: 'auto 2fr 1fr 1fr 1fr auto', gap: '1rem', padding: '1rem 1.5rem', alignItems: 'center', fontSize: '0.875rem', borderBottom: '1px solid var(--border)', backgroundColor: selectedExams.includes(exam.id) ? 'rgba(255,255,255,0.04)' : 'transparent', cursor: 'default', transition: 'background 0.15s' }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)')}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = selectedExams.includes(exam.id) ? 'rgba(255,255,255,0.04)' : 'transparent')}
+              >
+                <button onClick={(e) => toggleExam(exam.id, e)} style={{ padding: '0.25rem', cursor: 'pointer', display: 'flex', color: 'var(--foreground)' }}>
                   {selectedExams.includes(exam.id) ? <CheckSquare size={18} /> : <Square size={18} />}
                 </button>
-                <div className="flex items-center gap-3 font-bold text-base cursor-pointer" onClick={() => window.location.href = `/teacher/exams/${exam.id}`}>
-                  <FileText size={20} className="text-[#3b82f6]" />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 700, fontSize: '1rem', cursor: 'pointer' }} onClick={() => window.location.href = `/teacher/exams/${exam.id}`}>
+                  <FileText size={20} style={{ color: '#3b82f6', flexShrink: 0 }} />
                   {exam.name}
                 </div>
-                <div className="flex items-center gap-2 opacity-80">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', opacity: 0.8 }}>
                   <Calendar size={16} />
                   {new Date(exam.date).toLocaleDateString()}
                 </div>
-                <div className="flex items-center gap-2">
-                  <Users size={16} className="opacity-70" />
-                  <span className={pctColor}>{exam.submitted} / {exam.totalExpected} <span className="opacity-70 text-xs">({pct}%)</span></span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Users size={16} style={{ opacity: 0.7 }} />
+                  <span style={{ color: pctColor }}>{exam.submitted} / {exam.totalExpected} <span style={{ opacity: 0.7, fontSize: '0.75rem' }}>({pct}%)</span></span>
                 </div>
-                <div className={`font-medium ${exam.average !== null ? 'text-[#3b82f6]' : 'opacity-50'}`}>
+                <div style={{ fontWeight: 500, color: exam.average !== null ? '#3b82f6' : 'var(--foreground)', opacity: exam.average !== null ? 1 : 0.4 }}>
                   {exam.average !== null ? `${exam.average.toFixed(1)} 分` : '—'}
                 </div>
-                <button className="p-1 opacity-50 hover:opacity-100 transition-opacity">
+                <button style={{ padding: '0.25rem', opacity: 0.5, cursor: 'pointer' }} onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.opacity='1')} onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.opacity='0.5')}>
                   <MoreVertical size={18} />
                 </button>
               </div>
             );
           })}
           {filteredExams.length === 0 && (
-            <div className="p-12 text-center opacity-50">沒有符合條件的試卷</div>
+            <div style={{ padding: '3rem', textAlign: 'center', opacity: 0.5 }}>沒有符合條件的試卷</div>
           )}
         </div>
       </div>

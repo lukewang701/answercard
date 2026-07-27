@@ -57,6 +57,25 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
     return () => clearInterval(t);
   }, []);
 
+  // Sync time settings from server for cross-device sync
+  useEffect(() => {
+    const syncSettings = async () => {
+      try {
+        const res = await fetch(`/api/exams/${examId}/settings`);
+        if (!res.ok) return;
+        const data = await res.json();
+        setStartTime(toLocalDatetimeInput(data.startTime ?? null));
+        setDeadline(toLocalDatetimeInput(data.deadline ?? null));
+        setAllowLateSubmission(data.allowLateSubmission ?? false);
+        setLateDeadline(toLocalDatetimeInput(data.lateDeadline ?? null));
+        setLateMarkEnabled(data.lateMarkEnabled ?? false);
+        setExtraOpen(data.extraOpen ?? false);
+      } catch { /* silent */ }
+    };
+    const t = setInterval(syncSettings, 5000);
+    return () => clearInterval(t);
+  }, [examId]);
+
   const saveSettings = useCallback(async (patch: Partial<{ startTime: string; deadline: string; allowLateSubmission: boolean; lateDeadline: string; extraOpen: boolean; lateMarkEnabled: boolean; extraOpenLateMark: boolean }>) => {
     setSavingSettings(true);
     try {
