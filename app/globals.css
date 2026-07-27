@@ -93,6 +93,8 @@ p { margin-bottom: 1rem; color: var(--foreground); opacity: 0.8; }
 .text-success { color: var(--success); }
 .text-white { color: white; }
 .text-foreground { color: var(--foreground); }
+.text-option-mapping { color: #4ade80; }
+html.light-mode .text-option-mapping { color: var(--primary); }
 
 /* Buttons */
 .btn {

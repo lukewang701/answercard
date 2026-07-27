@@ -382,7 +382,7 @@ export function StudentDigitalFlow({
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
                 {optionMappings.map((m, i) => (
-                  <span key={i} className="text-primary dark:text-[#4ade80]" style={{ display: 'inline-block', padding: '0.2rem 0.55rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--background)', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.04em' }}>
+                  <span key={i} className="text-option-mapping" style={{ display: 'inline-block', padding: '0.2rem 0.55rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--background)', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.04em' }}>
                     {m}
                   </span>
                 ))}
@@ -398,7 +398,7 @@ export function StudentDigitalFlow({
                   <button
                     onClick={openMappingsPanel}
                     title="選項轉換"
-                    className="text-primary dark:text-[#4ade80]"
+                    className="text-option-mapping"
                     style={{ padding: '0.15rem 0.45rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--background)', display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.72rem', fontWeight: 600 }}
                   >
                     <ArrowLeftRight size={12} />
