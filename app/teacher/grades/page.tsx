@@ -12,7 +12,8 @@ export default async function GradesPage() {
   });
 
   const classes = await prisma.class.findMany({
-    orderBy: { name: 'asc' }
+    orderBy: { name: 'asc' },
+    include: { _count: { select: { students: true } } }
   });
 
   return (

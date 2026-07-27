@@ -1,22 +1,51 @@
-'use client';
-
 import { useState, useMemo } from 'react';
 import * as XLSX from 'xlsx';
-import { Download, Search, CheckSquare, Square } from 'lucide-react';
+import { Download, Search, CheckSquare, Square, FileText, Calendar, Users, TrendingUp, Clock, MoreVertical, ChevronDown } from 'lucide-react';
 
 export function GradeManager({ exams, classes }: { exams: any[], classes: any[] }) {
   const [selectedClass, setSelectedClass] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedExams, setSelectedExams] = useState<string[]>([]);
+  
+  // Sorting state
+  const [sortField, setSortField] = useState<'name' | 'date' | 'submitted' | 'average'>('date');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
-  // Filter exams based on class and search term
-  const filteredExams = useMemo(() => {
-    return exams.filter(exam => {
-      // Basic search match
-      const matchSearch = exam.name.toLowerCase().includes(searchTerm.toLowerCase());
+  const processedExams = useMemo(() => {
+    return exams.map(exam => {
+      let targetClassStr = exam.targetClass;
+      if (!targetClassStr) {
+        const match = exam.name.match(/\b(\d{3})\b/);
+        if (match) targetClassStr = match[1];
+      }
+      const cls = classes.find(c => c.name === targetClassStr);
+      const totalExpected = cls?._count?.students || exam.submissions.length || 0;
+      const submitted = exam.submissions.length;
       
-      // Class match: checking if the exam's targetClass matches, 
-      // or if any submissions are from this class
+      const sum = exam.submissions.reduce((acc: number, sub: any) => {
+        const penalty = sub.isLate ? (sub.latePenalty ?? 5) : 0;
+        const raw = sub.isLate && sub.rawScore != null ? sub.rawScore : sub.totalScore;
+        const finalScore = sub.isLate ? Math.max(0, raw - penalty) : sub.totalScore;
+        return acc + finalScore;
+      }, 0);
+      
+      const average = submitted > 0 ? sum / submitted : null;
+      
+      return {
+        ...exam,
+        totalExpected,
+        submitted,
+        average,
+        lastUpdated: exam.submissions.length > 0 
+          ? Math.max(...exam.submissions.map((s: any) => new Date(s.submittedAt).getTime()))
+          : new Date(exam.date).getTime()
+      };
+    });
+  }, [exams, classes]);
+
+  const filteredExams = useMemo(() => {
+    let result = processedExams.filter(exam => {
+      const matchSearch = exam.name.toLowerCase().includes(searchTerm.toLowerCase());
       let matchClass = true;
       if (selectedClass) {
         const cls = classes.find(c => c.id === selectedClass);
@@ -28,20 +57,32 @@ export function GradeManager({ exams, classes }: { exams: any[], classes: any[] 
       }
       return matchSearch && matchClass;
     });
-  }, [exams, selectedClass, searchTerm, classes]);
 
-  const handleSelectAll = () => {
-    if (selectedExams.length === filteredExams.length) {
-      setSelectedExams([]); // deselect all
-    } else {
-      setSelectedExams(filteredExams.map(e => e.id)); // select all
-    }
+    result.sort((a, b) => {
+      let cmp = 0;
+      if (sortField === 'name') cmp = a.name.localeCompare(b.name);
+      else if (sortField === 'date') cmp = new Date(a.date).getTime() - new Date(b.date).getTime();
+      else if (sortField === 'submitted') cmp = (a.submitted / (a.totalExpected || 1)) - (b.submitted / (b.totalExpected || 1));
+      else if (sortField === 'average') cmp = (a.average || 0) - (b.average || 0);
+      return sortOrder === 'asc' ? cmp : -cmp;
+    });
+
+    return result;
+  }, [processedExams, selectedClass, searchTerm, classes, sortField, sortOrder]);
+
+  const toggleSort = (field: 'name' | 'date' | 'submitted' | 'average') => {
+    if (sortField === field) setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+    else { setSortField(field); setSortOrder('desc'); }
   };
 
-  const toggleExam = (id: string) => {
-    setSelectedExams(prev => 
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    );
+  const handleSelectAll = () => {
+    if (selectedExams.length === filteredExams.length) setSelectedExams([]);
+    else setSelectedExams(filteredExams.map(e => e.id));
+  };
+
+  const toggleExam = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedExams(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   };
 
   const handleDownload = () => {
@@ -49,15 +90,10 @@ export function GradeManager({ exams, classes }: { exams: any[], classes: any[] 
       alert('請先選擇至少一份試卷');
       return;
     }
-
     const examsToExport = exams.filter(e => selectedExams.includes(e.id));
     const wb = XLSX.utils.book_new();
 
-    let allClassNames = new Set<string>();
-    let allExamNames = new Set<string>();
-
     examsToExport.forEach(exam => {
-      // Sort submissions by seat number
       const sortedSubmissions = [...exam.submissions].sort((a, b) => {
         const seatA = parseInt(a.seatNumber) || 0;
         const seatB = parseInt(b.seatNumber) || 0;
@@ -65,135 +101,208 @@ export function GradeManager({ exams, classes }: { exams: any[], classes: any[] 
       });
 
       const scoreData = sortedSubmissions.map((sub: any, index: number) => {
-        allClassNames.add(sub.class);
-        
         const penalty = sub.isLate ? (sub.latePenalty ?? 5) : 0;
         const raw = sub.isLate && sub.rawScore != null ? sub.rawScore : sub.totalScore;
         const finalScore = sub.isLate ? Math.max(0, raw - penalty) : sub.totalScore;
         
         return {
-          年級: sub.year,
-          班級: sub.class,
-          座號: sub.seatNumber,
-          姓名: sub.studentName,
-          是否遲交: sub.isLate ? '是' : '否',
-          原始分數: raw.toFixed(1),
-          遲交扣分: sub.isLate ? `-${penalty}` : '-',
-          最後分數: finalScore.toFixed(1),
-          ...(exam.totalScore !== 100 ? {
-            '百分比(%)': ((finalScore / exam.totalScore) * 100).toFixed(1) + '%'
-          } : {}),
+          年級: sub.year, 班級: sub.class, 座號: sub.seatNumber, 姓名: sub.studentName,
+          是否遲交: sub.isLate ? '是' : '否', 原始分數: raw.toFixed(1),
+          遲交扣分: sub.isLate ? `-${penalty}` : '-', 最後分數: finalScore.toFixed(1),
+          ...(exam.totalScore !== 100 ? { '百分比(%)': ((finalScore / exam.totalScore) * 100).toFixed(1) + '%' } : {}),
           名次: index + 1
         };
       });
 
-      // Sheet name max length is 31 chars
       let safeName = exam.name.replace(/[\\/*?:"<>|]/g, '').substring(0, 31);
-      allExamNames.add(exam.name);
-      
       const ws = XLSX.utils.json_to_sheet(scoreData);
-      
-      // If safeName already exists in workbook, append a number
       let finalName = safeName;
       let counter = 1;
       while (wb.SheetNames.includes(finalName)) {
         finalName = `${safeName.substring(0, 28)}_${counter}`;
         counter++;
       }
-      
       XLSX.utils.book_append_sheet(wb, ws, finalName);
     });
 
-    // Build filename
     const classStr = selectedClass ? classes.find(c => c.id === selectedClass)?.name || '自訂班級' : '多班級';
     const isSingleExam = examsToExport.length === 1;
     const examStr = isSingleExam ? examsToExport[0].name : `共${examsToExport.length}份試卷`;
-    
-    const fileName = `${classStr}_${examStr}_成績匯總.xlsx`;
-    XLSX.writeFile(wb, fileName);
+    XLSX.writeFile(wb, `${classStr}_${examStr}_成績匯總.xlsx`);
   };
 
+  const totalExams = filteredExams.length;
+  const totalSubmitted = filteredExams.reduce((sum, e) => sum + e.submitted, 0);
+  const totalExpected = filteredExams.reduce((sum, e) => sum + (e.totalExpected || e.submitted), 0);
+  const totalScoreSum = filteredExams.reduce((sum, e) => sum + (e.average || 0) * e.submitted, 0);
+  const overallAverage = totalSubmitted > 0 ? totalScoreSum / totalSubmitted : null;
+  const latestUpdate = filteredExams.length > 0 ? Math.max(...filteredExams.map(e => e.lastUpdated)) : null;
+
   return (
-    <div className="card">
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="flex-1">
-          <label className="block text-sm mb-1 opacity-70">搜尋試卷名稱</label>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 opacity-50" size={18} />
-            <input 
-              type="text" 
-              placeholder="輸入關鍵字..." 
-              className="w-full pl-10"
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-            />
+    <div className="bg-secondary/40 border border-border rounded-xl p-6 shadow-sm">
+      
+      {/* ── Top Bar ── */}
+      <div className="flex flex-col md:flex-row gap-6 mb-8 justify-between items-end">
+        <div className="flex gap-6 w-full md:w-auto">
+          <div className="w-64">
+            <label className="block text-sm mb-2 opacity-80 text-foreground font-medium">搜尋試卷名稱</label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 opacity-50" size={16} />
+              <input 
+                type="text" 
+                placeholder="輸入關鍵字..." 
+                className="w-full pl-9 py-2 bg-background/50 border-border rounded-md text-sm"
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </div>
+          
+          <div className="w-48">
+            <label className="block text-sm mb-2 opacity-80 text-foreground font-medium">依班級篩選</label>
+            <select 
+              className="w-full py-2 bg-background/50 border-border rounded-md text-sm appearance-none"
+              value={selectedClass}
+              onChange={e => setSelectedClass(e.target.value)}
+              style={{ backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%24%2024%22%20fill%3D%22none%22%20stroke%3D%22%23666%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center', backgroundSize: '16px' }}
+            >
+              <option value="">所有班級</option>
+              {classes.map(cls => (
+                <option key={cls.id} value={cls.id}>{cls.name}</option>
+              ))}
+            </select>
           </div>
         </div>
-        
-        <div className="flex-1 md:max-w-xs">
-          <label className="block text-sm mb-1 opacity-70">依班級篩選</label>
-          <select 
-            className="w-full"
-            value={selectedClass}
-            onChange={e => setSelectedClass(e.target.value)}
-          >
-            <option value="">所有班級</option>
-            {classes.map(cls => (
-              <option key={cls.id} value={cls.id}>{cls.name}</option>
-            ))}
-          </select>
-        </div>
 
-        <div className="flex items-end">
-          <button onClick={handleDownload} className="btn btn-primary flex items-center gap-2 w-full md:w-auto justify-center">
-            <Download size={18} />
-            下載所選成績 ({selectedExams.length})
-          </button>
-        </div>
+        <button onClick={handleDownload} className="btn bg-primary text-white hover:bg-primary-hover flex items-center gap-2 py-2 px-5 rounded-md shadow-sm transition-colors">
+          <Download size={16} />
+          下載所選成績 ({selectedExams.length})
+        </button>
       </div>
 
-      <div className="border border-border rounded-lg overflow-hidden">
-        <div className="bg-secondary p-4 flex items-center justify-between border-b border-border">
-          <div className="flex items-center gap-3">
-            <button onClick={handleSelectAll} className="text-primary hover:opacity-80 transition-opacity flex items-center gap-2">
-              {selectedExams.length === filteredExams.length && filteredExams.length > 0 ? (
-                <CheckSquare size={20} />
-              ) : (
-                <Square size={20} />
-              )}
-              <span className="font-medium">全選</span>
-            </button>
-            <span className="text-sm opacity-70 ml-4">共 {filteredExams.length} 份試卷</span>
-          </div>
-        </div>
+      {/* ── Table Container ── */}
+      <div className="bg-background rounded-lg border border-border/80 overflow-hidden">
         
-        <div className="max-h-[60vh] overflow-y-auto">
-          {filteredExams.length === 0 ? (
-            <div className="p-8 text-center opacity-50">找不到符合條件的試卷</div>
-          ) : (
-            <div className="divide-y divide-border">
-              {filteredExams.map(exam => (
-                <div 
-                  key={exam.id} 
-                  className={`p-4 flex items-center gap-4 hover:bg-secondary/30 transition-colors cursor-pointer ${selectedExams.includes(exam.id) ? 'bg-secondary/20' : ''}`}
-                  onClick={() => toggleExam(exam.id)}
-                >
-                  <div className="text-primary">
-                    {selectedExams.includes(exam.id) ? <CheckSquare size={20} /> : <Square size={20} />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="m-0 text-foreground font-semibold text-lg truncate">{exam.name}</h3>
-                    <div className="text-sm opacity-60 flex gap-4 mt-1">
-                      <span>日期: {new Date(exam.date).toLocaleDateString()}</span>
-                      <span>已繳交: {exam.submissions.length} 份</span>
-                    </div>
-                  </div>
+        {/* Table Header Tab */}
+        <div className="px-6 py-4 flex items-center gap-4 text-sm font-medium border-b border-border/50">
+          <span className="text-primary font-bold">全部</span>
+          <span className="opacity-70">共 {filteredExams.length} 份試卷</span>
+        </div>
+
+        {/* Column Headers */}
+        <div className="grid grid-cols-[auto_2fr_1fr_1fr_1fr_auto] gap-4 px-6 py-3 border-b border-border text-xs font-semibold opacity-70 items-center">
+          <button onClick={handleSelectAll} className="p-1 hover:text-primary transition-colors">
+            {selectedExams.length === filteredExams.length && filteredExams.length > 0 ? (
+              <CheckSquare size={18} className="text-primary" />
+            ) : (
+              <Square size={18} />
+            )}
+          </button>
+          <div className="flex items-center gap-1 cursor-pointer hover:text-primary" onClick={() => toggleSort('name')}>
+            試卷名稱 <ChevronDown size={14} className={sortField==='name'&&sortOrder==='asc'?'rotate-180':''} />
+          </div>
+          <div className="flex items-center gap-1 cursor-pointer hover:text-primary" onClick={() => toggleSort('date')}>
+            日期 <ChevronDown size={14} className={sortField==='date'&&sortOrder==='asc'?'rotate-180':''} />
+          </div>
+          <div className="flex items-center gap-1 cursor-pointer hover:text-primary" onClick={() => toggleSort('submitted')}>
+            已繳交 <ChevronDown size={14} className={sortField==='submitted'&&sortOrder==='asc'?'rotate-180':''} />
+          </div>
+          <div className="flex items-center gap-1 cursor-pointer hover:text-primary" onClick={() => toggleSort('average')}>
+            平均分數 <ChevronDown size={14} className={sortField==='average'&&sortOrder==='asc'?'rotate-180':''} />
+          </div>
+          <div className="w-8"></div>
+        </div>
+
+        {/* Rows */}
+        <div className="divide-y divide-border/50 max-h-[50vh] overflow-y-auto">
+          {filteredExams.map(exam => {
+            const pct = exam.totalExpected > 0 ? Math.round((exam.submitted / exam.totalExpected) * 100) : 0;
+            const pctColor = pct === 100 ? 'text-success' : pct === 0 ? 'text-danger' : 'text-warning';
+            return (
+              <div key={exam.id} className={`grid grid-cols-[auto_2fr_1fr_1fr_1fr_auto] gap-4 px-6 py-4 items-center text-sm hover:bg-secondary/20 transition-colors ${selectedExams.includes(exam.id) ? 'bg-secondary/10' : ''}`}>
+                <button onClick={(e) => toggleExam(exam.id, e)} className="p-1 text-foreground/50 hover:text-primary transition-colors">
+                  {selectedExams.includes(exam.id) ? <CheckSquare size={18} className="text-primary" /> : <Square size={18} />}
+                </button>
+                <div className="flex items-center gap-3 font-medium cursor-pointer" onClick={() => window.location.href = `/teacher/exams/${exam.id}`}>
+                  <FileText size={18} className="text-primary" />
+                  {exam.name}
                 </div>
-              ))}
-            </div>
+                <div className="flex items-center gap-2 opacity-80">
+                  <Calendar size={16} />
+                  {new Date(exam.date).toLocaleDateString()}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Users size={16} className="opacity-70" />
+                  <span className={pctColor}>{exam.submitted} / {exam.totalExpected} <span className="opacity-70 text-xs">({pct}%)</span></span>
+                </div>
+                <div className={`font-medium ${exam.average !== null ? 'text-primary' : 'opacity-50'}`}>
+                  {exam.average !== null ? `${exam.average.toFixed(1)} 分` : '—'}
+                </div>
+                <button className="p-1 opacity-50 hover:opacity-100 transition-opacity">
+                  <MoreVertical size={18} />
+                </button>
+              </div>
+            );
+          })}
+          {filteredExams.length === 0 && (
+            <div className="p-12 text-center opacity-50">沒有符合條件的試卷</div>
           )}
         </div>
       </div>
+
+      {/* ── Summary Footer ── */}
+      <div className="mt-4 bg-secondary/80 rounded-lg p-5 grid grid-cols-2 md:grid-cols-4 gap-6 border border-border/50">
+        <div className="flex items-center gap-4">
+          <div className="bg-primary/20 p-3 rounded-lg text-primary">
+            <FileText size={24} />
+          </div>
+          <div>
+            <div className="text-xs opacity-70 mb-1">總試卷數</div>
+            <div className="text-xl font-bold">{totalExams}</div>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <div className="bg-primary/20 p-3 rounded-lg text-primary">
+            <Users size={24} />
+          </div>
+          <div>
+            <div className="text-xs opacity-70 mb-1">已繳交總數</div>
+            <div className="text-xl font-bold flex items-baseline gap-2">
+              {totalSubmitted} / {totalExpected}
+              <span className="text-sm font-normal opacity-70">
+                ({totalExpected > 0 ? Math.round((totalSubmitted / totalExpected) * 100) : 0}%)
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="bg-success/20 p-3 rounded-lg text-success">
+            <TrendingUp size={24} />
+          </div>
+          <div>
+            <div className="text-xs opacity-70 mb-1">平均分數 (已繳交)</div>
+            <div className={`text-xl font-bold ${overallAverage !== null ? 'text-success' : 'opacity-50'}`}>
+              {overallAverage !== null ? `${overallAverage.toFixed(1)} 分` : '—'}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="bg-warning/20 p-3 rounded-lg text-warning">
+            <Clock size={24} />
+          </div>
+          <div>
+            <div className="text-xs opacity-70 mb-1">最近更新</div>
+            <div className="text-sm font-medium">
+              {latestUpdate ? new Date(latestUpdate).toLocaleString('zh-TW', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '無'}
+            </div>
+          </div>
+        </div>
+      </div>
+      
     </div>
   );
 }
+
