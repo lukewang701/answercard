@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Users, Eye, EyeOff, Clock, AlertTriangle, CheckCircle, RotateCcw, X } from 'lucide-react';
+import { DateTimePicker } from '@/components/DateTimePicker';
 
 type RealtimeStatsProps = {
   examId: string;
@@ -191,27 +192,19 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
         </div>
 
         {/* ── Settings bar (both modes) ── */}
-        <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', alignItems: 'center', padding: '0.5rem 0.6rem', background: 'var(--background)', borderRadius: '8px', fontSize: '0.75rem' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', whiteSpace: 'nowrap' }}>
-              <Clock size={13} style={{ color: 'var(--primary)' }} /> 開始時間
-              <input
-                type="datetime-local"
-                value={startTime}
-                onChange={e => setStartTime(e.target.value)}
-                onBlur={e => saveSettings({ startTime: e.target.value })}
-                style={{ fontSize: '0.72rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--secondary)', color: 'var(--foreground)' }}
-              />
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', whiteSpace: 'nowrap' }}>
-              <Clock size={13} style={{ color: 'var(--primary)' }} /> 截止時間
-              <input
-                type="datetime-local"
-                value={deadline}
-                onChange={e => setDeadline(e.target.value)}
-                onBlur={e => saveSettings({ deadline: e.target.value })}
-                style={{ fontSize: '0.72rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--secondary)', color: 'var(--foreground)' }}
-              />
-            </label>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', padding: '0.5rem 0.6rem', background: 'var(--background)', borderRadius: '8px', fontSize: '0.75rem' }}>
+            <DateTimePicker
+              label="開始時間"
+              value={startTime}
+              onChange={v => { setStartTime(v); saveSettings({ startTime: v }); }}
+              icon={<Clock size={12} style={{ color: 'var(--primary)' }} />}
+            />
+            <DateTimePicker
+              label="截止時間"
+              value={deadline}
+              onChange={v => { setDeadline(v); saveSettings({ deadline: v }); }}
+              icon={<Clock size={12} style={{ color: 'var(--primary)' }} />}
+            />
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', whiteSpace: 'nowrap' }}>
               <input
                 type="checkbox"
@@ -222,16 +215,12 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
             </label>
             {allowLateSubmission && (
               <>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', whiteSpace: 'nowrap' }}>
-                  <AlertTriangle size={13} style={{ color: 'var(--warning)' }} /> 補交截止時間
-                  <input
-                    type="datetime-local"
-                    value={lateDeadline}
-                    onChange={e => setLateDeadline(e.target.value)}
-                    onBlur={e => saveSettings({ lateDeadline: e.target.value })}
-                    style={{ fontSize: '0.72rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--secondary)', color: 'var(--foreground)' }}
-                  />
-                </label>
+                <DateTimePicker
+                  label="補交截止時間"
+                  value={lateDeadline}
+                  onChange={v => { setLateDeadline(v); saveSettings({ lateDeadline: v }); }}
+                  icon={<AlertTriangle size={12} style={{ color: 'var(--warning)' }} />}
+                />
                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                   <input
                     type="checkbox"
