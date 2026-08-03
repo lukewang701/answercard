@@ -93,8 +93,8 @@ export function DateTimePicker({ label, value, onChange, icon }: DateTimePickerP
 
   const handleConfirm = () => {
     const clampedDay = Math.min(day, daysInMonth(year, month));
-    const iso = `${year}-${pad(month)}-${pad(clampedDay)}T${pad(hour)}:${pad(minute)}`;
-    onChange(iso);
+    const d = new Date(year, month - 1, clampedDay, hour, minute);
+    onChange(d.toISOString());
     setOpen(false);
   };
 

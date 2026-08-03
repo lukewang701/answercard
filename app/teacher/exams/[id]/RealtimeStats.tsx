@@ -23,13 +23,6 @@ type RealtimeStatsProps = {
   onSubmissionsChange: (submissions: any[]) => void;
 };
 
-function toLocalDatetimeInput(iso: string | null): string {
-  if (!iso) return '';
-  const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
 export function RealtimeStats({ examId, submissions, checkins, classStudents, examTotalScore, examSettings, questions, onCheckinsChange, onSubmissionsChange }: RealtimeStatsProps) {
   const [showScores, setShowScores] = useState(false);
   const [now, setNow] = useState(new Date());
@@ -38,10 +31,10 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
   const [studentDetailsTarget, setStudentDetailsTarget] = useState<any | null>(null);
 
   // Settings state
-  const [startTime, setStartTime] = useState(toLocalDatetimeInput(examSettings.startTime));
-  const [deadline, setDeadline] = useState(toLocalDatetimeInput(examSettings.deadline));
+  const [startTime, setStartTime] = useState(examSettings.startTime || '');
+  const [deadline, setDeadline] = useState(examSettings.deadline || '');
   const [allowLateSubmission, setAllowLateSubmission] = useState(examSettings.allowLateSubmission);
-  const [lateDeadline, setLateDeadline] = useState(toLocalDatetimeInput(examSettings.lateDeadline));
+  const [lateDeadline, setLateDeadline] = useState(examSettings.lateDeadline || '');
   const [lateMarkEnabled, setLateMarkEnabled] = useState(examSettings.lateMarkEnabled);       // for allowLateSubmission
   const [extraOpen, setExtraOpen] = useState(examSettings.extraOpen);
   const [extraOpenLateMark, setExtraOpenLateMark] = useState(examSettings.lateMarkEnabled);  // for extraOpen
@@ -65,10 +58,10 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
         const res = await fetch(`/api/exams/${examId}/settings`);
         if (!res.ok) return;
         const data = await res.json();
-        setStartTime(toLocalDatetimeInput(data.startTime ?? null));
-        setDeadline(toLocalDatetimeInput(data.deadline ?? null));
+        setStartTime(data.startTime || '');
+        setDeadline(data.deadline || '');
         setAllowLateSubmission(data.allowLateSubmission ?? false);
-        setLateDeadline(toLocalDatetimeInput(data.lateDeadline ?? null));
+        setLateDeadline(data.lateDeadline || '');
         setLateMarkEnabled(data.lateMarkEnabled ?? false);
         setExtraOpen(data.extraOpen ?? false);
       } catch { /* silent */ }
