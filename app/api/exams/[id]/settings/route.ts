@@ -38,12 +38,12 @@ export async function PATCH(
     const updated = await prisma.exam.update({
       where: { id },
       data: {
-        startTime: startTime ? new Date(startTime) : null,
-        deadline: deadline ? new Date(deadline) : null,
-        allowLateSubmission: allowLateSubmission ?? undefined,
-        lateDeadline: lateDeadline ? new Date(lateDeadline) : null,
-        extraOpen: extraOpen ?? undefined,
-        lateMarkEnabled: lateMarkEnabled ?? undefined,
+        ...('startTime' in body    ? { startTime:    startTime    ? new Date(startTime)    : null } : {}),
+        ...('deadline'  in body    ? { deadline:     deadline     ? new Date(deadline)     : null } : {}),
+        ...('lateDeadline' in body ? { lateDeadline: lateDeadline ? new Date(lateDeadline) : null } : {}),
+        ...(allowLateSubmission !== undefined ? { allowLateSubmission } : {}),
+        ...(extraOpen             !== undefined ? { extraOpen }          : {}),
+        ...(lateMarkEnabled       !== undefined ? { lateMarkEnabled }    : {}),
       },
       select: { id: true, startTime: true, deadline: true, allowLateSubmission: true, lateDeadline: true, extraOpen: true, lateMarkEnabled: true }
     });
