@@ -26,8 +26,8 @@ export default async function TeacherDashboard() {
 
   return (
     <div className="container py-12">
-      <div className="flex justify-between items-center mb-8">
-        <h1>試卷管理</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold m-0 text-foreground">試卷管理</h2>
         <Link href="/teacher/exams/new" className="btn btn-primary flex items-center gap-2">
           <PlusCircle size={20} />
           建立新試卷

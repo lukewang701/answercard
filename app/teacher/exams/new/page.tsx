@@ -435,7 +435,7 @@ export default function NewExamPage() {
               <p className="text-sm text-foreground opacity-80 mb-4">
                 以 5 題為一個單位，支援數字 (1=A, 2=B, 3=C...) 或字母 (A~E)。請以「空格」區隔每題答案，連續輸入不加空格即代表複選 (例如：12 代表 A與B)。若某題有多種可能解答皆給分，可使用「/」區隔 (例如：A/B/AB 代表選A、選B或同時選AB皆可)。當輸入滿該區塊對應的題數並按下空格，系統將自動跳到下一格。
               </p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1rem' }}>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
                 {fastInputs.map((val, idx) => {
                   const startQ = idx * 5 + 1;
                   const endQ = Math.min(startQ + 4, formData.totalQuestions);
@@ -474,7 +474,7 @@ export default function NewExamPage() {
           
           {openSections.click && (
             <div className="p-4">
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '1rem', overflowX: 'auto' }}>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {/* Split into 3 columns dynamically based on max 25 per column */}
                 {[0, 1, 2].map(colIndex => {
                   const activeQuestions = questions.slice(0, Number(formData.totalQuestions) || 0);

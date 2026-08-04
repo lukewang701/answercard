@@ -117,7 +117,7 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
     <div>
       {/* Header & Controls */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="m-0 flex items-center gap-2 text-foreground">
+        <h2 className="text-xl font-bold m-0 flex items-center gap-2 text-foreground">
           <FileStack className="text-primary" />
           {activeFolder ? (
             <>
@@ -137,11 +137,10 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
 
         {!activeFolder && (
           <div className="flex items-center gap-3 bg-secondary/30 p-1 rounded-lg">
-            <label className="text-sm pl-2">分類方式：</label>
             <select 
               value={groupBy}
               onChange={handleGroupChange}
-              className="bg-background border-border text-sm py-1 px-3 rounded"
+              className="bg-background border-border text-sm py-1.5 px-3 rounded cursor-pointer font-medium"
             >
               <option value="exam">依「考卷名稱」分群</option>
               <option value="class">依「班級」分群</option>
