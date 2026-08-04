@@ -211,7 +211,14 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
                 <DateTimePicker
                   label="補交截止時間"
                   value={lateDeadline}
-                  onChange={v => { setLateDeadline(v); saveSettings({ lateDeadline: v }); }}
+                  onChange={v => {
+                    if (v && deadline && new Date(v) <= new Date(deadline)) {
+                      alert('補交截止時間必須晚於截止時間！');
+                      return;
+                    }
+                    setLateDeadline(v);
+                    saveSettings({ lateDeadline: v });
+                  }}
                   icon={<AlertTriangle size={12} style={{ color: 'var(--warning)' }} />}
                 />
                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', whiteSpace: 'nowrap' }}>

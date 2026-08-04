@@ -81,7 +81,11 @@ export function StudentDigitalFlow({
   // Result
   const [result, setResult] = useState<any>(null);
 
-  // Live clock and polling status
+  // Auto-submit notification state (replaces alert())
+  const [autoSubmitPending, setAutoSubmitPending] = useState(false);
+  const autoSubmittingRef = useRef(false);
+
+  // Live clock
   const [now, setNow] = useState(new Date());
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000);
@@ -265,42 +269,41 @@ export function StudentDigitalFlow({
     }
   };
 
-  const getRemainingTime = () => {
-    let target = deadline;
-    if (allowLateSubmission && lateDeadline) {
-      target = lateDeadline;
-    }
-    if (!target) return '無時間限制';
-    const diff = new Date(target).getTime() - now.getTime();
-    if (diff <= 0) return '已超時';
-    const totalSecs = Math.floor(diff / 1000);
-    const h = Math.floor(totalSecs / 3600);
-    const m = Math.floor((totalSecs % 3600) / 60);
-    const s = totalSecs % 60;
-    if (h > 0) return `剩餘 ${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-    return `剩餘 ${m}:${s.toString().padStart(2, '0')}`;
+  // Helper: format seconds as MM:SS or H:MM:SS
+  const fmtSecs = (secs: number) => {
+    const h = Math.floor(secs / 3600);
+    const m = Math.floor((secs % 3600) / 60);
+    const s = secs % 60;
+    if (h > 0) return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    return `${m}:${String(s).padStart(2,'0')}`;
   };
 
+  // Compute remaining time for deadline and lateDeadline separately
+  const deadlineSecs = deadline ? Math.max(0, Math.floor((new Date(deadline).getTime() - now.getTime()) / 1000)) : null;
+  const lateDeadlineSecs = lateDeadline ? Math.max(0, Math.floor((new Date(lateDeadline).getTime() - now.getTime()) / 1000)) : null;
+  const deadlinePassed = deadline ? now.getTime() >= new Date(deadline).getTime() : false;
+  const lateDeadlinePassed = lateDeadline ? now.getTime() >= new Date(lateDeadline).getTime() : false;
+
+  // Auto-submit: trigger when the effective deadline passes
   useEffect(() => {
     if (phase !== 'answering') return;
-    let target = deadline;
-    if (allowLateSubmission && lateDeadline) {
-      target = lateDeadline;
-    }
-    if (!target) return;
+    // Determine effective end time
+    const effectiveDeadline = (allowLateSubmission && lateDeadline) ? lateDeadline : deadline;
+    if (!effectiveDeadline) return;
+    if (autoSubmittingRef.current) return;
 
-    const checkAutoSubmit = () => {
-      if (submitting) return;
-      const targetTime = new Date(target).getTime();
-      if (new Date().getTime() >= targetTime) {
-        alert('作答時間已結束，系統將自動收回答案卡並計分！');
-        handleSubmit(null, true);
-      }
-    };
-    checkAutoSubmit(); // check immediately
-    const t = setInterval(checkAutoSubmit, 1000);
-    return () => clearInterval(t);
-  }, [phase, deadline, allowLateSubmission, lateDeadline, submitting, answers, className, seatNumber, name, checkinId]);
+    const passed = now.getTime() >= new Date(effectiveDeadline).getTime();
+    if (passed && !autoSubmitPending && !submitting) {
+      setAutoSubmitPending(true);
+    }
+  }, [now, phase, deadline, allowLateSubmission, lateDeadline, submitting, autoSubmitPending]);
+
+  // Once autoSubmitPending is true, trigger the submit
+  useEffect(() => {
+    if (!autoSubmitPending || autoSubmittingRef.current || submitting) return;
+    autoSubmittingRef.current = true;
+    handleSubmit(null, true);
+  }, [autoSubmitPending, submitting]);
 
   const answered = answers.filter(a => a.length > 0).length;
   const progress = Math.round((answered / totalQuestions) * 100);
@@ -437,10 +440,23 @@ export function StudentDigitalFlow({
                     <span>選項轉換</span>
                   </button>
                 )}
-                <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.78rem', opacity: 0.55 }}>
-                  <Clock size={12} /> {getRemainingTime()}
-                </span>
+              {/* Clock / countdown */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.15rem' }}>
+                {deadline && (
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', fontWeight: 600, color: deadlinePassed ? 'var(--danger, #ef4444)' : deadlineSecs !== null && deadlineSecs < 60 ? '#ff6b6b' : '#84cc16' }}>
+                    <Clock size={11} />
+                    {deadlinePassed ? '已超時' : `截止 ${fmtSecs(deadlineSecs!)}`}
+                  </span>
+                )}
+                {allowLateSubmission && lateDeadline && (
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.72rem', fontWeight: 600, color: lateDeadlinePassed ? 'var(--danger, #ef4444)' : '#84cc16' }}>
+                    <Clock size={10} />
+                    {lateDeadlinePassed ? '補交已截止' : `補交 ${fmtSecs(lateDeadlineSecs!)} (-5分)`}
+                  </span>
+                )}
+                {!deadline && <span style={{ fontSize: '0.75rem', opacity: 0.4 }}>無時間限制</span>}
               </div>
+            </div>
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem', fontSize: '0.75rem', opacity: 0.65 }}>
                   <span>作答進度</span>
