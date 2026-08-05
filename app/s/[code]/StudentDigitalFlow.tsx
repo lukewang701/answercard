@@ -244,9 +244,17 @@ export function StudentDigitalFlow({
         return;
       }
 
-      // Clear cache on successful submission
-      const cacheKey = `answecard_${examId}_${className}_${seatNumber.padStart(2, '0')}`;
-      try { localStorage.removeItem(cacheKey); } catch (e) {}
+      // Clear ALL cache for this exam on this device to ensure no answers remain on shared tablets
+      try {
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith(`answecard_${examId}_`)) {
+            keysToRemove.push(key);
+          }
+        }
+        keysToRemove.forEach(k => localStorage.removeItem(k));
+      } catch (e) {}
 
       // Fetch full submission details
       const detailRes = await fetch(`/api/submissions/${data.submission.id}`);
