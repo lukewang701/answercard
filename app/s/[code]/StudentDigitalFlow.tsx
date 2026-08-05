@@ -410,9 +410,9 @@ export function StudentDigitalFlow({
                 <span style={{ fontSize: '0.78rem', fontWeight: 700, opacity: 0.8 }}>選項轉換</span>
                 <button
                   onClick={closeMappingsPanel}
-                  style={{ fontSize: '0.72rem', opacity: 0.6, padding: '0.1rem 0.4rem', borderRadius: '4px', border: '1px solid var(--border)' }}
+                  style={{ fontSize: '0.75rem', fontWeight: 600, color: '#84cc16', opacity: 1, padding: '0.2rem 0.5rem', borderRadius: '4px', border: '1px solid #84cc16', background: 'transparent' }}
                 >
-                  ✕ 關閉
+                  ✕ 關閉選項轉換
                 </button>
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
