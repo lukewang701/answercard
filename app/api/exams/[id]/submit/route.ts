@@ -22,6 +22,8 @@ export async function POST(
     const startTime = exam.startTime ? new Date(exam.startTime) : null;
     const deadline = exam.deadline ? new Date(exam.deadline) : null;
     const lateDeadline = exam.lateDeadline ? new Date(exam.lateDeadline) : null;
+    
+    const GRACE_PERIOD_MS = 60 * 1000; // 60 seconds grace period for network latency & auto-submit delays
 
     if (startTime && now < startTime) {
       return NextResponse.json({ error: '考試尚未開始，無法繳交答案卡' }, { status: 403 });
@@ -30,9 +32,9 @@ export async function POST(
     let isLate = false;
     let latePenalty = 0;
 
-    if (deadline && now > deadline) {
-      // Past deadline — check whether we're in late window, extra-open, or fully closed
-      if (exam.allowLateSubmission && lateDeadline && now <= lateDeadline) {
+    if (deadline && now.getTime() > deadline.getTime() + GRACE_PERIOD_MS) {
+      // Past deadline (plus grace period) — check whether we're in late window, extra-open, or fully closed
+      if (exam.allowLateSubmission && lateDeadline && now.getTime() <= lateDeadline.getTime() + GRACE_PERIOD_MS) {
         // In the late window
         if (exam.lateMarkEnabled) {
           isLate = true;
@@ -48,6 +50,11 @@ export async function POST(
         // Fully closed
         return NextResponse.json({ error: '繳交時間已截止，無法繳交答案卡' }, { status: 403 });
       }
+    } else if (deadline && now.getTime() > deadline.getTime()) {
+        // Submitted within the grace period (between deadline and deadline + 60s)
+        // We consider this on-time, so no penalty is applied.
+        isLate = false;
+        latePenalty = 0;
     }
 
     // ── Grading ───────────────────────────────────────────────────────────────
