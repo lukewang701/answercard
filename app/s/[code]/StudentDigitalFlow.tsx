@@ -622,17 +622,26 @@ export function StudentDigitalFlow({
 
           {result?.isLate && result?.latePenalty > 0 ? (
             <>
-              <div style={{ fontSize: '1rem', color: 'var(--foreground)', opacity: 0.7, marginBottom: '0.25rem' }}>
-                原始得分 <span style={{ fontWeight: 700 }}>{Math.round(result.rawScore ?? (result.totalScore + result.latePenalty))}</span> / {exam?.totalScore || 100} ({Math.round(((result.rawScore ?? (result.totalScore + result.latePenalty)) / (exam?.totalScore || 100)) * 100)}%)
+              <div style={{ fontSize: '1rem', opacity: 0.7, marginBottom: '0.25rem' }}>原始得分</div>
+              <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--foreground)', textDecoration: 'line-through', opacity: 0.5, lineHeight: 1 }}>
+                {Math.round(result.rawScore ?? (result.totalScore + result.latePenalty))}
+                <span style={{ fontSize: '1.2rem', marginLeft: '4px', textDecoration: 'none', display: 'inline-block' }}>/ {exam?.totalScore || 100}</span>
               </div>
-              <div style={{ fontSize: '1.2rem', color: 'var(--danger)', fontWeight: 700, marginTop: '0.75rem' }}>
-                扣分後得分 <span style={{ fontSize: '2.5rem' }}>{Math.round(result.totalScore)}</span> / {exam?.totalScore || 100} ({Math.round((result.totalScore / (exam?.totalScore || 100)) * 100)}%)
+              <div style={{ fontSize: '1rem', color: 'var(--warning)', margin: '0.75rem 0', fontWeight: 600 }}>
+                遲交扣 {result.latePenalty} 分
+              </div>
+              <div style={{ fontSize: '1rem', opacity: 0.7, marginBottom: '0.25rem' }}>扣分後得分</div>
+              <div style={{ fontSize: '3.5rem', fontWeight: 700, color: 'var(--primary)', lineHeight: 1 }}>
+                {Math.round(result.totalScore)}
+                <span style={{ fontSize: '1.6rem', marginLeft: '6px', color: 'var(--foreground)', opacity: 0.6 }}>/ {exam?.totalScore || 100}</span>
               </div>
             </>
           ) : (
             <>
-              <div style={{ fontSize: '1.2rem', color: 'var(--primary)', fontWeight: 700, marginTop: '0.5rem' }}>
-                原始得分 <span style={{ fontSize: '3rem' }}>{result?.totalScore != null ? Math.round(result.totalScore) : '--'}</span> / {exam?.totalScore || 100} ({result?.totalScore != null ? Math.round((result.totalScore / (exam?.totalScore || 100)) * 100) : 0}%)
+              <div style={{ fontSize: '1rem', opacity: 0.7, marginBottom: '0.5rem' }}>原始得分</div>
+              <div style={{ fontSize: '4rem', fontWeight: 700, color: 'var(--primary)', lineHeight: 1 }}>
+                {result?.totalScore != null ? Math.round(result.totalScore) : '--'}
+                <span style={{ fontSize: '1.8rem', marginLeft: '8px', color: 'var(--foreground)', opacity: 0.6 }}>/ {exam?.totalScore || 100}</span>
               </div>
             </>
           )}
