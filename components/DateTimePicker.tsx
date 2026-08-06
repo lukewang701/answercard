@@ -103,24 +103,20 @@ export function DateTimePicker({ label, value, onChange, icon }: DateTimePickerP
     setOpen(false);
   };
 
-  const yearOptions = Array.from({ length: 5 }, (_, i) => now.getFullYear() - 1 + i);
-  const monthOptions = Array.from({ length: 12 }, (_, i) => i + 1);
-  const dayOptions = Array.from({ length: daysInMonth(year, month) }, (_, i) => i + 1);
-  const hourOptions = Array.from({ length: 24 }, (_, i) => i);
-  const minuteOptions = Array.from({ length: 60 }, (_, i) => i);
-
-  const selectStyle: React.CSSProperties = {
-    padding: '0.4rem 0.5rem',
-    borderRadius: '6px',
+  const inputStyle: React.CSSProperties = {
+    padding: '0.6rem 0.8rem',
+    borderRadius: '8px',
     border: '1px solid var(--border)',
     background: 'var(--secondary)',
     color: 'var(--foreground)',
-    fontSize: '1rem',
+    fontSize: '1.1rem',
     cursor: 'pointer',
-    appearance: 'none' as any,
-    WebkitAppearance: 'none',
-    textAlign: 'center',
+    width: '100%',
+    boxSizing: 'border-box',
+    fontFamily: 'inherit'
   };
+
+
 
   const isSet = !!value;
 
@@ -177,40 +173,44 @@ export function DateTimePicker({ label, value, onChange, icon }: DateTimePickerP
             </div>
 
             {/* Date row */}
-            <div style={{ marginBottom: '0.75rem' }}>
-              <div style={{ fontSize: '0.75rem', opacity: 0.6, marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                <Calendar size={12} /> 日期
+            <div style={{ marginBottom: '1.25rem' }}>
+              <div style={{ fontSize: '0.85rem', opacity: 0.7, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <Calendar size={14} /> 日期
               </div>
-              <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-                <select value={year} onChange={e => setYear(Number(e.target.value))} style={{ ...selectStyle, width: '80px' }}>
-                  {yearOptions.map(y => <option key={y} value={y}>{y}</option>)}
-                </select>
-                <span style={{ opacity: 0.5 }}>年</span>
-                <select value={month} onChange={e => setMonth(Number(e.target.value))} style={{ ...selectStyle, width: '60px' }}>
-                  {monthOptions.map(m => <option key={m} value={m}>{pad(m)}</option>)}
-                </select>
-                <span style={{ opacity: 0.5 }}>月</span>
-                <select value={day} onChange={e => setDay(Number(e.target.value))} style={{ ...selectStyle, width: '60px' }}>
-                  {dayOptions.map(d => <option key={d} value={d}>{pad(d)}</option>)}
-                </select>
-                <span style={{ opacity: 0.5 }}>日</span>
-              </div>
+              <input 
+                type="date"
+                value={`${year}-${pad(month)}-${pad(day)}`}
+                onChange={e => {
+                  if (!e.target.value) return;
+                  const d = new Date(e.target.value);
+                  if (!isNaN(d.getTime())) {
+                    setYear(d.getFullYear());
+                    setMonth(d.getMonth() + 1);
+                    setDay(d.getDate());
+                  }
+                }}
+                style={inputStyle}
+              />
             </div>
 
             {/* Time row */}
             <div style={{ marginBottom: '1.5rem' }}>
-              <div style={{ fontSize: '0.75rem', opacity: 0.6, marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                <Clock size={12} /> 時間
+              <div style={{ fontSize: '0.85rem', opacity: 0.7, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <Clock size={14} /> 時間
               </div>
-              <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-                <select value={hour} onChange={e => setHour(Number(e.target.value))} style={{ ...selectStyle, width: '70px' }}>
-                  {hourOptions.map(h => <option key={h} value={h}>{pad(h)}</option>)}
-                </select>
-                <span style={{ opacity: 0.5, fontSize: '1.2rem', fontWeight: 700 }}>:</span>
-                <select value={minute} onChange={e => setMinute(Number(e.target.value))} style={{ ...selectStyle, width: '70px' }}>
-                  {minuteOptions.map(m => <option key={m} value={m}>{pad(m)}</option>)}
-                </select>
-              </div>
+              <input 
+                type="time"
+                value={`${pad(hour)}:${pad(minute)}`}
+                onChange={e => {
+                  if (!e.target.value) return;
+                  const [h, m] = e.target.value.split(':');
+                  if (h !== undefined && m !== undefined) {
+                    setHour(Number(h));
+                    setMinute(Number(m));
+                  }
+                }}
+                style={inputStyle}
+              />
             </div>
 
             {/* Preview */}
