@@ -13,6 +13,7 @@ export async function GET(
         answers: true,
         exam: {
           select: {
+            name: true,
             totalScore: true,
             questions: {
               select: {

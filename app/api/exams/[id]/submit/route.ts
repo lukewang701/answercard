@@ -125,7 +125,7 @@ export async function POST(
       success: true,
       submission: {
         ...submission,
-        exam: { totalScore: exam.totalScore }
+        exam: { name: exam.name, totalScore: exam.totalScore }
       }
     });
   } catch (error) {

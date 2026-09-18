@@ -14,7 +14,15 @@ export const ReviewDownloadCard = forwardRef<HTMLDivElement, { submission: any }
     if (!submission) return null;
 
     const { exam, answers } = submission;
-    
+
+    // 從 answers 計算得分作為 fallback（以防 API 未回傳 totalScore）
+    const computedRawScore = answers?.reduce((sum: number, a: any) => sum + (Number(a.pointsEarned) || 0), 0) ?? 0;
+    const examTotalScore = exam?.totalScore || 100;
+
+    // 以 nullish coalescing 取得顯示用分數，確保 0 分也能正確顯示
+    const displayTotalScore = submission.totalScore ?? computedRawScore;
+    const displayRawScore = submission.rawScore ?? computedRawScore;
+
     // 找出答錯的題目
     const wrongAnswers = answers?.filter((a: any) => !a.isCorrect).sort((a: any, b: any) => a.number - b.number) || [];
 
@@ -38,9 +46,14 @@ export const ReviewDownloadCard = forwardRef<HTMLDivElement, { submission: any }
         }}
       >
         <div style={{ width: isDesktop ? '300px' : '100%', textAlign: 'center', marginBottom: isDesktop ? '0' : '2rem', flexShrink: 0 }}>
-          <h2 style={{ fontSize: '2rem', fontWeight: 700, margin: '0 0 1rem 0', color: '#38BDF8' }}>
+          <h2 style={{ fontSize: '2rem', fontWeight: 700, margin: '0 0 0.5rem 0', color: '#38BDF8' }}>
             答題檢討報告
           </h2>
+          {exam?.name && (
+            <div style={{ fontSize: '1.3rem', fontWeight: 600, color: '#F8FAFC', opacity: 0.9, marginBottom: '0.8rem', background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.25)', borderRadius: '8px', padding: '0.4rem 0.8rem', display: 'inline-block' }}>
+              {exam.name}
+            </div>
+          )}
           <p style={{ opacity: 0.8, fontSize: '1.6rem', margin: '0 0 1.5rem 0' }}>
             {submission.year}年{submission.class}班<br/>
             {submission.seatNumber}號 {submission.studentName}
@@ -51,15 +64,18 @@ export const ReviewDownloadCard = forwardRef<HTMLDivElement, { submission: any }
               {submission.isLate && submission.latePenalty > 0 ? (
                 <>
                   <div style={{ fontSize: '1.6rem', color: '#94A3B8' }}>
-                    原始得分 {Math.round(submission.rawScore)}/{exam?.totalScore || 100} ({Math.round((submission.rawScore / (exam?.totalScore || 100)) * 100)}%)
+                    原始得分 {Math.round(displayRawScore)}/{examTotalScore} ({Math.round((displayRawScore / examTotalScore) * 100)}%)
                   </div>
                   <div style={{ fontSize: '1.8rem', color: '#F87171', fontWeight: 700 }}>
-                    扣分後得分 {Math.round(submission.totalScore)}/{exam?.totalScore || 100} ({Math.round((submission.totalScore / (exam?.totalScore || 100)) * 100)}%)
+                    扣分後得分 {Math.round(displayTotalScore)}/{examTotalScore} ({Math.round((displayTotalScore / examTotalScore) * 100)}%)
                   </div>
                 </>
               ) : (
                 <div style={{ fontSize: '2rem', color: '#38BDF8', fontWeight: 700 }}>
-                  原始得分 {Math.round(submission.totalScore)}/{exam?.totalScore || 100} ({Math.round((submission.totalScore / (exam?.totalScore || 100)) * 100)}%)
+                  {Math.round(displayTotalScore)} / {examTotalScore}
+                  <span style={{ fontSize: '1.3rem', marginLeft: '0.5rem', opacity: 0.75 }}>
+                    ({Math.round((displayTotalScore / examTotalScore) * 100)}%)
+                  </span>
                 </div>
               )}
             </div>
