@@ -68,64 +68,69 @@ export async function PUT(
 
     const { defaultPointsPerQ } = createdQuestions;
 
-    // 3. Recalculate scores for all submissions outside the main transaction
-    if (existingExam.submissions.length > 0) {
-      await Promise.all(existingExam.submissions.map(async (sub) => {
-        let rawScore = 0;
-        const answerUpdates: Promise<any>[] = [];
+    // 3. Recalculate scores for all submissions sequentially to avoid
+    //    exhausting the Supabase PgBouncer connection pool (limit: 5).
+    //    Each submission is processed in a single $transaction so only
+    //    one connection is held at a time.
+    for (const sub of existingExam.submissions) {
+      let rawScore = 0;
 
-        for (const studentAns of sub.answers) {
-          const q = questions.find((cq: any) => cq.number === studentAns.number);
-          let isCorrect = false;
-          let pointsEarned = 0;
+      // Compute new correctness / points for every answer
+      const answerData: { id: string; isCorrect: boolean; pointsEarned: number }[] = [];
 
-          if (q) {
-            const qPoints = q.points !== null ? q.points : defaultPointsPerQ;
-            const correctAnsArray = q.correctAnswers;
-            const studentAnsArray = JSON.parse(studentAns.selectedAnswers).sort();
-            
-            let validCombos: string[] = [];
+      for (const studentAns of sub.answers) {
+        const q = questions.find((cq: any) => cq.number === studentAns.number);
+        let isCorrect = false;
+        let pointsEarned = 0;
 
-            if (correctAnsArray.length === 1 && correctAnsArray[0].includes('/')) {
-              validCombos = correctAnsArray[0].split('/').map((part: string) => part.split('').sort().join(''));
-            } else if (correctAnsArray.length === 1 && correctAnsArray[0].length >= 1) {
-              validCombos = [correctAnsArray[0].split('').sort().join('')];
-            } else {
-              validCombos = [correctAnsArray.sort().join('')];
-            }
+        if (q) {
+          const qPoints = q.points !== null ? q.points : defaultPointsPerQ;
+          const correctAnsArray = q.correctAnswers;
+          const studentAnsArray = JSON.parse(studentAns.selectedAnswers).sort();
 
-            const studentJoined = studentAnsArray.join('');
-            if (validCombos.includes(studentJoined) && studentJoined.length > 0) {
-              isCorrect = true;
-              pointsEarned = qPoints;
-            }
+          let validCombos: string[] = [];
 
-            rawScore += pointsEarned;
+          if (correctAnsArray.length === 1 && correctAnsArray[0].includes('/')) {
+            validCombos = correctAnsArray[0].split('/').map((part: string) => part.split('').sort().join(''));
+          } else if (correctAnsArray.length === 1 && correctAnsArray[0].length >= 1) {
+            validCombos = [correctAnsArray[0].split('').sort().join('')];
+          } else {
+            validCombos = [correctAnsArray.sort().join('')];
           }
 
-          answerUpdates.push(
-            prisma.answer.update({
-              where: { id: studentAns.id },
-              data: { isCorrect, pointsEarned }
-            })
-          );
+          const studentJoined = studentAnsArray.join('');
+          if (validCombos.includes(studentJoined) && studentJoined.length > 0) {
+            isCorrect = true;
+            pointsEarned = qPoints;
+          }
+
+          rawScore += pointsEarned;
         }
 
-        // Update all answers for this submission in parallel
-        await Promise.all(answerUpdates);
+        answerData.push({ id: studentAns.id, isCorrect, pointsEarned });
+      }
 
-        const latePenalty = sub.latePenalty || 0;
-        const finalTotalScore = Math.round(Math.max(0, rawScore - latePenalty));
-        const roundedRawScore = Math.round(rawScore);
+      const latePenalty = sub.latePenalty || 0;
+      const finalTotalScore = Math.round(Math.max(0, rawScore - latePenalty));
+      const roundedRawScore = Math.round(rawScore);
 
-        await prisma.submission.update({
+      // Batch all writes for this submission into one transaction
+      // so we only consume a single pooled connection.
+      await prisma.$transaction([
+        ...answerData.map(({ id: answerId, isCorrect, pointsEarned }) =>
+          prisma.answer.update({
+            where: { id: answerId },
+            data: { isCorrect, pointsEarned },
+          })
+        ),
+        prisma.submission.update({
           where: { id: sub.id },
           data: {
             rawScore: sub.isLate ? roundedRawScore : null,
-            totalScore: finalTotalScore
-          }
-        });
-      }));
+            totalScore: finalTotalScore,
+          },
+        }),
+      ]);
     }
 
     return NextResponse.json({ success: true });
