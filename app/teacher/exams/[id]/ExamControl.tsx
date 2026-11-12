@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { QRCodeSVG } from 'qrcode.react';
-import { Camera, QrCode, TrendingUp, Download, ArrowLeft } from 'lucide-react';
+import { Camera, QrCode, TrendingUp, Download, ArrowLeft, Menu, ChevronDown, BookOpen, BarChart3, FileQuestion, Users, FileEdit, ScanLine } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { RealtimeStats } from './RealtimeStats';
 
 type ExamControlProps = {
@@ -30,9 +31,19 @@ type ExamControlProps = {
 
 export function ExamControl({ exam, initialSubmissions, initialCheckins, classStudents, shareUrl }: ExamControlProps) {
   const [allowScan, setAllowScan] = useState<boolean>(false);
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const router = useRouter();
   const [submissions, setSubmissions] = useState<any[]>(initialSubmissions || []);
   const [checkins, setCheckins] = useState<any[]>(initialCheckins);
+
+  const handleLogout = async () => {
+    await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'logout' }),
+    });
+    router.push('/');
+  };
 
   // Polling for real-time updates
   useEffect(() => {
@@ -67,38 +78,366 @@ export function ExamControl({ exam, initialSubmissions, initialCheckins, classSt
   const lowest = scores.length ? Math.round(Math.min(...scores)) : 0;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', maxHeight: '100%', minHeight: 0, padding: '0.75rem 1.25rem', gap: '0.75rem', boxSizing: 'border-box', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', maxHeight: '100%', minHeight: 0, padding: '0.5rem 1rem', gap: '0.5rem', boxSizing: 'border-box', overflow: 'hidden' }}>
       
-      {/* ── Top Bar ── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0, flexWrap: 'wrap' }}>
-        <button onClick={() => router.back()} className="btn btn-secondary px-2" style={{ padding: '0.35rem 0.6rem' }}>
-          <ArrowLeft size={18} />
-        </button>
-        <h2 className="m-0 flex-1" style={{ fontSize: '1.2rem', fontWeight: 700, minWidth: 0 }}>{exam.name}</h2>
-
-        {/* Scan option checkbox */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--secondary)', borderRadius: '10px', padding: '0.4rem 0.8rem' }}>
-          <label className="flex items-center gap-2 cursor-pointer text-sm font-semibold select-none m-0">
-            <input 
-              type="checkbox" 
-              checked={allowScan}
-              onChange={(e) => setAllowScan(e.target.checked)}
-              className="w-4 h-4 rounded text-primary focus:ring-primary focus:ring-offset-secondary"
-            />
-            開放學生掃描紙本答案卡
-          </label>
+      {/* ── Single Unified Header (方案 A) ── */}
+      <header style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '0.75rem',
+        flexShrink: 0,
+        padding: '0.35rem 0.25rem',
+        borderBottom: '1px solid var(--border)',
+        position: 'relative',
+        zIndex: 50,
+      }}>
+        {/* Left: Back Button + Exam Title + Status Badge */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', minWidth: 0 }}>
+          <button
+            onClick={() => router.push('/teacher')}
+            className="btn btn-secondary"
+            title="返回試卷管理"
+            style={{
+              padding: '0.35rem 0.6rem',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <ArrowLeft size={18} />
+          </button>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', minWidth: 0 }}>
+            <h2 style={{
+              margin: 0,
+              fontSize: 'clamp(1.05rem, 1.4vw, 1.35rem)',
+              fontWeight: 800,
+              letterSpacing: '-0.3px',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}>
+              {exam.name}
+            </h2>
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              fontSize: '0.72rem',
+              fontWeight: 700,
+              color: 'var(--success)',
+              backgroundColor: 'rgba(34, 197, 94, 0.15)',
+              border: '1px solid rgba(34, 197, 94, 0.35)',
+              padding: '0.15rem 0.5rem',
+              borderRadius: '9999px',
+              flexShrink: 0,
+            }}>
+              <span style={{
+                width: '6px',
+                height: '6px',
+                borderRadius: '50%',
+                backgroundColor: 'var(--success)',
+                display: 'inline-block',
+                boxShadow: '0 0 6px rgba(34, 197, 94, 0.8)',
+              }} />
+              監考進行中
+            </span>
+          </div>
         </div>
 
-        <Link href={`/teacher/exams/${exam.id}/scan`} className="btn btn-secondary flex items-center gap-2" style={{ fontSize: '0.85rem', padding: '0.35rem 0.85rem' }}>
-          <Camera size={16} /> 老師親自掃描
-        </Link>
-        <Link href={`/teacher/exams/${exam.id}/export`} className="btn btn-secondary flex items-center gap-2" style={{ fontSize: '0.85rem', padding: '0.35rem 0.85rem' }}>
-          <Download size={16} /> 匯出報表
-        </Link>
-        <Link href={`/teacher/exams/${exam.id}/edit`} className="btn btn-secondary flex items-center gap-2" style={{ fontSize: '0.85rem', padding: '0.35rem 0.85rem' }}>
-          編輯試卷
-        </Link>
-      </div>
+        {/* Right: 功能選單 ☰ + 深色切換 + 登出 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexShrink: 0 }}>
+          
+          {/* 功能選單按鍵 */}
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setIsMenuOpen(v => !v)}
+              className="btn btn-secondary"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                padding: '0.35rem 0.8rem',
+                borderRadius: '8px',
+                fontSize: '0.85rem',
+                fontWeight: 600,
+                backgroundColor: isMenuOpen ? 'var(--primary)' : 'var(--secondary)',
+                color: isMenuOpen ? 'white' : 'var(--foreground)',
+                border: '1px solid var(--border)',
+                boxShadow: 'var(--shadow-sm)',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease-in-out',
+              }}
+            >
+              <Menu size={16} />
+              <span>功能選單</span>
+              <ChevronDown
+                size={14}
+                style={{
+                  transform: isMenuOpen ? 'rotate(180deg)' : 'none',
+                  transition: 'transform 0.2s',
+                }}
+              />
+            </button>
+
+            {/* 下拉選單內容 */}
+            {isMenuOpen && (
+              <>
+                {/* 點擊遮罩 (Backdrop) */}
+                <div
+                  onClick={() => setIsMenuOpen(false)}
+                  style={{
+                    position: 'fixed',
+                    inset: 0,
+                    zIndex: 99,
+                  }}
+                />
+
+                <div
+                  className="custom-scrollbar"
+                  style={{
+                    position: 'absolute',
+                    top: 'calc(100% + 6px)',
+                    right: 0,
+                    width: '290px',
+                    backgroundColor: 'var(--secondary)',
+                    border: '1.5px solid var(--border)',
+                    borderRadius: '12px',
+                    boxShadow: 'var(--shadow-lg)',
+                    padding: '0.6rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.25rem',
+                    zIndex: 100,
+                  }}
+                >
+                  {/* 分組 1：本試卷操作 */}
+                  <div style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    color: 'var(--muted-foreground)',
+                    padding: '0.35rem 0.6rem 0.15rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                  }}>
+                    本試卷操作
+                  </div>
+
+                  <Link
+                    href={`/teacher/exams/${exam.id}/scan`}
+                    onClick={() => setIsMenuOpen(false)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.65rem',
+                      padding: '0.55rem 0.75rem',
+                      borderRadius: '8px',
+                      fontSize: '0.88rem',
+                      fontWeight: 600,
+                      color: 'var(--foreground)',
+                      textDecoration: 'none',
+                      transition: 'background 0.15s',
+                    }}
+                    className="hover:bg-accent/20"
+                  >
+                    <Camera size={17} style={{ color: 'var(--primary)' }} />
+                    老師親自掃描
+                  </Link>
+
+                  <Link
+                    href={`/teacher/exams/${exam.id}/export`}
+                    onClick={() => setIsMenuOpen(false)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.65rem',
+                      padding: '0.55rem 0.75rem',
+                      borderRadius: '8px',
+                      fontSize: '0.88rem',
+                      fontWeight: 600,
+                      color: 'var(--foreground)',
+                      textDecoration: 'none',
+                      transition: 'background 0.15s',
+                    }}
+                    className="hover:bg-accent/20"
+                  >
+                    <Download size={17} style={{ color: 'var(--primary)' }} />
+                    匯出學生成績報表
+                  </Link>
+
+                  <Link
+                    href={`/teacher/exams/${exam.id}/edit`}
+                    onClick={() => setIsMenuOpen(false)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.65rem',
+                      padding: '0.55rem 0.75rem',
+                      borderRadius: '8px',
+                      fontSize: '0.88rem',
+                      fontWeight: 600,
+                      color: 'var(--foreground)',
+                      textDecoration: 'none',
+                      transition: 'background 0.15s',
+                    }}
+                    className="hover:bg-accent/20"
+                  >
+                    <FileEdit size={17} style={{ color: 'var(--primary)' }} />
+                    編輯試卷題目與設定
+                  </Link>
+
+                  {/* 開放學生掃描紙本答案卡開關 */}
+                  <div
+                    onClick={() => setAllowScan(v => !v)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '0.55rem 0.75rem',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      backgroundColor: allowScan ? 'rgba(59, 130, 246, 0.12)' : 'transparent',
+                      border: allowScan ? '1px solid rgba(59, 130, 246, 0.3)' : '1px solid transparent',
+                      transition: 'all 0.15s',
+                    }}
+                    className="hover:bg-accent/20"
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                      <ScanLine size={17} style={{ color: allowScan ? 'var(--primary)' : 'var(--foreground)' }} />
+                      <div>
+                        <div style={{ fontSize: '0.88rem', fontWeight: 600 }}>開放學生掃描紙本</div>
+                        <div style={{ fontSize: '0.7rem', opacity: 0.65 }}>QR Code 帶入相機掃描</div>
+                      </div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={allowScan}
+                      onChange={(e) => setAllowScan(e.target.checked)}
+                      onClick={(e) => e.stopPropagation()}
+                      style={{ width: '18px', height: '18px', accentColor: 'var(--primary)', cursor: 'pointer' }}
+                    />
+                  </div>
+
+                  {/* 分割線 */}
+                  <div style={{ height: '1px', backgroundColor: 'var(--border)', margin: '0.4rem 0' }} />
+
+                  {/* 分組 2：後台系統切換 */}
+                  <div style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    color: 'var(--muted-foreground)',
+                    padding: '0.35rem 0.6rem 0.15rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                  }}>
+                    後台系統切換
+                  </div>
+
+                  <Link
+                    href="/teacher"
+                    onClick={() => setIsMenuOpen(false)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.65rem',
+                      padding: '0.55rem 0.75rem',
+                      borderRadius: '8px',
+                      fontSize: '0.88rem',
+                      fontWeight: 600,
+                      color: 'var(--foreground)',
+                      textDecoration: 'none',
+                    }}
+                    className="hover:bg-accent/20"
+                  >
+                    <BookOpen size={17} style={{ opacity: 0.75 }} />
+                    試卷管理
+                  </Link>
+
+                  <Link
+                    href="/teacher/grades"
+                    onClick={() => setIsMenuOpen(false)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.65rem',
+                      padding: '0.55rem 0.75rem',
+                      borderRadius: '8px',
+                      fontSize: '0.88rem',
+                      fontWeight: 600,
+                      color: 'var(--foreground)',
+                      textDecoration: 'none',
+                    }}
+                    className="hover:bg-accent/20"
+                  >
+                    <BarChart3 size={17} style={{ opacity: 0.75 }} />
+                    成績管理
+                  </Link>
+
+                  <Link
+                    href="/teacher/analytics"
+                    onClick={() => setIsMenuOpen(false)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.65rem',
+                      padding: '0.55rem 0.75rem',
+                      borderRadius: '8px',
+                      fontSize: '0.88rem',
+                      fontWeight: 600,
+                      color: 'var(--foreground)',
+                      textDecoration: 'none',
+                    }}
+                    className="hover:bg-accent/20"
+                  >
+                    <FileQuestion size={17} style={{ opacity: 0.75 }} />
+                    試題檢討
+                  </Link>
+
+                  <Link
+                    href="/teacher/classes"
+                    onClick={() => setIsMenuOpen(false)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.65rem',
+                      padding: '0.55rem 0.75rem',
+                      borderRadius: '8px',
+                      fontSize: '0.88rem',
+                      fontWeight: 600,
+                      color: 'var(--foreground)',
+                      textDecoration: 'none',
+                    }}
+                    className="hover:bg-accent/20"
+                  >
+                    <Users size={17} style={{ opacity: 0.75 }} />
+                    班級管理
+                  </Link>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* 深色模式切換 */}
+          <ThemeToggle />
+
+          {/* 登出按鈕 */}
+          <button
+            onClick={handleLogout}
+            className="btn btn-secondary"
+            style={{
+              fontSize: '0.85rem',
+              padding: '0.35rem 0.85rem',
+              borderRadius: '8px',
+              fontWeight: 600,
+            }}
+          >
+            登出
+          </button>
+        </div>
+      </header>
 
       {/* ── Three Panels ── */}
       <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0" style={{ height: '100%', maxHeight: '100%', minHeight: 0, overflow: 'hidden' }}>
