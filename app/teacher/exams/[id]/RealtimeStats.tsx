@@ -135,6 +135,9 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
   const normalCountdown = getCountdown(deadlineDate, now);
   const lateCountdown = getCountdown(lateDeadlineDate, now);
 
+  const isNormalPhase = Boolean(deadlineDate && now <= deadlineDate);
+  const isLatePhase = Boolean(phase === 'late' || (deadlineDate && lateDeadlineDate && now > deadlineDate && now <= lateDeadlineDate));
+
   // Build combined student list
   const submittedMap = new Map(submissions.map(s => [s.studentName, s]));
   const checkinMap = new Map(checkins.map(c => [c.studentName, c]));
@@ -190,42 +193,32 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', maxHeight: '100%', minHeight: 0, overflow: 'hidden' }}>
 
-      {/* ── Top Countdown Cards & Settings Button (Above Panel Title) ── */}
-      <div style={{ flexShrink: 0, marginBottom: '0.85rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Clock size={16} style={{ color: 'var(--primary)' }} />
-            <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>作答剩餘時間</span>
-            {deadline && (
-              <span style={{ fontSize: '0.72rem', fontWeight: 700, padding: '0.15rem 0.5rem', borderRadius: '999px', backgroundColor: `${phaseLabel[phase].color}22`, color: phaseLabel[phase].color, border: `1px solid ${phaseLabel[phase].color}44` }}>
-                {phaseLabel[phase].text}
-              </span>
-            )}
-          </div>
-          <button
-            onClick={() => setShowSettingsModal(true)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              padding: '0.35rem 0.75rem',
-              borderRadius: '8px',
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              backgroundColor: 'var(--primary)',
-              color: 'white',
-              cursor: 'pointer',
-              border: 'none',
-              boxShadow: 'var(--shadow-sm)',
-              transition: 'opacity 0.2s',
-            }}
-          >
-            <Clock size={13} />
-            時間設定
-          </button>
-        </div>
+      {/* ── Glow animations for active countdown card ── */}
+      <style>{`
+        @keyframes pulseGlowGreen {
+          0%, 100% {
+            box-shadow: 0 0 5px rgba(16, 185, 129, 0.25), inset 0 0 3px rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.5);
+          }
+          50% {
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.8), inset 0 0 6px rgba(16, 185, 129, 0.25);
+            border-color: rgba(16, 185, 129, 1);
+          }
+        }
+        @keyframes pulseGlowAmber {
+          0%, 100% {
+            box-shadow: 0 0 5px rgba(245, 158, 11, 0.25), inset 0 0 3px rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.5);
+          }
+          50% {
+            box-shadow: 0 0 18px rgba(245, 158, 11, 0.85), inset 0 0 6px rgba(245, 158, 11, 0.25);
+            border-color: rgba(245, 158, 11, 1);
+          }
+        }
+      `}</style>
 
-        {/* Dual Cards: Left (繳交剩餘時間 不扣分) & Right (補交剩餘時間 扣5分) */}
+      {/* ── Top Countdown Cards (Occupying top space directly) ── */}
+      <div style={{ flexShrink: 0, marginBottom: '0.65rem' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.6rem' }}>
           
           {/* Left Card: 08:55 前繳交 (不扣分) */}
@@ -234,13 +227,14 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
             border: `1.5px solid ${deadlineDate && now > deadlineDate ? 'var(--border)' : 'var(--success)'}`,
             borderRadius: '12px',
             overflow: 'hidden',
-            minHeight: '110px',
+            minHeight: '115px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            boxShadow: 'var(--shadow-sm)',
+            boxShadow: isNormalPhase ? '0 0 10px rgba(16, 185, 129, 0.4)' : 'var(--shadow-sm)',
+            animation: isNormalPhase ? 'pulseGlowGreen 3s ease-in-out infinite' : 'none',
             opacity: deadlineDate && now > deadlineDate ? 0.6 : 1,
-            transition: 'all 0.3s',
+            transition: 'opacity 0.3s',
           }}>
             {/* Header */}
             <div style={{
@@ -287,16 +281,17 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
           {/* Right Card: 08:55 ~ 09:00 前繳交 (扣5分) */}
           <div style={{
             backgroundColor: 'var(--secondary)',
-            border: `1.5px solid ${allowLateSubmission ? (phase === 'late' ? 'var(--warning)' : 'rgba(245, 158, 11, 0.4)') : 'var(--border)'}`,
+            border: `1.5px solid ${allowLateSubmission ? (isLatePhase ? 'var(--warning)' : 'rgba(245, 158, 11, 0.4)') : 'var(--border)'}`,
             borderRadius: '12px',
             overflow: 'hidden',
-            minHeight: '110px',
+            minHeight: '115px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            boxShadow: 'var(--shadow-sm)',
+            boxShadow: isLatePhase ? '0 0 12px rgba(245, 158, 11, 0.5)' : 'var(--shadow-sm)',
+            animation: isLatePhase ? 'pulseGlowAmber 2.5s ease-in-out infinite' : 'none',
             opacity: allowLateSubmission ? (phase === 'closed' ? 0.5 : 1) : 0.45,
-            transition: 'all 0.3s',
+            transition: 'opacity 0.3s',
           }}>
             {/* Header */}
             <div style={{
@@ -351,21 +346,53 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
       </div>
 
       {/* ── Header: 領取答案卡和繳交名單 ── */}
-      <div style={{ flexShrink: 0, marginBottom: '0.75rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
-          <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem' }}>
+      <div style={{ flexShrink: 0, marginBottom: '0.65rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '1rem' }}>
             <Users size={18} /> {panelTitle}
-            <span style={{ fontSize: '0.75rem', opacity: 0.5, fontWeight: 400 }}>(即時)</span>
-          </h3>
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             <button
               onClick={() => setShowScores(v => !v)}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.25rem 0.65rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 500, backgroundColor: showScores ? 'var(--primary)' : 'var(--background)', color: showScores ? 'white' : 'var(--foreground)', border: '1px solid var(--border)', cursor: 'pointer', transition: 'all 0.2s' }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                padding: '0.2rem 0.65rem',
+                borderRadius: '9999px',
+                fontSize: '0.75rem',
+                fontWeight: 500,
+                backgroundColor: showScores ? 'var(--primary)' : 'var(--background)',
+                color: showScores ? 'white' : 'var(--foreground)',
+                border: '1px solid var(--border)',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
             >
-              {showScores ? <Eye size={13} /> : <EyeOff size={13} />}
+              {showScores ? <Eye size={12} /> : <EyeOff size={12} />}
               {showScores ? '隱藏成績' : '顯示成績'}
             </button>
-          </div>
+          </h3>
+
+          <button
+            onClick={() => setShowSettingsModal(true)}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              padding: '0.3rem 0.75rem',
+              borderRadius: '8px',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              backgroundColor: 'var(--primary)',
+              color: 'white',
+              cursor: 'pointer',
+              border: 'none',
+              boxShadow: 'var(--shadow-sm)',
+              transition: 'opacity 0.2s',
+            }}
+          >
+            <Clock size={13} />
+            時間設定
+          </button>
         </div>
       </div>
 
