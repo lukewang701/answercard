@@ -123,6 +123,7 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
             <>
               <button
                 className="text-foreground hover:text-primary transition-colors"
+                style={{ fontSize: 'inherit', fontWeight: 'inherit', color: 'inherit' }}
                 onClick={() => { setActiveFolder(null); window.history.pushState({}, '', window.location.pathname); }}
               >
                 所有資料夾

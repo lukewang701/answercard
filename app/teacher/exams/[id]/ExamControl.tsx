@@ -456,7 +456,7 @@ export function ExamControl({ exam, initialSubmissions, initialCheckins, classSt
               { label: '最低分', value: lowest, color: 'var(--danger)' },
             ].map(({ label, value, color }) => (
               <div key={label} style={{ backgroundColor: 'var(--background)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.4rem 0.75rem', gap: '0.5rem', minHeight: 0 }}>
-                <div style={{ fontSize: '0.8rem', opacity: 0.75, whiteSpace: 'nowrap' }}>{label}</div>
+                <div style={{ fontSize: '1.36rem', opacity: 0.75, whiteSpace: 'nowrap' }}>{label}</div>
                 <div style={{ fontSize: 'clamp(1.3rem, 2vw, 2rem)', fontWeight: 700, color, lineHeight: 1 }}>{value}</div>
               </div>
             ))}

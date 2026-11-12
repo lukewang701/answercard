@@ -15,8 +15,8 @@ export default async function AnalyticsPage() {
   });
 
   return (
-    <div className="container py-12">
-      <h1 className="mb-8">試題檢討</h1>
+    <div className="container py-8">
+      <h1 style={{ color: '#ffffff', fontSize: '1.75rem', fontWeight: 700, marginBottom: '1.25rem' }}>試題檢討</h1>
       <AnalyticsView initialExams={exams} />
     </div>
   );
