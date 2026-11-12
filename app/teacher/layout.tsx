@@ -12,6 +12,7 @@ export default function TeacherLayout({
   const router = useRouter();
   const pathname = usePathname();
   const isLoginPage = pathname === '/teacher/login';
+  const isExamDashboard = pathname.match(/^\/teacher\/exams\/[^/]+$/);
 
   const handleLogout = async () => {
     await fetch('/api/auth', {
@@ -52,7 +53,7 @@ export default function TeacherLayout({
           </div>
         </div>
       </header>
-      <main style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+      <main style={{ flex: 1, minHeight: 0, overflowY: isExamDashboard ? 'hidden' : 'auto', display: 'flex', flexDirection: 'column' }}>
         {children}
       </main>
     </div>

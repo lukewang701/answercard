@@ -196,7 +196,7 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', maxHeight: '100%', minHeight: 0, overflow: 'hidden' }}>
 
       {/* ── Top Countdown Cards & Settings Button (Above Panel Title) ── */}
       <div style={{ flexShrink: 0, marginBottom: '0.85rem' }}>
@@ -409,7 +409,7 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
           尚無學生資料，請先在「班級管理」建立班級名單
         </div>
       ) : (
-        <div className="custom-scrollbar" style={{ flex: 1, overflowY: 'auto' }}>
+        <div className="custom-scrollbar" style={{ flex: 1, minHeight: 0, overflowY: 'auto', overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.4rem', alignContent: 'start' }}>
 
             {allStudents.map(st => (

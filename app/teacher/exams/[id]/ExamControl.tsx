@@ -67,7 +67,7 @@ export function ExamControl({ exam, initialSubmissions, initialCheckins, classSt
   const lowest = scores.length ? Math.round(Math.min(...scores)) : 0;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '0.75rem 1.25rem', gap: '0.75rem', boxSizing: 'border-box' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', maxHeight: '100%', minHeight: 0, padding: '0.75rem 1.25rem', gap: '0.75rem', boxSizing: 'border-box', overflow: 'hidden' }}>
       
       {/* ── Top Bar ── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0, flexWrap: 'wrap' }}>
@@ -101,10 +101,10 @@ export function ExamControl({ exam, initialSubmissions, initialCheckins, classSt
       </div>
 
       {/* ── Three Panels ── */}
-      <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0">
+      <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0" style={{ height: '100%', maxHeight: '100%', minHeight: 0, overflow: 'hidden' }}>
 
         {/* Panel 1: Stats */}
-        <div className="card" style={{ flex: 1, minWidth: '140px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: '1rem', overflowY: 'auto' }}>
+        <div className="card custom-scrollbar" style={{ flex: 1, minWidth: '140px', height: '100%', maxHeight: '100%', minHeight: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: '1rem', overflowY: 'auto', overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch', boxSizing: 'border-box' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', flexShrink: 0 }}>
             <TrendingUp size={22} />
             <span style={{ fontWeight: 600, fontSize: '1.1rem' }}>成績總覽</span>
@@ -125,13 +125,13 @@ export function ExamControl({ exam, initialSubmissions, initialCheckins, classSt
         </div>
 
         {/* Panel 2: QR Code */}
-        <div className="card" style={{ flex: 3, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: '1rem', overflowY: 'auto' }}>
+        <div className="card custom-scrollbar" style={{ flex: 3, minWidth: 0, height: '100%', maxHeight: '100%', minHeight: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: '1rem', overflowY: 'auto', overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch', boxSizing: 'border-box' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', flexShrink: 0 }}>
             <QrCode size={22} />
             <span style={{ fontWeight: 600, fontSize: '1.1rem' }}>{qrLabel}</span>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', flex: 1, justifyContent: 'flex-start', width: '100%' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', flex: 1, justifyContent: 'flex-start', width: '100%', minHeight: 0 }}>
             <div style={{ backgroundColor: 'white', padding: '0.75rem', borderRadius: '12px', marginBottom: '0.75rem', width: '99%', maxWidth: '418px', flexShrink: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <QRCodeSVG value={qrUrl} size={800} level="H" style={{ width: '100%', height: 'auto', display: 'block' }} />
             </div>
@@ -146,7 +146,7 @@ export function ExamControl({ exam, initialSubmissions, initialCheckins, classSt
         </div>
 
         {/* Panel 3: Submissions / Checkins */}
-        <div className="card" style={{ flex: 4, minWidth: 0, display: 'flex', flexDirection: 'column', padding: '1rem', overflow: 'hidden' }}>
+        <div className="card" style={{ flex: 4, minWidth: 0, height: '100%', maxHeight: '100%', minHeight: 0, display: 'flex', flexDirection: 'column', padding: '1rem', overflow: 'hidden', boxSizing: 'border-box' }}>
           <RealtimeStats
             examId={exam.id}
             submissions={submissions}
