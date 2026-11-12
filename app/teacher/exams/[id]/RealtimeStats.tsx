@@ -16,21 +16,13 @@ function formatTimeShort(dateStr: string | null) {
 function getCountdown(targetDate: Date | null, now: Date) {
   if (!targetDate) return null;
   const diff = targetDate.getTime() - now.getTime();
-  if (diff <= 0) return { diff: 0, text: '00分 00秒', isPast: true };
+  if (diff <= 0) return { diff: 0, text: '剩餘 00分 00秒', isPast: true };
   const totalSeconds = Math.floor(diff / 1000);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const totalMinutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
-  if (hours > 0) {
-    return {
-      diff,
-      text: `${hours}時 ${String(minutes).padStart(2, '0')}分 ${String(seconds).padStart(2, '0')}秒`,
-      isPast: false,
-    };
-  }
   return {
     diff,
-    text: `${String(minutes).padStart(2, '0')}分 ${String(seconds).padStart(2, '0')}秒`,
+    text: `剩餘 ${totalMinutes}分 ${String(seconds).padStart(2, '0')}秒`,
     isPast: false,
   };
 }
@@ -234,15 +226,15 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
         </div>
 
         {/* Dual Cards: Left (繳交剩餘時間 不扣分) & Right (補交剩餘時間 扣5分) */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.75rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.6rem' }}>
           
-          {/* Left Card: 繳交剩餘時間 (不扣分) */}
+          {/* Left Card: 08:55 前繳交 (不扣分) */}
           <div style={{
             backgroundColor: 'var(--secondary)',
             border: `1.5px solid ${deadlineDate && now > deadlineDate ? 'var(--border)' : 'var(--success)'}`,
             borderRadius: '12px',
             overflow: 'hidden',
-            minHeight: '135px',
+            minHeight: '110px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
@@ -254,41 +246,34 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
             <div style={{
               backgroundColor: deadlineDate && now > deadlineDate ? 'rgba(100, 116, 139, 0.12)' : 'rgba(16, 185, 129, 0.15)',
               borderBottom: `1px solid ${deadlineDate && now > deadlineDate ? 'var(--border)' : 'rgba(16, 185, 129, 0.3)'}`,
-              padding: '0.5rem 0.85rem',
+              padding: '0.6rem 0.85rem',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'space-between',
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', width: '100%' }}>
                 <span style={{
                   width: '8px',
                   height: '8px',
                   borderRadius: '50%',
                   backgroundColor: deadlineDate && now > deadlineDate ? 'var(--border)' : 'var(--success)',
                   display: 'inline-block',
+                  flexShrink: 0,
                 }} />
-                <span style={{ fontWeight: 700, fontSize: '0.85rem', color: deadlineDate && now > deadlineDate ? 'var(--foreground)' : 'var(--success)' }}>
-                  繳交剩餘時間 (不扣分)
+                <span style={{
+                  fontWeight: 800,
+                  fontSize: 'clamp(0.95rem, 1.25vw, 1.28rem)',
+                  color: deadlineDate && now > deadlineDate ? 'var(--foreground)' : 'var(--success)',
+                  lineHeight: 1.2,
+                }}>
+                  {deadlineTimeStr ? `${deadlineTimeStr} 前繳交 (不扣分)` : '未設定截止時間 (不扣分)'}
                 </span>
               </div>
-              <span style={{
-                fontSize: '0.72rem',
-                fontFamily: 'monospace',
-                fontWeight: 600,
-                padding: '0.15rem 0.5rem',
-                borderRadius: '6px',
-                backgroundColor: 'rgba(0,0,0,0.2)',
-                border: '1px solid var(--border)',
-                color: 'var(--foreground)',
-              }}>
-                {deadlineTimeStr ? `截止 ${deadlineTimeStr}` : '未設定'}
-              </span>
             </div>
 
             {/* Body */}
             <div style={{ padding: '0.85rem', textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
               <div style={{
-                fontSize: '2rem',
+                fontSize: 'clamp(1.4rem, 2.2vw, 2.1rem)',
                 fontWeight: 900,
                 fontFamily: 'monospace',
                 color: deadlineDate && now > deadlineDate ? 'var(--foreground)' : 'var(--success)',
@@ -296,21 +281,16 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
               }}>
                 {!deadlineDate ? '未設定截止時間' : (deadlineDate && now <= deadlineDate ? normalCountdown?.text : '已截止')}
               </div>
-              <div style={{ fontSize: '0.75rem', marginTop: '0.35rem', color: 'var(--foreground)', opacity: 0.85 }}>
-                {!deadlineDate
-                  ? '請點擊右上角「時間設定」設置截止時間'
-                  : (deadlineDate && now <= deadlineDate ? `${deadlineTimeStr} 前繳交不扣分` : `${deadlineTimeStr} 不扣分繳交已截止`)}
-              </div>
             </div>
           </div>
 
-          {/* Right Card: 補交剩餘時間 (扣5分) */}
+          {/* Right Card: 08:55 ~ 09:00 前繳交 (扣5分) */}
           <div style={{
             backgroundColor: 'var(--secondary)',
             border: `1.5px solid ${allowLateSubmission ? (phase === 'late' ? 'var(--warning)' : 'rgba(245, 158, 11, 0.4)') : 'var(--border)'}`,
             borderRadius: '12px',
             overflow: 'hidden',
-            minHeight: '135px',
+            minHeight: '110px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
@@ -322,41 +302,38 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
             <div style={{
               backgroundColor: allowLateSubmission ? 'rgba(245, 158, 11, 0.15)' : 'rgba(100, 116, 139, 0.1)',
               borderBottom: `1px solid ${allowLateSubmission ? 'rgba(245, 158, 11, 0.3)' : 'var(--border)'}`,
-              padding: '0.5rem 0.85rem',
+              padding: '0.6rem 0.85rem',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'space-between',
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', width: '100%' }}>
                 <span style={{
                   width: '8px',
                   height: '8px',
                   borderRadius: '50%',
                   backgroundColor: allowLateSubmission ? 'var(--warning)' : 'var(--border)',
                   display: 'inline-block',
+                  flexShrink: 0,
                 }} />
-                <span style={{ fontWeight: 700, fontSize: '0.85rem', color: allowLateSubmission ? 'var(--warning)' : 'var(--foreground)' }}>
-                  補交剩餘時間 (扣5分)
+                <span style={{
+                  fontWeight: 800,
+                  fontSize: 'clamp(0.95rem, 1.25vw, 1.28rem)',
+                  color: allowLateSubmission ? 'var(--warning)' : 'var(--foreground)',
+                  lineHeight: 1.2,
+                }}>
+                  {allowLateSubmission
+                    ? (deadlineTimeStr && lateDeadlineTimeStr
+                      ? `${deadlineTimeStr} ~ ${lateDeadlineTimeStr} 前繳交 (扣5分)`
+                      : (lateDeadlineTimeStr ? `${lateDeadlineTimeStr} 前繳交 (扣5分)` : '補交時段 (扣5分)'))
+                    : (extraOpen ? '手動補交開放中 (扣5分)' : '未開放補交 (扣5分)')}
                 </span>
               </div>
-              <span style={{
-                fontSize: '0.72rem',
-                fontFamily: 'monospace',
-                fontWeight: 600,
-                padding: '0.15rem 0.5rem',
-                borderRadius: '6px',
-                backgroundColor: 'rgba(0,0,0,0.2)',
-                border: '1px solid var(--border)',
-                color: 'var(--foreground)',
-              }}>
-                {allowLateSubmission && lateDeadlineTimeStr ? `補交截止 ${lateDeadlineTimeStr}` : (extraOpen ? '手動開放中' : '未開啟補交')}
-              </span>
             </div>
 
             {/* Body */}
             <div style={{ padding: '0.85rem', textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
               <div style={{
-                fontSize: '2rem',
+                fontSize: 'clamp(1.4rem, 2.2vw, 2.1rem)',
                 fontWeight: 900,
                 fontFamily: 'monospace',
                 color: allowLateSubmission ? 'var(--warning)' : 'var(--foreground)',
@@ -367,17 +344,6 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
                     ? (lateDeadlineDate && now <= lateDeadlineDate ? lateCountdown?.text : '已完全截止')
                     : '未設定補交截止')
                   : (extraOpen ? '手動開放中' : '未開啟補交')}
-              </div>
-              <div style={{ fontSize: '0.75rem', marginTop: '0.35rem', color: 'var(--foreground)', opacity: 0.85 }}>
-                {allowLateSubmission
-                  ? (lateDeadlineDate
-                    ? (deadlineDate && now <= deadlineDate
-                      ? `${deadlineTimeStr} ~ ${lateDeadlineTimeStr} 前繳交扣5分`
-                      : (lateDeadlineDate && now <= lateDeadlineDate
-                        ? `⚠️ 遲交補交中！${lateDeadlineTimeStr} 前繳交扣5分`
-                        : '補交時間已截止，停止收卷'))
-                    : '請點擊右上角「時間設定」設置補交截止時間')
-                  : (extraOpen ? (extraOpenLateMark ? '目前提交將扣 5 分' : '目前提交不扣分') : '未設定截止時間後補交')}
               </div>
             </div>
           </div>
