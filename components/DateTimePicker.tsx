@@ -8,6 +8,7 @@ interface DateTimePickerProps {
   value: string; // "YYYY-MM-DDTHH:mm" or ""
   onChange: (value: string) => void;
   icon?: React.ReactNode;
+  large?: boolean;
 }
 
 function pad(n: number) {
@@ -37,7 +38,7 @@ function daysInMonth(year: number, month: number) {
   return new Date(year, month, 0).getDate();
 }
 
-export function DateTimePicker({ label, value, onChange, icon }: DateTimePickerProps) {
+export function DateTimePicker({ label, value, onChange, icon, large = false }: DateTimePickerProps) {
   const [open, setOpen] = useState(false);
   const now = new Date();
 
@@ -127,17 +128,18 @@ export function DateTimePicker({ label, value, onChange, icon }: DateTimePickerP
         type="button"
         onClick={handleOpen}
         style={{
-          display: 'flex', alignItems: 'center', gap: '0.35rem',
-          padding: '0.2rem 0.55rem', borderRadius: '6px',
+          display: 'flex', alignItems: 'center', gap: large ? '0.5rem' : '0.35rem',
+          padding: large ? '0.45rem 0.85rem' : '0.2rem 0.55rem', borderRadius: large ? '8px' : '6px',
           border: '1px solid var(--border)',
           background: isSet ? 'var(--primary)' : 'var(--secondary)',
           color: isSet ? 'white' : 'var(--foreground)',
-          fontSize: '0.72rem', cursor: 'pointer', whiteSpace: 'nowrap',
+          fontSize: large ? '1.15rem' : '0.72rem', cursor: 'pointer', whiteSpace: 'nowrap',
           transition: 'all 0.15s',
+          boxShadow: isSet ? 'var(--shadow-sm)' : 'none',
         }}
       >
-        {icon ?? <Clock size={12} />}
-        <span style={{ fontWeight: isSet ? 600 : 400 }}>
+        {icon ?? <Clock size={large ? 18 : 12} />}
+        <span style={{ fontWeight: isSet ? 700 : 500 }}>
           {label}：{formatDisplay(value)}
         </span>
       </button>
