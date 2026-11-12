@@ -93,7 +93,7 @@ export function ExamControl({ exam, initialSubmissions, initialCheckins, classSt
         zIndex: 50,
       }}>
         {/* Left: Back Button + Exam Title + Status Badge */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', minWidth: 0, zIndex: 1 }}>
           <button
             onClick={() => router.push('/teacher')}
             className="btn btn-secondary"
@@ -148,8 +148,33 @@ export function ExamControl({ exam, initialSubmissions, initialCheckins, classSt
           </div>
         </div>
 
+        {/* Center: Current Page Name */}
+        <div
+          style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            pointerEvents: 'none',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <span
+            style={{
+              fontSize: 'clamp(1rem, 1.3vw, 1.25rem)',
+              fontWeight: 700,
+              color: 'var(--foreground)',
+              letterSpacing: '0.5px',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            監考主控台
+          </span>
+        </div>
+
         {/* Right: 功能選單 ☰ + 深色切換 + 登出 */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexShrink: 0, zIndex: 1 }}>
           
           {/* 功能選單按鍵 */}
           <div style={{ position: 'relative' }}>
@@ -451,12 +476,12 @@ export function ExamControl({ exam, initialSubmissions, initialCheckins, classSt
           <div style={{ display: 'grid', gridTemplateRows: 'repeat(4, 1fr)', gap: '0.4rem', flex: 1, minHeight: 0 }}>
             {[
               { label: '已繳交', value: submissions.length, color: 'var(--primary)' },
-              { label: '平均分數', value: average, color: 'var(--foreground)' },
+              { label: '平均分', value: average, color: 'var(--foreground)' },
               { label: '最高分', value: highest, color: 'var(--success)' },
               { label: '最低分', value: lowest, color: 'var(--danger)' },
             ].map(({ label, value, color }) => (
               <div key={label} style={{ backgroundColor: 'var(--background)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.4rem 0.75rem', gap: '0.5rem', minHeight: 0 }}>
-                <div style={{ fontSize: '1.36rem', opacity: 0.75, whiteSpace: 'nowrap' }}>{label}</div>
+                <div style={{ fontSize: '1.088rem', opacity: 0.75, whiteSpace: 'nowrap' }}>{label}</div>
                 <div style={{ fontSize: 'clamp(1.3rem, 2vw, 2rem)', fontWeight: 700, color, lineHeight: 1 }}>{value}</div>
               </div>
             ))}
