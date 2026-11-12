@@ -294,12 +294,12 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
                 color: deadlineDate && now > deadlineDate ? 'var(--foreground)' : 'var(--success)',
                 letterSpacing: '-0.5px',
               }}>
-                {!deadlineDate ? '未設定截止時間' : (now <= deadlineDate ? normalCountdown?.text : '已截止')}
+                {!deadlineDate ? '未設定截止時間' : (deadlineDate && now <= deadlineDate ? normalCountdown?.text : '已截止')}
               </div>
               <div style={{ fontSize: '0.75rem', marginTop: '0.35rem', color: 'var(--foreground)', opacity: 0.85 }}>
                 {!deadlineDate
                   ? '請點擊右上角「時間設定」設置截止時間'
-                  : (now <= deadlineDate ? `${deadlineTimeStr} 前繳交不扣分` : `${deadlineTimeStr} 不扣分繳交已截止`)}
+                  : (deadlineDate && now <= deadlineDate ? `${deadlineTimeStr} 前繳交不扣分` : `${deadlineTimeStr} 不扣分繳交已截止`)}
               </div>
             </div>
           </div>
@@ -364,16 +364,16 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
               }}>
                 {allowLateSubmission
                   ? (lateDeadlineDate
-                    ? (now <= lateDeadlineDate ? lateCountdown?.text : '已完全截止')
+                    ? (lateDeadlineDate && now <= lateDeadlineDate ? lateCountdown?.text : '已完全截止')
                     : '未設定補交截止')
                   : (extraOpen ? '手動開放中' : '未開啟補交')}
               </div>
               <div style={{ fontSize: '0.75rem', marginTop: '0.35rem', color: 'var(--foreground)', opacity: 0.85 }}>
                 {allowLateSubmission
                   ? (lateDeadlineDate
-                    ? (now <= deadlineDate
+                    ? (deadlineDate && now <= deadlineDate
                       ? `${deadlineTimeStr} ~ ${lateDeadlineTimeStr} 前繳交扣5分`
-                      : (now <= lateDeadlineDate
+                      : (lateDeadlineDate && now <= lateDeadlineDate
                         ? `⚠️ 遲交補交中！${lateDeadlineTimeStr} 前繳交扣5分`
                         : '補交時間已截止，停止收卷'))
                     : '請點擊右上角「時間設定」設置補交截止時間')
