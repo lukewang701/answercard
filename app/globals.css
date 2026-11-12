@@ -149,9 +149,14 @@ html.light-mode .text-option-mapping { color: var(--primary); }
 .flex { display: flex; }
 .flex-col { flex-direction: column; }
 .items-center { align-items: center; }
+.items-start { align-items: flex-start; }
+.items-end { align-items: flex-end; }
+.self-start { align-self: flex-start; }
+.self-center { align-self: center; }
 .justify-center { justify-content: center; }
 .justify-between { justify-content: space-between; }
 .gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
 .gap-4 { gap: 1rem; }
 .gap-6 { gap: 1.5rem; }
 
@@ -160,6 +165,9 @@ html.light-mode .text-option-mapping { color: var(--primary); }
 .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
 /* Layout utilities */
+.relative { position: relative; }
+.absolute { position: absolute; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .min-h-screen { min-height: 100vh; }
 .w-full { width: 100%; }
 .max-w-md { max-width: 28rem; }

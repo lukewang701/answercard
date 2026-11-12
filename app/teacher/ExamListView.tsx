@@ -172,8 +172,11 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
               >
                 {/* Top Row: Folder Icon + Title + Exam Count Badge */}
                 <div>
-                  <div className="flex items-start justify-between gap-3 mb-3">
-                    <div className="flex items-start gap-3 flex-1 min-w-0">
+                  <div 
+                    className="flex items-start justify-between gap-3 mb-3"
+                    style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem' }}
+                  >
+                    <div className="flex items-start gap-3 flex-1 min-w-0" style={{ display: 'flex', alignItems: 'flex-start' }}>
                       <div 
                         style={{
                           width: '44px',
@@ -207,10 +210,16 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
                         color: '#cbd5e1',
                         border: '1px solid rgba(255, 255, 255, 0.1)',
                         borderRadius: '9999px',
-                        padding: '0.2rem 0.6rem',
+                        padding: '0.2rem 0.65rem',
                         fontSize: '0.78rem',
                         fontWeight: 600,
                         flexShrink: 0,
+                        whiteSpace: 'nowrap',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        alignSelf: 'flex-start',
+                        lineHeight: 1.4,
+                        height: 'fit-content',
                       }}
                     >
                       {group.exams.length} 份試卷

@@ -48,9 +48,16 @@ export default function TeacherLayout({
             zIndex: 30,
           }}
         >
-          <div className="container py-3 flex flex-col md:flex-row md:justify-between md:items-center gap-3">
+          <div 
+            className="container py-3 flex flex-col md:flex-row md:justify-between md:items-center gap-3"
+            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}
+          >
             {/* Brand Logo & Version Badge */}
-            <Link href="/teacher" className="flex items-center gap-2.5 group">
+            <Link 
+              href="/teacher" 
+              className="flex items-center gap-2.5 group"
+              style={{ flexShrink: 0, whiteSpace: 'nowrap', textDecoration: 'none' }}
+            >
               <div
                 style={{
                   width: '32px',
@@ -62,13 +69,14 @@ export default function TeacherLayout({
                   justifyContent: 'center',
                   color: '#ffffff',
                   boxShadow: '0 4px 12px rgba(59, 130, 246, 0.35)',
+                  flexShrink: 0,
                 }}
                 className="group-hover:scale-105 transition-transform"
               >
                 <Sparkles size={18} />
               </div>
-              <div className="flex items-center gap-2">
-                <span style={{ fontSize: '1.2rem', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.02em' }}>
+              <div className="flex items-center gap-2" style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: '1.2rem', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>
                   數位答案卡
                 </span>
                 <span
@@ -81,6 +89,10 @@ export default function TeacherLayout({
                     color: '#60a5fa',
                     border: '1px solid rgba(59, 130, 246, 0.3)',
                     letterSpacing: '0.02em',
+                    whiteSpace: 'nowrap',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    flexShrink: 0,
                   }}
                 >
                   V2.0

@@ -451,8 +451,11 @@ function ClassManagementContent() {
               }}
             >
               <div>
-                <div className="flex justify-between items-start mb-3">
-                  <div className="flex items-center gap-3">
+                <div 
+                  className="flex justify-between items-start mb-3"
+                  style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem' }}
+                >
+                  <div className="flex items-center gap-3" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                     <div 
                       style={{
                         width: '42px',
@@ -484,9 +487,16 @@ function ClassManagementContent() {
                       color: '#60a5fa',
                       border: '1px solid rgba(59, 130, 246, 0.3)',
                       borderRadius: '9999px',
-                      padding: '0.2rem 0.65rem',
+                      padding: '0.25rem 0.75rem',
                       fontSize: '0.8rem',
                       fontWeight: 700,
+                      whiteSpace: 'nowrap',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      alignSelf: 'flex-start',
+                      lineHeight: 1.4,
+                      height: 'fit-content',
+                      flexShrink: 0,
                     }}
                   >
                     {cls._count.students} 位學生

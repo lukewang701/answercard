@@ -144,58 +144,138 @@ export function GradeManager({ exams, classes }: { exams: any[], classes: any[] 
     <div className="w-full">
       
       {/* ── Top Bar ── */}
-      <div className="flex flex-col md:flex-row gap-6 mb-8 justify-between items-end">
-        <div className="flex gap-6 w-full md:w-auto">
-          <div className="w-64">
-            <label className="block text-sm mb-2 opacity-80 text-foreground font-medium">搜尋試卷名稱</label>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 opacity-50" size={16} />
+      <div 
+        className="flex flex-col md:flex-row gap-4 mb-6 justify-between items-end"
+        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '1rem' }}
+      >
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '1rem', flexWrap: 'wrap' }}>
+          {/* Search Input */}
+          <div style={{ width: '260px' }}>
+            <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.45rem', opacity: 0.8, color: '#ffffff', fontWeight: 600 }}>
+              搜尋試卷名稱
+            </label>
+            <div 
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.6rem',
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid var(--border)',
+                borderRadius: '8px',
+                padding: '0.45rem 0.85rem',
+                height: '38px',
+                boxSizing: 'border-box',
+              }}
+            >
+              <Search size={16} style={{ color: '#94a3b8', flexShrink: 0 }} />
               <input 
                 type="text" 
                 placeholder="輸入關鍵字..." 
-                className="w-full pl-9 py-2 bg-transparent border border-border rounded-md text-sm"
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  color: '#ffffff',
+                  fontSize: '0.88rem',
+                  width: '100%',
+                  padding: 0,
+                }}
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
           
-          <div className="w-48">
-            <label className="block text-sm mb-2 opacity-80 text-foreground font-medium">依班級篩選</label>
+          {/* Class Filter Select */}
+          <div style={{ width: '180px' }}>
+            <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.45rem', opacity: 0.8, color: '#ffffff', fontWeight: 600 }}>
+              依班級篩選
+            </label>
             <select 
-              className="w-full py-2 bg-transparent border border-border rounded-md text-sm appearance-none"
               value={selectedClass}
               onChange={e => setSelectedClass(e.target.value)}
-              style={{ backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%24%2024%22%20fill%3D%22none%22%20stroke%3D%22%23666%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center', backgroundSize: '16px' }}
+              style={{
+                width: '100%',
+                padding: '0.45rem 0.85rem',
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid var(--border)',
+                borderRadius: '8px',
+                fontSize: '0.88rem',
+                color: '#ffffff',
+                height: '38px',
+                boxSizing: 'border-box',
+                cursor: 'pointer',
+              }}
             >
-              <option value="">所有班級</option>
+              <option value="" style={{ background: '#0f172a', color: '#fff' }}>所有班級</option>
               {classes.map(cls => (
-                <option key={cls.id} value={cls.id}>{cls.name}</option>
+                <option key={cls.id} value={cls.id} style={{ background: '#0f172a', color: '#fff' }}>{cls.name}</option>
               ))}
             </select>
           </div>
         </div>
 
-        <button onClick={handleDownload} className="btn flex items-center gap-2 py-2 px-5 rounded-md shadow-sm transition-colors text-white border-none" style={{ backgroundColor: '#3b82f6' }}>
+        {/* Download Button */}
+        <button 
+          onClick={handleDownload}
+          disabled={selectedExams.length === 0}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '0.55rem 1.25rem',
+            borderRadius: '9px',
+            fontSize: '0.88rem',
+            fontWeight: 600,
+            cursor: selectedExams.length > 0 ? 'pointer' : 'not-allowed',
+            transition: 'all 0.15s ease',
+            backgroundColor: selectedExams.length > 0 ? '#3b82f6' : 'rgba(255, 255, 255, 0.08)',
+            color: selectedExams.length > 0 ? '#ffffff' : '#94a3b8',
+            border: selectedExams.length > 0 ? 'none' : '1px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: selectedExams.length > 0 ? '0 4px 14px rgba(59, 130, 246, 0.35)' : 'none',
+            height: '38px',
+            boxSizing: 'border-box',
+          }}
+        >
           <Download size={16} />
-          下載所選成績 ({selectedExams.length})
+          <span>下載所選成績 ({selectedExams.length})</span>
         </button>
       </div>
 
       {/* Table Header Tab */}
-      <div className="flex items-center gap-4 text-sm font-medium mb-3 pl-2">
-        <span className="text-[#3b82f6] font-bold">全部</span>
-        <span className="opacity-70">共 {filteredExams.length} 份試卷</span>
+      <div className="flex items-center gap-4 text-sm font-medium mb-3 pl-1" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <span style={{ color: '#60a5fa', fontWeight: 700 }}>全部試卷</span>
+        <span className="opacity-60">共 {filteredExams.length} 份</span>
       </div>
 
       {/* ── Table Container ── */}
-      <div className="bg-transparent rounded-lg border border-border overflow-hidden">
+      <div 
+        style={{
+          backgroundColor: 'var(--secondary)',
+          borderRadius: '12px',
+          border: '1px solid var(--border)',
+          overflow: 'hidden',
+        }}
+      >
         
         {/* Column Headers */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'auto 2fr 1fr 1fr 1fr auto', gap: '1rem', padding: '1rem 1.5rem', borderBottom: '1px solid var(--border)', fontSize: '0.85rem', fontWeight: 600, opacity: 0.8, alignItems: 'center' }}>
-          <button onClick={handleSelectAll} style={{ padding: '0.25rem', cursor: 'pointer', display: 'flex' }}>
+        <div 
+          style={{ 
+            display: 'grid', 
+            gridTemplateColumns: '40px 2.5fr 1.2fr 1.2fr 1.2fr 40px', 
+            gap: '0.75rem', 
+            padding: '0.85rem 1.25rem', 
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)', 
+            fontSize: '0.85rem', 
+            fontWeight: 600, 
+            opacity: 0.8, 
+            alignItems: 'center',
+            backgroundColor: 'rgba(255, 255, 255, 0.02)',
+          }}
+        >
+          <button onClick={handleSelectAll} style={{ padding: '0.2rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             {selectedExams.length === filteredExams.length && filteredExams.length > 0 ? (
-              <CheckSquare size={18} />
+              <CheckSquare size={18} style={{ color: '#60a5fa' }} />
             ) : (
               <Square size={18} />
             )}
@@ -215,36 +295,54 @@ export function GradeManager({ exams, classes }: { exams: any[], classes: any[] 
           <div style={{ width: '2rem' }}></div>
         </div>
 
-        {/* Rows */}
-        <div style={{ overflowY: 'auto', maxHeight: '50vh', borderTop: 'none' }}>
+        {/* Rows (Natural height without awkward scrollbar) */}
+        <div>
           {filteredExams.map(exam => {
             const pct = exam.totalExpected > 0 ? Math.round((exam.submitted / exam.totalExpected) * 100) : 0;
-            const pctColor = pct === 100 ? '#22c55e' : pct === 0 ? '#ef4444' : 'var(--foreground)';
+            const pctColor = pct === 100 ? '#34d399' : pct === 0 ? '#94a3b8' : '#60a5fa';
             return (
-              <div key={exam.id} style={{ display: 'grid', gridTemplateColumns: 'auto 2fr 1fr 1fr 1fr auto', gap: '1rem', padding: '1rem 1.5rem', alignItems: 'center', fontSize: '0.875rem', borderBottom: '1px solid var(--border)', backgroundColor: selectedExams.includes(exam.id) ? 'rgba(255,255,255,0.04)' : 'transparent', cursor: 'default', transition: 'background 0.15s' }}
-                onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)')}
-                onMouseLeave={e => (e.currentTarget.style.backgroundColor = selectedExams.includes(exam.id) ? 'rgba(255,255,255,0.04)' : 'transparent')}
+              <div 
+                key={exam.id} 
+                style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: '40px 2.5fr 1.2fr 1.2fr 1.2fr 40px', 
+                  gap: '0.75rem', 
+                  padding: '0.9rem 1.25rem', 
+                  alignItems: 'center', 
+                  fontSize: '0.875rem', 
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.05)', 
+                  backgroundColor: selectedExams.includes(exam.id) ? 'rgba(59, 130, 246, 0.08)' : 'transparent', 
+                  cursor: 'default', 
+                  transition: 'background 0.15s' 
+                }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = selectedExams.includes(exam.id) ? 'rgba(59, 130, 246, 0.12)' : 'rgba(255,255,255,0.03)')}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = selectedExams.includes(exam.id) ? 'rgba(59, 130, 246, 0.08)' : 'transparent')}
               >
-                <button onClick={(e) => toggleExam(exam.id, e)} style={{ padding: '0.25rem', cursor: 'pointer', display: 'flex', color: 'var(--foreground)' }}>
+                <button onClick={(e) => toggleExam(exam.id, e)} style={{ padding: '0.2rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: selectedExams.includes(exam.id) ? '#60a5fa' : 'var(--foreground)' }}>
                   {selectedExams.includes(exam.id) ? <CheckSquare size={18} /> : <Square size={18} />}
                 </button>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 700, fontSize: '1rem', cursor: 'pointer' }} onClick={() => window.location.href = `/teacher/exams/${exam.id}`}>
-                  <FileText size={20} style={{ color: '#3b82f6', flexShrink: 0 }} />
-                  {exam.name}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 600, fontSize: '0.95rem', cursor: 'pointer', color: '#ffffff' }} onClick={() => window.location.href = `/teacher/exams/${exam.id}`}>
+                  <FileText size={18} style={{ color: '#60a5fa', flexShrink: 0 }} />
+                  <span className="truncate">{exam.name}</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', opacity: 0.8 }}>
-                  <Calendar size={16} />
-                  {new Date(exam.date).toLocaleDateString()}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', opacity: 0.75, fontSize: '0.85rem' }}>
+                  <Calendar size={14} />
+                  <span>{new Date(exam.date).toLocaleDateString('zh-TW')}</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Users size={16} style={{ opacity: 0.7 }} />
-                  <span style={{ color: pctColor }}>{exam.submitted} / {exam.totalExpected} <span style={{ opacity: 0.7, fontSize: '0.75rem' }}>({pct}%)</span></span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                  <Users size={14} style={{ opacity: 0.6 }} />
+                  <span style={{ color: pctColor, fontWeight: 600 }}>
+                    {exam.submitted} / {exam.totalExpected} 
+                    <span style={{ opacity: 0.7, fontSize: '0.75rem', marginLeft: '0.25rem', fontWeight: 400 }}>
+                      ({pct}%)
+                    </span>
+                  </span>
                 </div>
-                <div style={{ fontWeight: 500, color: exam.average !== null ? '#3b82f6' : 'var(--foreground)', opacity: exam.average !== null ? 1 : 0.4 }}>
+                <div style={{ fontWeight: 600, color: exam.average !== null ? '#60a5fa' : 'var(--foreground)', opacity: exam.average !== null ? 1 : 0.4 }}>
                   {exam.average !== null ? `${exam.average.toFixed(1)} 分` : '—'}
                 </div>
                 <button style={{ padding: '0.25rem', opacity: 0.5, cursor: 'pointer' }} onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.opacity='1')} onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.opacity='0.5')}>
-                  <MoreVertical size={18} />
+                  <MoreVertical size={16} />
                 </button>
               </div>
             );
