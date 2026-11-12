@@ -236,7 +236,7 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
                 flexShrink: 0,
               }} />
               <span style={{
-                fontWeight: 400,
+                fontWeight: 700,
                 fontSize: inModal ? '1.15rem' : 'clamp(1.1rem, 1.44vw, 1.47rem)',
                 color: isLeftPast ? 'var(--foreground)' : '#000000',
                 lineHeight: 1.2,
@@ -266,9 +266,9 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
                 letterSpacing: '-0.5px',
                 fontVariantNumeric: 'tabular-nums',
               }}>
-                <span style={{ color: '#ffffff', fontWeight: 400 }}>剩餘</span>
-                <span style={{ color: '#3de099', fontWeight: 900 }}>{normalCountdown.totalMinutes}分</span>
-                <span style={{ color: '#ffffff', fontWeight: 400 }}>{normalCountdown.secondsStr}秒</span>
+                <span style={{ color: '#ffffff', fontWeight: 400, fontSize: '0.9em' }}>剩餘</span>
+                <span style={{ color: '#3de099', fontWeight: 900, fontSize: '1.1em' }}>{normalCountdown.totalMinutes}分</span>
+                <span style={{ color: '#ffffff', fontWeight: 400, fontSize: '0.9em' }}>{normalCountdown.secondsStr}秒</span>
               </div>
             ) : null}
           </div>
@@ -307,7 +307,7 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
                 flexShrink: 0,
               }} />
               <span style={{
-                fontWeight: 400,
+                fontWeight: 700,
                 fontSize: inModal ? '1.15rem' : 'clamp(1.1rem, 1.44vw, 1.47rem)',
                 color: allowLateSubmission ? '#000000' : 'var(--foreground)',
                 lineHeight: 1.2,
@@ -342,9 +342,9 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
                   letterSpacing: '-0.5px',
                   fontVariantNumeric: 'tabular-nums',
                 }}>
-                  <span style={{ color: '#ffffff', fontWeight: 400 }}>剩餘</span>
-                  <span style={{ color: '#fbbf24', fontWeight: 900 }}>{lateCountdown.totalMinutes}分</span>
-                  <span style={{ color: '#ffffff', fontWeight: 400 }}>{lateCountdown.secondsStr}秒</span>
+                  <span style={{ color: '#ffffff', fontWeight: 400, fontSize: '0.9em' }}>剩餘</span>
+                  <span style={{ color: '#fbbf24', fontWeight: 900, fontSize: '1.1em' }}>{lateCountdown.totalMinutes}分</span>
+                  <span style={{ color: '#ffffff', fontWeight: 400, fontSize: '0.9em' }}>{lateCountdown.secondsStr}秒</span>
                 </div>
               ) : null
             ) : (
