@@ -236,7 +236,7 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
                 flexShrink: 0,
               }} />
               <span style={{
-                fontWeight: 700,
+                fontWeight: 400,
                 fontSize: inModal ? '1.15rem' : 'clamp(1.1rem, 1.44vw, 1.47rem)',
                 color: isLeftPast ? 'var(--foreground)' : '#000000',
                 lineHeight: 1.2,
@@ -259,16 +259,16 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
             ) : normalCountdown ? (
               <div style={{
                 display: 'inline-flex',
-                alignItems: 'baseline',
+                alignItems: 'center',
                 justifyContent: 'center',
                 gap: '0.45rem',
                 fontSize: inModal ? '1.5rem' : 'clamp(1.4rem, 2.3vw, 2.2rem)',
                 letterSpacing: '-0.5px',
                 fontVariantNumeric: 'tabular-nums',
               }}>
-                <span style={{ color: '#ffffff', fontWeight: 400, fontSize: '0.9em' }}>剩餘</span>
-                <span style={{ color: '#3de099', fontWeight: 900, fontSize: '1.1em' }}>{normalCountdown.totalMinutes}分</span>
-                <span style={{ color: '#ffffff', fontWeight: 400, fontSize: '0.9em' }}>{normalCountdown.secondsStr}秒</span>
+                <span style={{ color: '#ffffff', fontWeight: 400, fontSize: '0.85em', lineHeight: 1 }}>剩餘</span>
+                <span style={{ color: '#3de099', fontWeight: 700, fontSize: '1.15em', lineHeight: 1 }}>{normalCountdown.totalMinutes}分</span>
+                <span style={{ color: '#ffffff', fontWeight: 400, fontSize: '0.85em', lineHeight: 1 }}>{normalCountdown.secondsStr}秒</span>
               </div>
             ) : null}
           </div>
@@ -307,14 +307,14 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
                 flexShrink: 0,
               }} />
               <span style={{
-                fontWeight: 700,
+                fontWeight: 400,
                 fontSize: inModal ? '1.15rem' : 'clamp(1.1rem, 1.44vw, 1.47rem)',
                 color: allowLateSubmission ? '#000000' : 'var(--foreground)',
                 lineHeight: 1.2,
               }}>
                 {allowLateSubmission
                   ? (deadlineTimeStr && lateDeadlineTimeStr
-                    ? `${deadlineTimeStr} ~ ${lateDeadlineTimeStr} 前繳交 (扣5分)`
+                    ? `${deadlineTimeStr} ~ ${lateDeadlineTimeStr} 繳交 (扣5分)`
                     : (lateDeadlineTimeStr ? `${lateDeadlineTimeStr} 前繳交 (扣5分)` : '補交時段 (扣5分)'))
                   : (extraOpen ? '手動補交開放中 (扣5分)' : '未開放補交 (扣5分)')}
               </span>
@@ -335,16 +335,16 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
               ) : lateCountdown ? (
                 <div style={{
                   display: 'inline-flex',
-                  alignItems: 'baseline',
+                  alignItems: 'center',
                   justifyContent: 'center',
                   gap: '0.45rem',
                   fontSize: inModal ? '1.5rem' : 'clamp(1.4rem, 2.3vw, 2.2rem)',
                   letterSpacing: '-0.5px',
                   fontVariantNumeric: 'tabular-nums',
                 }}>
-                  <span style={{ color: '#ffffff', fontWeight: 400, fontSize: '0.9em' }}>剩餘</span>
-                  <span style={{ color: '#fbbf24', fontWeight: 900, fontSize: '1.1em' }}>{lateCountdown.totalMinutes}分</span>
-                  <span style={{ color: '#ffffff', fontWeight: 400, fontSize: '0.9em' }}>{lateCountdown.secondsStr}秒</span>
+                  <span style={{ color: '#ffffff', fontWeight: 400, fontSize: '0.85em', lineHeight: 1 }}>剩餘</span>
+                  <span style={{ color: '#fbbf24', fontWeight: 700, fontSize: '1.15em', lineHeight: 1 }}>{lateCountdown.totalMinutes}分</span>
+                  <span style={{ color: '#ffffff', fontWeight: 400, fontSize: '0.85em', lineHeight: 1 }}>{lateCountdown.secondsStr}秒</span>
                 </div>
               ) : null
             ) : (
