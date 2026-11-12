@@ -1,8 +1,39 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Users, Eye, EyeOff, Clock, AlertTriangle, CheckCircle, RotateCcw, X } from 'lucide-react';
+import { Users, Eye, EyeOff, Clock, AlertTriangle, CheckCircle, RotateCcw, X, Settings } from 'lucide-react';
 import { DateTimePicker } from '@/components/DateTimePicker';
+
+function formatTimeShort(dateStr: string | null) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return '';
+  const h = String(d.getHours()).padStart(2, '0');
+  const m = String(d.getMinutes()).padStart(2, '0');
+  return `${h}:${m}`;
+}
+
+function getCountdown(targetDate: Date | null, now: Date) {
+  if (!targetDate) return null;
+  const diff = targetDate.getTime() - now.getTime();
+  if (diff <= 0) return { diff: 0, text: '00分 00秒', isPast: true };
+  const totalSeconds = Math.floor(diff / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  if (hours > 0) {
+    return {
+      diff,
+      text: `${hours}時 ${String(minutes).padStart(2, '0')}分 ${String(seconds).padStart(2, '0')}秒`,
+      isPast: false,
+    };
+  }
+  return {
+    diff,
+    text: `${String(minutes).padStart(2, '0')}分 ${String(seconds).padStart(2, '0')}秒`,
+    isPast: false,
+  };
+}
 
 type RealtimeStatsProps = {
   examId: string;
@@ -39,6 +70,7 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
   const [extraOpen, setExtraOpen] = useState(examSettings.extraOpen);
   const [extraOpenLateMark, setExtraOpenLateMark] = useState(examSettings.lateMarkEnabled);  // for extraOpen
   const [savingSettings, setSavingSettings] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
 
   // Recall modal
   const [recallTarget, setRecallTarget] = useState<any | null>(null);
@@ -106,6 +138,11 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
     extra: { text: '補交開放中', color: 'var(--primary)' },
   };
 
+  const deadlineTimeStr = formatTimeShort(deadline);
+  const lateDeadlineTimeStr = formatTimeShort(lateDeadline);
+  const normalCountdown = getCountdown(deadlineDate, now);
+  const lateCountdown = getCountdown(lateDeadlineDate, now);
+
   // Build combined student list
   const submittedMap = new Map(submissions.map(s => [s.studentName, s]));
   const checkinMap = new Map(checkins.map(c => [c.studentName, c]));
@@ -161,7 +198,193 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
 
-      {/* ── Header ── */}
+      {/* ── Top Countdown Cards & Settings Button (Above Panel Title) ── */}
+      <div style={{ flexShrink: 0, marginBottom: '0.85rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Clock size={16} style={{ color: 'var(--primary)' }} />
+            <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>作答剩餘時間</span>
+            {deadline && (
+              <span style={{ fontSize: '0.72rem', fontWeight: 700, padding: '0.15rem 0.5rem', borderRadius: '999px', backgroundColor: `${phaseLabel[phase].color}22`, color: phaseLabel[phase].color, border: `1px solid ${phaseLabel[phase].color}44` }}>
+                {phaseLabel[phase].text}
+              </span>
+            )}
+          </div>
+          <button
+            onClick={() => setShowSettingsModal(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              padding: '0.35rem 0.75rem',
+              borderRadius: '8px',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              backgroundColor: 'var(--primary)',
+              color: 'white',
+              cursor: 'pointer',
+              border: 'none',
+              boxShadow: 'var(--shadow-sm)',
+              transition: 'opacity 0.2s',
+            }}
+          >
+            <Clock size={13} />
+            時間設定
+          </button>
+        </div>
+
+        {/* Dual Cards: Left (繳交剩餘時間 不扣分) & Right (補交剩餘時間 扣5分) */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.75rem' }}>
+          
+          {/* Left Card: 繳交剩餘時間 (不扣分) */}
+          <div style={{
+            backgroundColor: 'var(--secondary)',
+            border: `1.5px solid ${deadlineDate && now > deadlineDate ? 'var(--border)' : 'var(--success)'}`,
+            borderRadius: '12px',
+            overflow: 'hidden',
+            minHeight: '135px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            boxShadow: 'var(--shadow-sm)',
+            opacity: deadlineDate && now > deadlineDate ? 0.6 : 1,
+            transition: 'all 0.3s',
+          }}>
+            {/* Header */}
+            <div style={{
+              backgroundColor: deadlineDate && now > deadlineDate ? 'rgba(100, 116, 139, 0.12)' : 'rgba(16, 185, 129, 0.15)',
+              borderBottom: `1px solid ${deadlineDate && now > deadlineDate ? 'var(--border)' : 'rgba(16, 185, 129, 0.3)'}`,
+              padding: '0.5rem 0.85rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <span style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: deadlineDate && now > deadlineDate ? 'var(--border)' : 'var(--success)',
+                  display: 'inline-block',
+                }} />
+                <span style={{ fontWeight: 700, fontSize: '0.85rem', color: deadlineDate && now > deadlineDate ? 'var(--foreground)' : 'var(--success)' }}>
+                  繳交剩餘時間 (不扣分)
+                </span>
+              </div>
+              <span style={{
+                fontSize: '0.72rem',
+                fontFamily: 'monospace',
+                fontWeight: 600,
+                padding: '0.15rem 0.5rem',
+                borderRadius: '6px',
+                backgroundColor: 'rgba(0,0,0,0.2)',
+                border: '1px solid var(--border)',
+                color: 'var(--foreground)',
+              }}>
+                {deadlineTimeStr ? `截止 ${deadlineTimeStr}` : '未設定'}
+              </span>
+            </div>
+
+            {/* Body */}
+            <div style={{ padding: '0.85rem', textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+              <div style={{
+                fontSize: '2rem',
+                fontWeight: 900,
+                fontFamily: 'monospace',
+                color: deadlineDate && now > deadlineDate ? 'var(--foreground)' : 'var(--success)',
+                letterSpacing: '-0.5px',
+              }}>
+                {!deadlineDate ? '未設定截止時間' : (now <= deadlineDate ? normalCountdown?.text : '已截止')}
+              </div>
+              <div style={{ fontSize: '0.75rem', marginTop: '0.35rem', color: 'var(--foreground)', opacity: 0.85 }}>
+                {!deadlineDate
+                  ? '請點擊右上角「時間設定」設置截止時間'
+                  : (now <= deadlineDate ? `${deadlineTimeStr} 前繳交不扣分` : `${deadlineTimeStr} 不扣分繳交已截止`)}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Card: 補交剩餘時間 (扣5分) */}
+          <div style={{
+            backgroundColor: 'var(--secondary)',
+            border: `1.5px solid ${allowLateSubmission ? (phase === 'late' ? 'var(--warning)' : 'rgba(245, 158, 11, 0.4)') : 'var(--border)'}`,
+            borderRadius: '12px',
+            overflow: 'hidden',
+            minHeight: '135px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            boxShadow: 'var(--shadow-sm)',
+            opacity: allowLateSubmission ? (phase === 'closed' ? 0.5 : 1) : 0.45,
+            transition: 'all 0.3s',
+          }}>
+            {/* Header */}
+            <div style={{
+              backgroundColor: allowLateSubmission ? 'rgba(245, 158, 11, 0.15)' : 'rgba(100, 116, 139, 0.1)',
+              borderBottom: `1px solid ${allowLateSubmission ? 'rgba(245, 158, 11, 0.3)' : 'var(--border)'}`,
+              padding: '0.5rem 0.85rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <span style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: allowLateSubmission ? 'var(--warning)' : 'var(--border)',
+                  display: 'inline-block',
+                }} />
+                <span style={{ fontWeight: 700, fontSize: '0.85rem', color: allowLateSubmission ? 'var(--warning)' : 'var(--foreground)' }}>
+                  補交剩餘時間 (扣5分)
+                </span>
+              </div>
+              <span style={{
+                fontSize: '0.72rem',
+                fontFamily: 'monospace',
+                fontWeight: 600,
+                padding: '0.15rem 0.5rem',
+                borderRadius: '6px',
+                backgroundColor: 'rgba(0,0,0,0.2)',
+                border: '1px solid var(--border)',
+                color: 'var(--foreground)',
+              }}>
+                {allowLateSubmission && lateDeadlineTimeStr ? `補交截止 ${lateDeadlineTimeStr}` : (extraOpen ? '手動開放中' : '未開啟補交')}
+              </span>
+            </div>
+
+            {/* Body */}
+            <div style={{ padding: '0.85rem', textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+              <div style={{
+                fontSize: '2rem',
+                fontWeight: 900,
+                fontFamily: 'monospace',
+                color: allowLateSubmission ? 'var(--warning)' : 'var(--foreground)',
+                letterSpacing: '-0.5px',
+              }}>
+                {allowLateSubmission
+                  ? (lateDeadlineDate
+                    ? (now <= lateDeadlineDate ? lateCountdown?.text : '已完全截止')
+                    : '未設定補交截止')
+                  : (extraOpen ? '手動開放中' : '未開啟補交')}
+              </div>
+              <div style={{ fontSize: '0.75rem', marginTop: '0.35rem', color: 'var(--foreground)', opacity: 0.85 }}>
+                {allowLateSubmission
+                  ? (lateDeadlineDate
+                    ? (now <= deadlineDate
+                      ? `${deadlineTimeStr} ~ ${lateDeadlineTimeStr} 前繳交扣5分`
+                      : (now <= lateDeadlineDate
+                        ? `⚠️ 遲交補交中！${lateDeadlineTimeStr} 前繳交扣5分`
+                        : '補交時間已截止，停止收卷'))
+                    : '請點擊右上角「時間設定」設置補交截止時間')
+                  : (extraOpen ? (extraOpenLateMark ? '目前提交將扣 5 分' : '目前提交不扣分') : '未設定截止時間後補交')}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Header: 領取答案卡和繳交名單 ── */}
       <div style={{ flexShrink: 0, marginBottom: '0.75rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
           <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem' }}>
@@ -169,11 +392,6 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
             <span style={{ fontSize: '0.75rem', opacity: 0.5, fontWeight: 400 }}>(即時)</span>
           </h3>
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            {deadline && (
-              <span style={{ fontSize: '0.72rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '999px', backgroundColor: `${phaseLabel[phase].color}22`, color: phaseLabel[phase].color, border: `1px solid ${phaseLabel[phase].color}44` }}>
-                {phaseLabel[phase].text}
-              </span>
-            )}
             <button
               onClick={() => setShowScores(v => !v)}
               style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.25rem 0.65rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 500, backgroundColor: showScores ? 'var(--primary)' : 'var(--background)', color: showScores ? 'white' : 'var(--foreground)', border: '1px solid var(--border)', cursor: 'pointer', transition: 'all 0.2s' }}
@@ -183,74 +401,6 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
             </button>
           </div>
         </div>
-
-        {/* ── Settings bar (both modes) ── */}
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', padding: '0.5rem 0.6rem', background: 'var(--background)', borderRadius: '8px', fontSize: '0.75rem' }}>
-            <DateTimePicker
-              label="開始時間"
-              value={startTime}
-              onChange={v => { setStartTime(v); saveSettings({ startTime: v }); }}
-              icon={<Clock size={12} style={{ color: 'var(--primary)' }} />}
-            />
-            <DateTimePicker
-              label="截止時間"
-              value={deadline}
-              onChange={v => { setDeadline(v); saveSettings({ deadline: v }); }}
-              icon={<Clock size={12} style={{ color: 'var(--primary)' }} />}
-            />
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-              <input
-                type="checkbox"
-                checked={allowLateSubmission}
-                onChange={e => { setAllowLateSubmission(e.target.checked); saveSettings({ allowLateSubmission: e.target.checked }); }}
-              />
-              允許截止時間後補交
-            </label>
-            {allowLateSubmission && (
-              <>
-                <DateTimePicker
-                  label="補交截止時間"
-                  value={lateDeadline}
-                  onChange={v => {
-                    if (v && deadline && new Date(v) <= new Date(deadline)) {
-                      alert('補交截止時間必須晚於截止時間！');
-                      return;
-                    }
-                    setLateDeadline(v);
-                    saveSettings({ lateDeadline: v });
-                  }}
-                  icon={<AlertTriangle size={12} style={{ color: 'var(--warning)' }} />}
-                />
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                  <input
-                    type="checkbox"
-                    checked={lateMarkEnabled}
-                    onChange={e => { setLateMarkEnabled(e.target.checked); saveSettings({ lateMarkEnabled: e.target.checked }); }}
-                  />
-                  標記遲交並扣5分
-                </label>
-              </>
-            )}
-            
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', whiteSpace: 'nowrap', marginLeft: 'auto' }}>
-              <input
-                type="checkbox"
-                checked={extraOpen}
-                onChange={e => { setExtraOpen(e.target.checked); saveSettings({ extraOpen: e.target.checked }); }}
-              />
-              開啟補交
-            </label>
-            {extraOpen && (
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                <input
-                  type="checkbox"
-                  checked={extraOpenLateMark}
-                  onChange={e => { setExtraOpenLateMark(e.target.checked); saveSettings({ extraOpenLateMark: e.target.checked }); }}
-                />
-                標記遲交並扣5分
-              </label>
-            )}
-          </div>
       </div>
 
       {/* ── Student Grid ── */}
@@ -425,6 +575,170 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
                 disabled={recalling}
               >
                 {recalling ? '收回中...' : '確認收回'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Settings Modal ── */}
+      {showSettingsModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.65)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 100,
+          padding: '1rem',
+        }}>
+          <div className="card" style={{
+            maxWidth: '520px',
+            width: '100%',
+            overflow: 'hidden',
+            padding: 0,
+            borderRadius: '16px',
+            backgroundColor: 'var(--secondary)',
+            border: '1px solid var(--border)',
+            boxShadow: 'var(--shadow-lg)',
+          }}>
+            {/* Modal Header */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '1rem 1.25rem',
+              borderBottom: '1px solid var(--border)',
+              backgroundColor: 'rgba(0,0,0,0.15)',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <Clock size={18} style={{ color: 'var(--primary)' }} />
+                <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700 }}>考試時間設定</h3>
+              </div>
+              <button
+                onClick={() => setShowSettingsModal(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--foreground)', opacity: 0.7 }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.85rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
+                <DateTimePicker
+                  label="開始時間"
+                  value={startTime}
+                  onChange={v => { setStartTime(v); saveSettings({ startTime: v }); }}
+                  icon={<Clock size={12} style={{ color: 'var(--primary)' }} />}
+                />
+                <DateTimePicker
+                  label="截止時間"
+                  value={deadline}
+                  onChange={v => { setDeadline(v); saveSettings({ deadline: v }); }}
+                  icon={<Clock size={12} style={{ color: 'var(--primary)' }} />}
+                />
+              </div>
+
+              {/* 補交設定區塊 */}
+              <div style={{
+                padding: '0.85rem',
+                backgroundColor: 'var(--background)',
+                borderRadius: '8px',
+                border: '1px solid var(--border)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.75rem',
+              }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 600 }}>
+                  <input
+                    type="checkbox"
+                    checked={allowLateSubmission}
+                    onChange={e => { setAllowLateSubmission(e.target.checked); saveSettings({ allowLateSubmission: e.target.checked }); }}
+                  />
+                  允許截止時間後補交
+                </label>
+
+                {allowLateSubmission && (
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.75rem',
+                    paddingLeft: '1rem',
+                    borderLeft: '2px solid var(--warning)',
+                  }}>
+                    <DateTimePicker
+                      label="補交截止時間"
+                      value={lateDeadline}
+                      onChange={v => {
+                        if (v && deadline && new Date(v) <= new Date(deadline)) {
+                          alert('補交截止時間必須晚於截止時間！');
+                          return;
+                        }
+                        setLateDeadline(v);
+                        saveSettings({ lateDeadline: v });
+                      }}
+                      icon={<AlertTriangle size={12} style={{ color: 'var(--warning)' }} />}
+                    />
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={lateMarkEnabled}
+                        onChange={e => { setLateMarkEnabled(e.target.checked); saveSettings({ lateMarkEnabled: e.target.checked }); }}
+                      />
+                      標記遲交並扣5分
+                    </label>
+                  </div>
+                )}
+              </div>
+
+              {/* 手動補交開關 */}
+              <div style={{
+                padding: '0.85rem',
+                backgroundColor: 'var(--background)',
+                borderRadius: '8px',
+                border: '1px solid var(--border)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem',
+              }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 600 }}>
+                  <input
+                    type="checkbox"
+                    checked={extraOpen}
+                    onChange={e => { setExtraOpen(e.target.checked); saveSettings({ extraOpen: e.target.checked }); }}
+                  />
+                  開啟補交 (手動覆寫開關)
+                </label>
+                {extraOpen && (
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', paddingLeft: '1.25rem' }}>
+                    <input
+                      type="checkbox"
+                      checked={extraOpenLateMark}
+                      onChange={e => { setExtraOpenLateMark(e.target.checked); saveSettings({ extraOpenLateMark: e.target.checked }); }}
+                    />
+                    標記遲交並扣5分
+                  </label>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              padding: '0.75rem 1.25rem',
+              borderTop: '1px solid var(--border)',
+              backgroundColor: 'rgba(0,0,0,0.15)',
+            }}>
+              <button
+                onClick={() => setShowSettingsModal(false)}
+                className="btn btn-primary"
+                style={{ fontSize: '0.8rem', padding: '0.4rem 1.2rem' }}
+              >
+                完成
               </button>
             </div>
           </div>

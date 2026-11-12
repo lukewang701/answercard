@@ -132,7 +132,7 @@ export function ExamControl({ exam, initialSubmissions, initialCheckins, classSt
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', flex: 1, justifyContent: 'flex-start', width: '100%' }}>
-            <div style={{ backgroundColor: 'white', padding: '1rem', borderRadius: '12px', marginBottom: '1rem', width: '90%', maxWidth: '380px', flexShrink: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <div style={{ backgroundColor: 'white', padding: '0.75rem', borderRadius: '12px', marginBottom: '0.75rem', width: '99%', maxWidth: '418px', flexShrink: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <QRCodeSVG value={qrUrl} size={800} level="H" style={{ width: '100%', height: 'auto', display: 'block' }} />
             </div>
 
