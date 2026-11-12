@@ -208,7 +208,7 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        boxShadow: isNormalPhase ? '0 0 16px rgba(16, 185, 129, 0.6)' : 'var(--shadow-sm)',
+        boxShadow: isNormalPhase ? '0 0 0 2px rgba(16, 185, 129, 0.6), 0 0 14px 2px rgba(16, 185, 129, 0.5)' : 'none',
         animation: isNormalPhase ? 'pulseGlowGreen 2.5s ease-in-out infinite' : 'none',
         opacity: deadlineDate && now > deadlineDate ? 0.6 : 1,
         transition: 'opacity 0.3s',
@@ -265,7 +265,7 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        boxShadow: isLatePhase ? '0 0 18px rgba(245, 158, 11, 0.7)' : 'var(--shadow-sm)',
+        boxShadow: isLatePhase ? '0 0 0 2px rgba(245, 158, 11, 0.6), 0 0 14px 2px rgba(245, 158, 11, 0.5)' : 'none',
         animation: isLatePhase ? 'pulseGlowAmber 2.5s ease-in-out infinite' : 'none',
         opacity: allowLateSubmission ? (phase === 'closed' ? 0.5 : 1) : 0.45,
         transition: 'opacity 0.3s',
@@ -325,25 +325,39 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', maxHeight: '100%', minHeight: 0, overflow: 'hidden' }}>
 
-      {/* ── Glow animations for active countdown card ── */}
+      {/* ── Glow animations for active countdown card (勻稱環繞卡片上下左右) ── */}
       <style>{`
         @keyframes pulseGlowGreen {
           0%, 100% {
-            box-shadow: 0 0 8px rgba(16, 185, 129, 0.35), 0 0 2px rgba(16, 185, 129, 0.8);
-            border-color: rgba(16, 185, 129, 0.6);
+            box-shadow: 
+              0 0 0 1.5px rgba(16, 185, 129, 0.6),
+              0 0 8px 1px rgba(16, 185, 129, 0.4),
+              inset 0 0 8px rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.7);
           }
           50% {
-            box-shadow: 0 0 26px rgba(16, 185, 129, 0.95), 0 0 50px rgba(16, 185, 129, 0.5), inset 0 0 10px rgba(16, 185, 129, 0.3);
+            box-shadow: 
+              0 0 0 3px rgba(16, 185, 129, 1),
+              0 0 18px 3px rgba(16, 185, 129, 0.85),
+              0 0 32px 6px rgba(16, 185, 129, 0.45),
+              inset 0 0 12px rgba(16, 185, 129, 0.25);
             border-color: rgba(16, 185, 129, 1);
           }
         }
         @keyframes pulseGlowAmber {
           0%, 100% {
-            box-shadow: 0 0 8px rgba(245, 158, 11, 0.35), 0 0 2px rgba(245, 158, 11, 0.8);
-            border-color: rgba(245, 158, 11, 0.6);
+            box-shadow: 
+              0 0 0 1.5px rgba(245, 158, 11, 0.6),
+              0 0 8px 1px rgba(245, 158, 11, 0.4),
+              inset 0 0 8px rgba(245, 158, 11, 0.15);
+            border-color: rgba(245, 158, 11, 0.7);
           }
           50% {
-            box-shadow: 0 0 30px rgba(245, 158, 11, 0.95), 0 0 55px rgba(245, 158, 11, 0.55), inset 0 0 10px rgba(245, 158, 11, 0.3);
+            box-shadow: 
+              0 0 0 3px rgba(245, 158, 11, 1),
+              0 0 20px 3px rgba(245, 158, 11, 0.85),
+              0 0 35px 6px rgba(245, 158, 11, 0.5),
+              inset 0 0 12px rgba(245, 158, 11, 0.25);
             border-color: rgba(245, 158, 11, 1);
           }
         }
@@ -351,7 +365,7 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
 
       {/* ── Top Countdown Cards (Shown only while exam is active) ── */}
       {!isExamEnded && (
-        <div style={{ flexShrink: 0, marginBottom: '0.65rem' }}>
+        <div style={{ flexShrink: 0, padding: '6px 6px 3px 6px', margin: '-4px -4px 0.35rem -4px' }}>
           {renderDualCards(false)}
         </div>
       )}
