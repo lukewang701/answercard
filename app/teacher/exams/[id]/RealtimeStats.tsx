@@ -228,16 +228,16 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', width: '100%' }}>
               <span style={{
-                width: '8px',
-                height: '8px',
+                width: '9px',
+                height: '9px',
                 borderRadius: '50%',
                 backgroundColor: isLeftPast ? 'var(--border)' : '#000000',
                 display: 'inline-block',
                 flexShrink: 0,
               }} />
               <span style={{
-                fontWeight: 800,
-                fontSize: inModal ? '1rem' : 'clamp(0.95rem, 1.25vw, 1.28rem)',
+                fontWeight: 400,
+                fontSize: inModal ? '1.15rem' : 'clamp(1.1rem, 1.44vw, 1.47rem)',
                 color: isLeftPast ? 'var(--foreground)' : '#000000',
                 lineHeight: 1.2,
               }}>
@@ -249,11 +249,11 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
           {/* Body */}
           <div style={{ padding: inModal ? '0.6rem' : '0.85rem', textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
             {!deadlineDate ? (
-              <div style={{ color: 'var(--foreground)', opacity: 0.6, fontSize: inModal ? '1.2rem' : 'clamp(1.1rem, 1.8vw, 1.6rem)', fontWeight: 700 }}>
+              <div style={{ color: 'var(--foreground)', opacity: 0.6, fontSize: inModal ? '1.2rem' : 'clamp(1.1rem, 1.8vw, 1.6rem)', fontWeight: 400 }}>
                 未設定截止時間
               </div>
             ) : isLeftPast ? (
-              <div style={{ color: 'var(--foreground)', opacity: 0.6, fontSize: inModal ? '1.2rem' : 'clamp(1.1rem, 1.8vw, 1.6rem)', fontWeight: 700 }}>
+              <div style={{ color: 'var(--foreground)', opacity: 0.6, fontSize: inModal ? '1.2rem' : 'clamp(1.1rem, 1.8vw, 1.6rem)', fontWeight: 400 }}>
                 已截止
               </div>
             ) : normalCountdown ? (
@@ -266,7 +266,7 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
                 letterSpacing: '-0.5px',
                 fontVariantNumeric: 'tabular-nums',
               }}>
-                <span style={{ color: '#ffffff', fontWeight: 800 }}>剩餘</span>
+                <span style={{ color: '#ffffff', fontWeight: 400 }}>剩餘</span>
                 <span style={{ color: '#3de099', fontWeight: 900 }}>{normalCountdown.totalMinutes}分</span>
                 <span style={{ color: '#ffffff', fontWeight: 400 }}>{normalCountdown.secondsStr}秒</span>
               </div>
@@ -299,16 +299,16 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', width: '100%' }}>
               <span style={{
-                width: '8px',
-                height: '8px',
+                width: '9px',
+                height: '9px',
                 borderRadius: '50%',
                 backgroundColor: allowLateSubmission ? '#000000' : 'var(--border)',
                 display: 'inline-block',
                 flexShrink: 0,
               }} />
               <span style={{
-                fontWeight: 800,
-                fontSize: inModal ? '1rem' : 'clamp(0.95rem, 1.25vw, 1.28rem)',
+                fontWeight: 400,
+                fontSize: inModal ? '1.15rem' : 'clamp(1.1rem, 1.44vw, 1.47rem)',
                 color: allowLateSubmission ? '#000000' : 'var(--foreground)',
                 lineHeight: 1.2,
               }}>
@@ -325,11 +325,11 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
           <div style={{ padding: inModal ? '0.6rem' : '0.85rem', textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
             {allowLateSubmission ? (
               !lateDeadlineDate ? (
-                <div style={{ color: 'var(--foreground)', opacity: 0.6, fontSize: inModal ? '1.2rem' : 'clamp(1.1rem, 1.8vw, 1.6rem)', fontWeight: 700 }}>
+                <div style={{ color: 'var(--foreground)', opacity: 0.6, fontSize: inModal ? '1.2rem' : 'clamp(1.1rem, 1.8vw, 1.6rem)', fontWeight: 400 }}>
                   未設定補交截止
                 </div>
               ) : lateDeadlineDate && now > lateDeadlineDate ? (
-                <div style={{ color: 'var(--foreground)', opacity: 0.6, fontSize: inModal ? '1.2rem' : 'clamp(1.1rem, 1.8vw, 1.6rem)', fontWeight: 700 }}>
+                <div style={{ color: 'var(--foreground)', opacity: 0.6, fontSize: inModal ? '1.2rem' : 'clamp(1.1rem, 1.8vw, 1.6rem)', fontWeight: 400 }}>
                   已完全截止
                 </div>
               ) : lateCountdown ? (
@@ -342,13 +342,13 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
                   letterSpacing: '-0.5px',
                   fontVariantNumeric: 'tabular-nums',
                 }}>
-                  <span style={{ color: '#ffffff', fontWeight: 800 }}>剩餘</span>
+                  <span style={{ color: '#ffffff', fontWeight: 400 }}>剩餘</span>
                   <span style={{ color: '#fbbf24', fontWeight: 900 }}>{lateCountdown.totalMinutes}分</span>
                   <span style={{ color: '#ffffff', fontWeight: 400 }}>{lateCountdown.secondsStr}秒</span>
                 </div>
               ) : null
             ) : (
-              <div style={{ color: 'var(--foreground)', opacity: 0.6, fontSize: inModal ? '1.2rem' : 'clamp(1.1rem, 1.8vw, 1.6rem)', fontWeight: 700 }}>
+              <div style={{ color: 'var(--foreground)', opacity: 0.6, fontSize: inModal ? '1.2rem' : 'clamp(1.1rem, 1.8vw, 1.6rem)', fontWeight: 400 }}>
                 {extraOpen ? '手動開放中' : '未開啟補交'}
               </div>
             )}
