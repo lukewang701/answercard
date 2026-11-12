@@ -33,7 +33,7 @@ export default function TeacherLayout({
         <header style={{ borderBottom: '1px solid var(--border)', backgroundColor: 'var(--secondary)', flexShrink: 0 }}>
           <div className="container py-4 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
             <Link href="/teacher">
-              <h2 className="text-primary m-0" style={{ fontSize: '1.25rem', marginBottom: 0 }}>數位答案卡 - 老師後台</h2>
+              <h2 className="text-primary m-0" style={{ fontSize: '1.25rem', marginBottom: 0 }}>數位答案卡 V2.0</h2>
             </Link>
             <div className="flex gap-6 items-center overflow-x-auto whitespace-nowrap w-full md:w-auto pb-2 md:pb-0 custom-scrollbar">
               <Link href="/teacher" className={`text-sm ${pathname === '/teacher' ? 'font-bold text-primary' : 'text-foreground hover:text-primary transition-colors'}`}>
