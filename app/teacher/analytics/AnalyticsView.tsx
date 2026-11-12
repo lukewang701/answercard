@@ -337,41 +337,161 @@ export default function AnalyticsView({ initialExams }: { initialExams: any[] })
       {/* View: Folders Grid */}
       {!activeFolder && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
-          {groups.map(group => (
-            <div 
-              key={group.key} 
-              className="card cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all group"
-              onClick={() => handleOpenFolder(group.key, group.exams)}
-            >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="p-3 bg-primary/10 text-primary rounded-xl group-hover:scale-110 transition-transform">
-                  {groupBy === 'exam' ? <Folder size={32} /> : <Users size={32} />}
-                </div>
-                <div className="flex-1">
-                  <h3 className="m-0 mb-1 text-lg">{group.key}</h3>
-                  <div className="text-sm opacity-60">
-                    {group.exams.length} 個{groupBy === 'exam' ? '班級' : '考試'} • {group.submissionsCount} 份繳交
-                  </div>
-                </div>
-              </div>
+          {groups.map(group => {
+            const hasSubmissions = group.submissionsCount > 0;
+            return (
+              <div 
+                key={group.key} 
+                className="card cursor-pointer transition-all duration-200 group flex flex-col justify-between hover:border-primary/50 hover:shadow-lg"
+                style={{
+                  backgroundColor: 'var(--secondary)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '14px',
+                  padding: '1.25rem',
+                  gap: '1rem',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  opacity: hasSubmissions ? 1 : 0.88,
+                }}
+                onClick={() => handleOpenFolder(group.key, group.exams)}
+              >
+                {/* Header: Icon + Title + Submissions Badge */}
+                <div>
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="flex items-start gap-3 flex-1 min-w-0">
+                      <div 
+                        style={{
+                          width: '44px',
+                          height: '44px',
+                          borderRadius: '11px',
+                          background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(139, 92, 246, 0.15) 100%)',
+                          border: '1px solid rgba(59, 130, 246, 0.25)',
+                          color: '#60a5fa',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                        }}
+                        className="group-hover:scale-105 transition-transform"
+                      >
+                        {groupBy === 'exam' ? <BarChart2 size={24} /> : <Users size={24} />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="m-0 text-white font-bold truncate" style={{ fontSize: '1.25rem', letterSpacing: '-0.01em' }}>
+                          {group.key}
+                        </h3>
+                        <p className="text-xs opacity-60 m-0 mt-0.5 truncate">
+                          {group.exams.length} 個{groupBy === 'exam' ? '班級' : '考試'} • {group.submissionsCount} 份繳交
+                        </p>
+                      </div>
+                    </div>
 
-              {/* Group Mini Stats */}
-              <div className="grid grid-cols-3 gap-2 pt-3 border-t border-border/50 text-center text-sm">
-                <div>
-                  <div className="text-xs opacity-50">平均</div>
-                  <div className="font-bold text-foreground">{group.avg}</div>
+                    <span 
+                      style={{
+                        backgroundColor: hasSubmissions ? 'rgba(59, 130, 246, 0.15)' : 'rgba(255, 255, 255, 0.06)',
+                        color: hasSubmissions ? '#60a5fa' : '#94a3b8',
+                        border: hasSubmissions ? '1px solid rgba(59, 130, 246, 0.3)' : '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '9999px',
+                        padding: '0.2rem 0.6rem',
+                        fontSize: '0.78rem',
+                        fontWeight: 600,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {hasSubmissions ? `${group.submissionsCount} 卷` : '未收卷'}
+                    </span>
+                  </div>
+
+                  {/* Group Mini Stats: 3 KPI Blocks or Empty State */}
+                  {hasSubmissions ? (
+                    <div className="grid grid-cols-3 gap-2">
+                      <div 
+                        style={{
+                          backgroundColor: 'rgba(59, 130, 246, 0.08)',
+                          border: '1px solid rgba(59, 130, 246, 0.2)',
+                          borderRadius: '10px',
+                          padding: '0.65rem 0.5rem',
+                          textAlign: 'center',
+                        }}
+                      >
+                        <div className="text-xs opacity-60 mb-0.5">平均</div>
+                        <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#60a5fa', letterSpacing: '-0.02em' }}>
+                          {group.avg}
+                        </div>
+                      </div>
+
+                      <div 
+                        style={{
+                          backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                          border: '1px solid rgba(16, 185, 129, 0.2)',
+                          borderRadius: '10px',
+                          padding: '0.65rem 0.5rem',
+                          textAlign: 'center',
+                        }}
+                      >
+                        <div className="text-xs opacity-60 mb-0.5">最高</div>
+                        <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#34d399', letterSpacing: '-0.02em' }}>
+                          {group.max}
+                        </div>
+                      </div>
+
+                      <div 
+                        style={{
+                          backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                          border: '1px solid rgba(239, 68, 68, 0.2)',
+                          borderRadius: '10px',
+                          padding: '0.65rem 0.5rem',
+                          textAlign: 'center',
+                        }}
+                      >
+                        <div className="text-xs opacity-60 mb-0.5">最低</div>
+                        <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f87171', letterSpacing: '-0.02em' }}>
+                          {group.min}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div 
+                      style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                        border: '1px dashed rgba(255, 255, 255, 0.12)',
+                        borderRadius: '10px',
+                        padding: '0.9rem',
+                        textAlign: 'center',
+                      }}
+                    >
+                      <div className="text-xs opacity-50">尚未有學生繳卷 • 暫無統計數據</div>
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <div className="text-xs opacity-50">最高</div>
-                  <div className="font-bold text-success">{group.max}</div>
-                </div>
-                <div>
-                  <div className="text-xs opacity-50">最低</div>
-                  <div className="font-bold text-danger">{group.min}</div>
+
+                {/* Footer action link */}
+                <div 
+                  className="pt-3 border-t flex items-center justify-between"
+                  style={{ borderColor: 'rgba(255, 255, 255, 0.08)' }}
+                >
+                  <span 
+                    style={{
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
+                      color: hasSubmissions ? '#60a5fa' : '#94a3b8',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                    }}
+                    className="group-hover:translate-x-1 transition-transform"
+                  >
+                    <span>{hasSubmissions ? '進入試題檢討' : '查看試卷資訊'}</span>
+                    <ChevronRight size={16} />
+                  </span>
+
+                  <span className="text-xs opacity-50">
+                    {groupBy === 'exam' ? '點擊展開分析' : '檢視班級表現'}
+                  </span>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

@@ -153,42 +153,145 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
       {/* View: Folders Grid */}
       {!activeFolder && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
-          {groups.map(group => (
-            <div 
-              key={group.key} 
-              className="card cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all group"
-              onClick={() => handleOpenFolder(group.key)}
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 bg-primary/10 text-primary rounded-xl group-hover:scale-110 transition-transform">
-                    {groupBy === 'exam' ? <Folder size={32} /> : <Users size={32} />}
+          {groups.map(group => {
+            const hasSubmissions = group.submissionsCount > 0;
+            return (
+              <div 
+                key={group.key} 
+                className="card cursor-pointer transition-all duration-200 group flex flex-col justify-between hover:border-primary/50 hover:shadow-lg"
+                style={{
+                  backgroundColor: 'var(--secondary)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '14px',
+                  padding: '1.25rem',
+                  gap: '1rem',
+                  position: 'relative',
+                  overflow: 'hidden',
+                }}
+                onClick={() => handleOpenFolder(group.key)}
+              >
+                {/* Top Row: Folder Icon + Title + Exam Count Badge */}
+                <div>
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="flex items-start gap-3 flex-1 min-w-0">
+                      <div 
+                        style={{
+                          width: '44px',
+                          height: '44px',
+                          borderRadius: '11px',
+                          background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.1) 100%)',
+                          border: '1px solid rgba(59, 130, 246, 0.25)',
+                          color: '#60a5fa',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                        }}
+                        className="group-hover:scale-105 transition-transform"
+                      >
+                        {groupBy === 'exam' ? <Folder size={24} /> : <Users size={24} />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="m-0 text-white font-bold truncate" style={{ fontSize: '1.25rem', letterSpacing: '-0.01em' }}>
+                          {group.key}
+                        </h3>
+                        <p className="text-xs opacity-60 m-0 mt-0.5 truncate">
+                          {groupBy === 'exam' ? `分群管理 • ${group.exams.length} 個班級` : `考卷分組 • ${group.exams.length} 份試卷`}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <span 
+                      style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                        color: '#cbd5e1',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '9999px',
+                        padding: '0.2rem 0.6rem',
+                        fontSize: '0.78rem',
+                        fontWeight: 600,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {group.exams.length} 份試卷
+                    </span>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="m-0 mb-1 text-lg">{group.key}</h3>
-                    <p className="text-sm opacity-70 m-0">
-                      包含 {group.exams.length} 份試卷
-                    </p>
+
+                  {/* Submission Stat Box */}
+                  <div 
+                    style={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                      border: '1px solid rgba(255, 255, 255, 0.06)',
+                      borderRadius: '10px',
+                      padding: '0.75rem 1rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <div>
+                      <div className="text-xs opacity-60">總收卷數</div>
+                      <div className="text-sm font-medium mt-0.5" style={{ color: hasSubmissions ? '#34d399' : '#94a3b8' }}>
+                        {hasSubmissions ? `${group.submissionsCount} 份已繳交` : '尚未有學生繳卷'}
+                      </div>
+                    </div>
+                    <div 
+                      style={{
+                        fontSize: '1.5rem',
+                        fontWeight: 800,
+                        color: hasSubmissions ? '#34d399' : '#64748b',
+                        letterSpacing: '-0.02em',
+                      }}
+                    >
+                      {group.submissionsCount}
+                    </div>
                   </div>
                 </div>
-                <button 
-                  className="p-2 text-foreground opacity-60 hover:text-danger hover:opacity-100 hover:bg-danger/10 rounded-lg transition-colors"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setDeleteFolderTarget(group);
-                  }}
-                  title="刪除資料夾"
+
+                {/* Bottom Row: Enter Folder Button + Safe Delete */}
+                <div 
+                  className="pt-3 border-t flex items-center justify-between"
+                  style={{ borderColor: 'rgba(255, 255, 255, 0.08)' }}
                 >
-                  <Trash2 size={20} />
-                </button>
+                  <span 
+                    style={{
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
+                      color: '#60a5fa',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                    }}
+                    className="group-hover:translate-x-1 transition-transform"
+                  >
+                    <span>進入資料夾</span>
+                    <ChevronRight size={16} />
+                  </span>
+
+                  <button 
+                    style={{
+                      padding: '0.35rem 0.5rem',
+                      borderRadius: '7px',
+                      color: '#f87171',
+                      opacity: 0.6,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                      border: 'none',
+                      backgroundColor: 'transparent',
+                    }}
+                    className="hover:opacity-100 hover:bg-red-500/15"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeleteFolderTarget(group);
+                    }}
+                    title="刪除此資料夾（含底下試卷）"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </div>
-              
-              <div className="pt-4 border-t border-border flex items-center justify-between text-sm">
-                <span className="opacity-70">總收卷數</span>
-                <span className="font-bold text-success">{group.submissionsCount} 份</span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
           {groups.length === 0 && (
             <div className="col-span-full text-center py-12 opacity-50">
               目前還沒有建立任何試卷

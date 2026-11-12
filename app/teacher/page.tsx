@@ -25,12 +25,25 @@ export default async function TeacherDashboard() {
   }
 
   return (
-    <div className="container py-12">
+    <div className="container py-8 max-w-6xl">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold m-0 text-foreground">試卷管理</h2>
-        <Link href="/teacher/exams/new" className="btn btn-primary flex items-center gap-2">
-          <PlusCircle size={20} />
-          建立新試卷
+        <div>
+          <h2 className="text-2xl font-bold m-0 text-white" style={{ letterSpacing: '-0.02em' }}>試卷管理</h2>
+          <p className="text-xs opacity-60 m-0 mt-1">建立試卷、派發答題連結與管理收卷進度</p>
+        </div>
+        <Link 
+          href="/teacher/exams/new" 
+          className="btn btn-primary flex items-center gap-2 shadow-lg"
+          style={{
+            background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+            boxShadow: '0 4px 14px rgba(59, 130, 246, 0.35)',
+            borderRadius: '9px',
+            padding: '0.55rem 1.15rem',
+            fontWeight: 600,
+          }}
+        >
+          <PlusCircle size={18} />
+          <span>建立新試卷</span>
         </Link>
       </div>
 

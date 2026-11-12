@@ -57,6 +57,26 @@ function ClassManagementContent() {
     XLSX.writeFile(wb, '學生名單模板.xlsx');
   };
 
+  const handleDownloadClassRoster = async (e: React.MouseEvent, cls: ClassType) => {
+    e.stopPropagation();
+    try {
+      const res = await fetch(`/api/classes/${cls.id}`);
+      const data = await res.json();
+      if (data.students && data.students.length > 0) {
+        const rows = data.students.map((s: Student) => [cls.name, s.seatNumber, s.name]);
+        const ws = XLSX.utils.aoa_to_sheet([['班級', '座號', '姓名'], ...rows]);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, cls.name);
+        XLSX.writeFile(wb, `${cls.name}_學生名單.xlsx`);
+      } else {
+        alert('此班級目前沒有學生名單');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('下載名冊時發生錯誤');
+    }
+  };
+
   const parsePastedData = (text: string) => {
     setPastedData(text);
     setErrorMsg('');
@@ -258,7 +278,7 @@ function ClassManagementContent() {
   const showForm = isCreating || editingClassId !== null;
 
   return (
-    <div className="container py-12 max-w-4xl">
+    <div className="container py-8 max-w-5xl">
       {isWelcome && classes.length === 0 && (
         <div className="card mb-8 bg-primary/10 border-primary text-primary">
           <div className="flex items-center gap-3 font-bold text-lg mb-2">
@@ -419,32 +439,144 @@ function ClassManagementContent() {
       {!showForm && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {classes.map(cls => (
-            <div key={cls.id} className="card flex flex-col justify-between group">
+            <div 
+              key={cls.id} 
+              className="card flex flex-col justify-between group transition-all duration-200 hover:border-primary/50 hover:shadow-lg"
+              style={{
+                backgroundColor: 'var(--secondary)',
+                border: '1px solid var(--border)',
+                borderRadius: '14px',
+                padding: '1.25rem',
+                gap: '1rem',
+              }}
+            >
               <div>
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-lg m-0 text-primary">{cls.name}</h3>
-                  <span className="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full font-bold">
-                    {cls._count.students} 人
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex items-center gap-3">
+                    <div 
+                      style={{
+                        width: '42px',
+                        height: '42px',
+                        borderRadius: '10px',
+                        backgroundColor: 'rgba(59, 130, 246, 0.12)',
+                        color: '#60a5fa',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                      className="group-hover:scale-105 transition-transform"
+                    >
+                      <Users size={22} />
+                    </div>
+                    <div>
+                      <h3 className="m-0 text-white font-bold" style={{ fontSize: '1.25rem', letterSpacing: '-0.01em' }}>
+                        {cls.name}
+                      </h3>
+                      <p className="text-xs opacity-60 m-0 mt-0.5">
+                        建立於 {new Date(cls.createdAt).toLocaleDateString('zh-TW')}
+                      </p>
+                    </div>
+                  </div>
+                  <span 
+                    style={{
+                      backgroundColor: 'rgba(59, 130, 246, 0.15)',
+                      color: '#60a5fa',
+                      border: '1px solid rgba(59, 130, 246, 0.3)',
+                      borderRadius: '9999px',
+                      padding: '0.2rem 0.65rem',
+                      fontSize: '0.8rem',
+                      fontWeight: 700,
+                    }}
+                  >
+                    {cls._count.students} 位學生
                   </span>
                 </div>
-                <p className="text-xs opacity-60 m-0 mb-4">
-                  建立於 {new Date(cls.createdAt).toLocaleDateString()}
-                </p>
-              </div>
-              <div className="flex justify-end gap-2 border-t border-border pt-3 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                <button 
-                  onClick={() => handleEditClick(cls)}
-                  className="text-primary hover:bg-primary/10 p-2 rounded transition-colors"
-                  title="編輯班級"
+
+                <div 
+                  style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                    border: '1px solid rgba(255, 255, 255, 0.06)',
+                    borderRadius: '8px',
+                    padding: '0.6rem 0.75rem',
+                    fontSize: '0.82rem',
+                    color: 'var(--foreground)',
+                    opacity: 0.8,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
                 >
-                  <Pencil size={18} />
-                </button>
+                  <span>名冊建置狀態</span>
+                  <span className="font-semibold text-emerald-400">已就緒 ({cls._count.students} 人)</span>
+                </div>
+              </div>
+
+              {/* Action Buttons: Always visible */}
+              <div 
+                className="flex items-center justify-between border-t border-border pt-3 mt-1"
+                style={{ borderColor: 'rgba(255, 255, 255, 0.08)' }}
+              >
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => handleEditClick(cls)}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                      padding: '0.4rem 0.75rem',
+                      borderRadius: '7px',
+                      fontSize: '0.82rem',
+                      fontWeight: 600,
+                      backgroundColor: 'rgba(59, 130, 246, 0.15)',
+                      color: '#60a5fa',
+                      border: '1px solid rgba(59, 130, 246, 0.3)',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                    }}
+                    className="hover:bg-primary hover:text-white"
+                    title="編輯班級與名單"
+                  >
+                    <Pencil size={14} />
+                    <span>編輯名冊</span>
+                  </button>
+                  <button 
+                    onClick={(e) => handleDownloadClassRoster(e, cls)}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                      padding: '0.4rem 0.65rem',
+                      borderRadius: '7px',
+                      fontSize: '0.82rem',
+                      backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                      color: '#e2e8f0',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                    }}
+                    className="hover:bg-white/10"
+                    title="匯出此班級名單 Excel"
+                  >
+                    <Download size={14} />
+                    <span>匯出</span>
+                  </button>
+                </div>
+
                 <button 
                   onClick={() => handleDelete(cls.id)}
-                  className="text-danger hover:bg-danger/10 p-2 rounded transition-colors"
+                  style={{
+                    padding: '0.4rem',
+                    borderRadius: '7px',
+                    color: '#f87171',
+                    opacity: 0.7,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                  className="hover:opacity-100 hover:bg-red-500/15"
                   title="刪除班級"
                 >
-                  <Trash2 size={18} />
+                  <Trash2 size={16} />
                 </button>
               </div>
             </div>

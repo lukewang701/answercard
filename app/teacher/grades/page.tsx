@@ -17,8 +17,11 @@ export default async function GradesPage() {
   });
 
   return (
-    <div className="container py-12">
-      <h1 className="mb-8">成績管理</h1>
+    <div className="container py-8 max-w-6xl">
+      <div className="mb-6">
+        <h1 style={{ color: '#ffffff', fontSize: '1.75rem', fontWeight: 700, margin: 0, letterSpacing: '-0.02em' }}>成績管理</h1>
+        <p className="text-xs opacity-60 m-0 mt-1">匯總班級成績、統計應考與缺考人數並匯出 Excel 報表</p>
+      </div>
       <GradeManager exams={exams} classes={classes} />
     </div>
   );
