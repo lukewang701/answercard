@@ -164,9 +164,19 @@ html.light-mode .text-option-mapping { color: var(--primary); }
 .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
+/* Flex utilities */
+.flex-1 { flex: 1 1 0%; }
+.min-h-0 { min-height: 0; }
+.shrink-0 { flex-shrink: 0; }
+
 /* Layout utilities */
 .relative { position: relative; }
 .absolute { position: absolute; }
+.fixed { position: fixed; }
+.inset-0 { inset: 0; }
+.z-50 { z-index: 50; }
+.overflow-hidden { overflow: hidden; }
+.overflow-y-auto { overflow-y: auto; }
 .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .min-h-screen { min-height: 100vh; }
 .w-full { width: 100%; }

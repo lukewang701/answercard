@@ -407,8 +407,30 @@ export default function ExamListView({ initialExams }: { initialExams: any[] }) 
 
       {/* Delete Folder Modal */}
       {deleteFolderTarget && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-secondary/50 border border-border p-6 rounded-xl shadow-2xl max-w-md w-full">
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(6px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '1rem',
+          }}
+          className="animate-fade-in"
+        >
+          <div
+            className="card"
+            style={{
+              maxWidth: '460px',
+              width: '100%',
+              padding: '1.5rem',
+              borderRadius: '16px',
+              boxShadow: 'var(--shadow-lg)',
+            }}
+          >
             <div className="flex justify-between items-center mb-4">
               <h3 className="m-0 text-danger flex items-center gap-2">
                 <Trash2 size={24} />

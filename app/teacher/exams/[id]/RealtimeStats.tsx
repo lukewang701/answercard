@@ -528,29 +528,79 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
 
       {/* Student Details Modal */}
       {studentDetailsTarget && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setStudentDetailsTarget(null)}>
-          <div className="bg-secondary/90 border border-border p-6 rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
-            <div className="flex justify-between items-start mb-4">
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(6px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '1rem',
+          }}
+          className="animate-fade-in"
+          onClick={() => setStudentDetailsTarget(null)}
+        >
+          <div
+            style={{
+              backgroundColor: 'var(--secondary)',
+              border: '1.5px solid var(--border)',
+              borderRadius: '16px',
+              boxShadow: 'var(--shadow-lg)',
+              maxWidth: '560px',
+              width: '100%',
+              maxHeight: '85vh',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+              padding: '1.5rem',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem', flexShrink: 0 }}>
               <div>
-                <h3 className="m-0 text-xl font-bold mb-1">{studentDetailsTarget.seatNumber}號 {studentDetailsTarget.name} - 作答詳情</h3>
-                <div className="text-sm opacity-70">
-                  總分：<span className="text-primary font-bold text-lg">{Math.round(studentDetailsTarget.submission.totalScore)}</span>
-                  {studentDetailsTarget.submission.isLate && <span className="text-danger ml-2">(遲交扣 {studentDetailsTarget.submission.latePenalty} 分)</span>}
+                <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.25rem' }}>
+                  {studentDetailsTarget.seatNumber}號 {studentDetailsTarget.name} - 作答詳情
+                </h3>
+                <div style={{ fontSize: '0.875rem', opacity: 0.8 }}>
+                  總分：<span style={{ color: 'var(--primary)', fontWeight: 800, fontSize: '1.15rem' }}>{Math.round(studentDetailsTarget.submission.totalScore)}</span>
+                  {studentDetailsTarget.submission.isLate && (
+                    <span style={{ color: 'var(--danger)', marginLeft: '0.5rem' }}>
+                      (遲交扣 {studentDetailsTarget.submission.latePenalty} 分)
+                    </span>
+                  )}
                 </div>
               </div>
-              <button onClick={() => setStudentDetailsTarget(null)} className="text-foreground/50 hover:text-foreground">
+              <button
+                onClick={() => setStudentDetailsTarget(null)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--foreground)', opacity: 0.7, padding: '0.25rem' }}
+              >
                 <X size={24} />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-              <table className="w-full text-center border-collapse">
-                <thead>
-                  <tr className="border-b border-border text-sm opacity-70">
-                    <th className="py-2 px-2 text-center w-16">題號</th>
-                    <th className="py-2 px-2 text-center">學生作答</th>
-                    <th className="py-2 px-2 text-center">正確答案</th>
-                    <th className="py-2 px-2 text-center">得分</th>
+            {/* Scrollable Table */}
+            <div
+              className="custom-scrollbar"
+              style={{
+                flex: 1,
+                minHeight: 0,
+                overflowY: 'auto',
+                overscrollBehavior: 'contain',
+                WebkitOverflowScrolling: 'touch',
+                paddingRight: '0.25rem',
+              }}
+            >
+              <table style={{ width: '100%', textAlign: 'center', borderCollapse: 'collapse' }}>
+                <thead style={{ position: 'sticky', top: 0, backgroundColor: 'var(--secondary)', zIndex: 10 }}>
+                  <tr style={{ borderBottom: '1.5px solid var(--border)', fontSize: '0.85rem', opacity: 0.8 }}>
+                    <th style={{ padding: '0.5rem', textAlign: 'center', width: '4rem' }}>題號</th>
+                    <th style={{ padding: '0.5rem', textAlign: 'center' }}>學生作答</th>
+                    <th style={{ padding: '0.5rem', textAlign: 'center' }}>正確答案</th>
+                    <th style={{ padding: '0.5rem', textAlign: 'center' }}>得分</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -563,18 +613,22 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
                     try { studentAnsStr = JSON.parse(studentAnsStr).join(''); } catch {}
                     
                     return (
-                      <tr key={ans.number} className="border-b border-border/50 hover:bg-background/50 transition-colors">
-                        <td className="py-3 px-2 font-medium">#{ans.number}</td>
-                        <td className="py-3 px-2">
-                          <span className={`font-bold ${ans.isCorrect ? 'text-success' : 'text-danger'}`}>
+                      <tr key={ans.number} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)' }}>
+                        <td style={{ padding: '0.65rem 0.5rem', fontWeight: 600 }}>#{ans.number}</td>
+                        <td style={{ padding: '0.65rem 0.5rem' }}>
+                          <span style={{ fontWeight: 700, color: ans.isCorrect ? 'var(--success)' : 'var(--danger)' }}>
                             {studentAnsStr || '未作答'}
                           </span>
                         </td>
-                        <td className="py-3 px-2 opacity-80">{correctAnsStr}</td>
-                        <td className="py-3 px-2">
-                          <div className="flex items-center justify-center gap-2">
-                            {ans.isCorrect ? <CheckCircle size={16} className="text-success" /> : <X size={16} className="text-danger" />}
-                            <span className="text-sm">{Number(ans.pointsEarned.toFixed(2))} 分</span>
+                        <td style={{ padding: '0.65rem 0.5rem', opacity: 0.85 }}>{correctAnsStr}</td>
+                        <td style={{ padding: '0.65rem 0.5rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem' }}>
+                            {ans.isCorrect ? (
+                              <CheckCircle size={16} style={{ color: 'var(--success)' }} />
+                            ) : (
+                              <X size={16} style={{ color: 'var(--danger)' }} />
+                            )}
+                            <span style={{ fontSize: '0.85rem' }}>{Number(ans.pointsEarned.toFixed(2))} 分</span>
                           </div>
                         </td>
                       </tr>
@@ -584,15 +638,30 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
               </table>
             </div>
             
-            <div className="mt-4 pt-4 border-t border-border flex justify-between">
+            {/* Footer Buttons */}
+            <div style={{
+              marginTop: '1rem',
+              paddingTop: '1rem',
+              borderTop: '1px solid var(--border)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexShrink: 0,
+            }}>
               <button 
-                className="btn btn-secondary text-danger hover:bg-danger/10" 
+                className="btn btn-secondary"
+                style={{ color: 'var(--danger)', borderColor: 'rgba(239, 68, 68, 0.4)' }}
                 onClick={handleDeleteSubmission}
                 disabled={deletingSub}
               >
                 {deletingSub ? '刪除中...' : '刪除試卷並允許重考'}
               </button>
-              <button className="btn btn-secondary" onClick={() => setStudentDetailsTarget(null)}>關閉</button>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setStudentDetailsTarget(null)}
+              >
+                關閉
+              </button>
             </div>
           </div>
         </div>
