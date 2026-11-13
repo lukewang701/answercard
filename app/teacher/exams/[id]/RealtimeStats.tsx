@@ -569,7 +569,7 @@ export function RealtimeStats({ examId, submissions, checkins, classStudents, ex
                   總分：<span style={{ color: 'var(--primary)', fontWeight: 800, fontSize: '1.15rem' }}>{Math.round(studentDetailsTarget.submission.totalScore)}</span>
                   {studentDetailsTarget.submission.isLate && (
                     <span style={{ color: 'var(--danger)', marginLeft: '0.5rem' }}>
-                      (遲交扣 {studentDetailsTarget.submission.latePenalty} 分)
+                      (遲交已扣 {studentDetailsTarget.submission.latePenalty} 分)
                     </span>
                   )}
                 </div>
